@@ -1,0 +1,10 @@
+.vgrid-row {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.vgrid-col {
+  position: relative;
+  flex-shrink: 1;
+  flex-grow: 1;
+}

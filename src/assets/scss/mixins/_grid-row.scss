@@ -1,0 +1,39 @@
+// vgrids
+@mixin vgrid-row-variant($state, $background, $border: null) {
+  // Exact selectors below required to override `.vgrid-striped` and prevent
+  // inheritance to nested vgrids.
+  .vgrid-#{$state} {
+    &,
+    > th,
+    > td {
+      background-color: $background;
+    }
+
+    @if $border != null {
+      th,
+      td,
+      thead th,
+      tbody + tbody {
+        border-color: $border;
+      }
+    }
+  }
+
+  // Hover states for `.vgrid-hover`
+  // Note: this is not available for cells or rows within `thead` or `tfoot`.
+  .vgrid-hover {
+    $hover-background: darken($background, 5%);
+
+    .vgrid-#{$state} {
+      @include hover {
+        background-color: $hover-background;
+
+        > td,
+        > th {
+          background-color: $hover-background;
+        }
+      }
+    }
+  }
+}
+

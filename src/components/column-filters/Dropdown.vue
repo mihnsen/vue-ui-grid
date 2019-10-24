@@ -1,0 +1,10 @@
+<template lang="pug">
+extends Basic.pug
+</template>
+<script lang="ts">
+import { Component } from 'vue-property-decorator'
+import Basic from './Basic.vue'
+
+@Component
+export default class Dropdown extends Basic {}
+</script>

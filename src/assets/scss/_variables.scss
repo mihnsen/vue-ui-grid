@@ -1,0 +1,34 @@
+// vgrids
+//
+// Customizes the `.vgrid` component with basic values, each used across all vgrid variations.
+
+$vgrid-cell-padding:          .75rem !default;
+$vgrid-cell-padding-sm:       .3rem !default;
+
+$vgrid-color:                 $body-color !default;
+$vgrid-bg:                    null !default;
+$vgrid-accent-bg:             rgba($black, .05) !default;
+$vgrid-hover-color:           $vgrid-color !default;
+$vgrid-hover-bg:              rgba($black, .075) !default;
+$vgrid-active-bg:             $vgrid-hover-bg !default;
+
+$vgrid-border-width:          $border-width !default;
+$vgrid-border-color:          $border-color !default;
+
+$vgrid-head-bg:               $gray-200 !default;
+$vgrid-head-color:            $gray-700 !default;
+
+$vgrid-dark-color:            $white !default;
+$vgrid-dark-bg:               $gray-800 !default;
+$vgrid-dark-accent-bg:        rgba($white, .05) !default;
+$vgrid-dark-hover-color:      $vgrid-dark-color !default;
+$vgrid-dark-hover-bg:         rgba($white, .075) !default;
+$vgrid-dark-border-color:     lighten($vgrid-dark-bg, 7.5%) !default;
+$vgrid-dark-color:            $white !default;
+
+$vgrid-striped-order:         odd !default;
+
+$vgrid-caption-color:         $text-muted !default;
+
+$vgrid-bg-level:              -9 !default;
+$vgrid-border-level:          -6 !default;

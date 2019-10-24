@@ -1,0 +1,183 @@
+.vgrid {
+  border-collapse: collapse; // Prevent double borders
+  width: 100%;
+  margin-bottom: $spacer;
+  color: $vgrid-color;
+  background-color: $vgrid-bg; // Reset for nesting within parents with `background-color`.
+
+  th,
+  td {
+    padding: $vgrid-cell-padding;
+    vertical-align: top;
+    border-top: $vgrid-border-width solid $vgrid-border-color;
+  }
+
+  thead th {
+    vertical-align: bottom;
+    border-bottom: (2 * $vgrid-border-width) solid $vgrid-border-color;
+  }
+
+  tbody + tbody {
+    border-top: (2 * $vgrid-border-width) solid $vgrid-border-color;
+  }
+}
+
+
+//
+// Condensed vgrid w/ half padding
+//
+
+.vgrid-sm {
+  th,
+  td {
+    padding: $vgrid-cell-padding-sm;
+  }
+}
+
+
+// Border versions
+//
+// Add or remove borders all around the vgrid and between all the columns.
+
+.vgrid-bordered {
+  border: $vgrid-border-width solid $vgrid-border-color;
+
+  th,
+  td {
+    border: $vgrid-border-width solid $vgrid-border-color;
+  }
+
+  thead {
+    th,
+    td {
+      border-bottom-width: 2 * $vgrid-border-width;
+    }
+  }
+}
+
+.vgrid-borderless {
+  th,
+  td,
+  thead th,
+  tbody + tbody {
+    border: 0;
+  }
+}
+
+// Zebra-striping
+//
+// Default zebra-stripe styles (alternating gray and transparent backgrounds)
+
+.vgrid-striped {
+  tbody tr:nth-of-type(#{$vgrid-striped-order}) {
+    background-color: $vgrid-accent-bg;
+  }
+}
+
+
+// Hover effect
+//
+// Placed here since it has to come after the potential zebra striping
+
+.vgrid-hover {
+  tbody tr {
+    @include hover {
+      color: $vgrid-hover-color;
+      background-color: $vgrid-hover-bg;
+    }
+  }
+}
+
+
+// vgrid backgrounds
+//
+// Exact selectors below required to override `.vgrid-striped` and prevent
+// inheritance to nested vgrids.
+
+@each $color, $value in $theme-colors {
+  @include vgrid-row-variant($color, theme-color-level($color, $vgrid-bg-level), theme-color-level($color, $vgrid-border-level));
+}
+
+@include vgrid-row-variant(active, $vgrid-active-bg);
+
+
+// Dark styles
+//
+// Same vgrid markup, but inverted color scheme: dark background and light text.
+
+// stylelint-disable-next-line no-duplicate-selectors
+.vgrid {
+  .thead-dark {
+    th {
+      color: $vgrid-dark-color;
+      background-color: $vgrid-dark-bg;
+      border-color: $vgrid-dark-border-color;
+    }
+  }
+
+  .thead-light {
+    th {
+      color: $vgrid-head-color;
+      background-color: $vgrid-head-bg;
+      border-color: $vgrid-border-color;
+    }
+  }
+}
+
+.vgrid-dark {
+  color: $vgrid-dark-color;
+  background-color: $vgrid-dark-bg;
+
+  th,
+  td,
+  thead th {
+    border-color: $vgrid-dark-border-color;
+  }
+
+  &.vgrid-bordered {
+    border: 0;
+  }
+
+  &.vgrid-striped {
+    tbody tr:nth-of-type(odd) {
+      background-color: $vgrid-dark-accent-bg;
+    }
+  }
+
+  &.vgrid-hover {
+    tbody tr {
+      @include hover {
+        color: $vgrid-dark-hover-color;
+        background-color: $vgrid-dark-hover-bg;
+      }
+    }
+  }
+}
+
+
+// Responsive vgrids
+//
+// Generate series of `.vgrid-responsive-*` classes for configuring the screen
+// size of where your vgrid will overflow.
+
+.vgrid-responsive {
+  @each $breakpoint in map-keys($grid-breakpoints) {
+    $next: breakpoint-next($breakpoint, $grid-breakpoints);
+    $infix: breakpoint-infix($next, $grid-breakpoints);
+
+    &#{$infix} {
+      @include media-breakpoint-down($breakpoint) {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+
+        // Prevent double border on horizontal scroll due to use of `display: block;`
+        > .vgrid-bordered {
+          border: 0;
+        }
+      }
+    }
+  }
+}
+
