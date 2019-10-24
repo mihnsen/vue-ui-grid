@@ -1,7 +1,6 @@
 <template lang="pug">
 td(
   :class="classes",
-  @click.stop=""
 )
   slot
 </template>

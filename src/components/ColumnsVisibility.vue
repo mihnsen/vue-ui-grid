@@ -1,35 +1,31 @@
 <template lang="pug">
-.vgrid-columns.vgrid-visibility(@click.prevent.stop="stopClick")
-  button.btn.btn-outline-secondary.btn-sm(
+.vgrid-visibility(@click.stop="stopClick")
+  button(
     type="button",
-    :class="{ 'text-primary': showVisibility }",
     @click="toggleVisibility"
   )
-    i.la.la-eye
-    | &nbsp;
-    span Columns
-
-  .vgrid-columns-body.shadow(v-show="showVisibility")
-    .vgrid-column(
-      v-for="(item, index) in localValue",
+    // i.la.la-eye
+    // | &nbsp;
+    span Columns visibility
+  .vgrid-visibility-body(v-show="showVisibility")
+    .vgrid-visibility-column(
+      v-for="(item, index) in columns",
       :key="item.id",
-      :index="index",
       v-show="item.type !== 'hidden'",
     )
-      pre {{ localValue[index].hidden }}
-      .custom-control.custom-checkbox
-        input.custom-control-input(
-          v-model="localValue[index].hidden"
-          :id="'grid-column-' + item.field"
-          type="checkbox",
-          :disabled="item.field === 'action'"
-        )
-        label.custom-control-label(
-          :for="'grid-column-' + item.field"
-        ) {{ (item.label || item.field) | vgrid_header }}
+      input(
+        type="checkbox",
+        :id="'grid-column-' + item.field",
+        v-model="localValue",
+        :value="item.field",
+        :disabled="item.field === 'action'"
+      )
+      label(
+        :for="'grid-column-' + item.field"
+      ) {{ (item.label || item.field) | vgrid_header }}
 </template>
 <script lang="ts">
-import { Component, PropSync, Vue } from 'vue-property-decorator'
+import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
 
 @Component({
   model: {
@@ -50,6 +46,9 @@ import { Component, PropSync, Vue } from 'vue-property-decorator'
 export default class ColumnsVisibility extends Vue {
   @PropSync('value', { type: Array, default: () => ([]) })
   localValue!: Array<any>
+
+  @Prop({ type: Array, default: () => ([]) })
+  columns!: Array<any>
 
   showVisibility: boolean = false
 

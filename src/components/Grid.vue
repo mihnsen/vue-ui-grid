@@ -12,7 +12,8 @@
         )
       .vgrid-col
         ColumnsVisibility(
-          v-model="columns",
+          :columns="columns",
+          v-model="columnVisibility",
         )
   .vgrid-body.vgrid-responsive
     table.vgrid.vgrid-striped.vgrid-bordered
@@ -118,6 +119,10 @@ export default class Grid extends Vue {
   orderType: string = 'desc'
   where: Where = {}
 
+  columnVisibility = this.columns
+    .filter((c) => !c.hidden)
+    .map(c => c.field)
+
   get searchedData() {
     let searched = [...this.data.filter((r) => r)]
 
@@ -197,7 +202,7 @@ export default class Grid extends Vue {
   }
 
   get visibleCols() {
-    return this.columns.filter((c) => !c.hidden)
+    return this.columns.filter((c) => this.columnVisibility.includes(c.field))
   }
 
   get headerColumnClasses(): string[] {
@@ -257,6 +262,6 @@ export default class Grid extends Vue {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '../assets/scss/index'
 </style>
