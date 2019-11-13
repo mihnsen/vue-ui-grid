@@ -1,7 +1,8 @@
 {
   "name": "vue-ui-grid",
-  "version": "0.1.3",
-  "main": "./dist/vue-ui-grid.common.js",
+  "version": "0.1.4",
+  "main": "dist/vue-ui-grid.common.js",
+  "types": "index.d.ts",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
