@@ -178,6 +178,8 @@ export default class Grid extends Vue {
         if (typeof field === 'string') {
           return field.localeCompare(compareField)
         }
+
+        return 0
       })
     }
 

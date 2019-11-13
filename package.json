@@ -4,6 +4,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build-bundle": "vue-cli-service build --target lib --name vue-ui-grid ./src/components/Grid.vue",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
