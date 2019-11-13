@@ -1,6 +1,7 @@
 {
   "name": "vue-ui-grid",
-  "version": "0.1.1",
+  "version": "0.1.2",
+  "main": "./dist/vue-ui-grid.common.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
@@ -8,15 +9,24 @@
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint"
   },
+  "files": [
+    "dist/*",
+    "src/*",
+    "package.json"
+  ],
+  "keywords": [
+    "grid",
+    "datatable",
+    "vue-grid",
+    "vue-ui-grid"
+  ],
+  "license": "MIT",
+  "author": "mihnsen <minhnt.hut@gmail.com> (https://github.com/mihnsen/)",
   "dependencies": {
-    "bootstrap": "^4.3.1",
-    "core-js": "^3.3.2",
-    "luxon": "^1.19.3",
-    "vue": "^2.6.10",
-    "vue-class-component": "^7.0.2",
-    "vue-property-decorator": "^8.3.0"
+    "vue": "^2.6.10"
   },
   "devDependencies": {
+    "bootstrap": "^4.3.1",
     "@types/jest": "^24.0.11",
     "@types/luxon": "^1.15.2",
     "@vue/cli-plugin-babel": "^4.0.0",
@@ -34,6 +44,18 @@
     "sass": "^1.19.0",
     "sass-loader": "^8.0.0",
     "typescript": "~3.5.3",
-    "vue-template-compiler": "^2.6.10"
-  }
+    "vue-template-compiler": "^2.6.10",
+    "luxon": "^1.19.3",
+    "core-js": "^3.3.2",
+    "vue-class-component": "^7.0.2",
+    "vue-property-decorator": "^8.3.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/mihnsen/vue-ui-grid.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mihnsen/vue-ui-grid/issues"
+  },
+  "homepage": "https://github.com/mihnsen/vue-ui-grid#readme"
 }
