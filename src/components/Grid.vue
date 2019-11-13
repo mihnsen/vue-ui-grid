@@ -24,7 +24,6 @@
             span {{ (col.label || col.field) | vgrid_header }}
       tbody
         tr.vgrid-row-filter(
-          :key="keyColumnFilter",
           v-if="columnFilter"
         )
           ColumnFilter(

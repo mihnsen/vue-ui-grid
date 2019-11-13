@@ -28,7 +28,7 @@ export default class ColumnsVisibility extends Vue {
   placeholder!: string
 
   @Prop({ default: true })
-  clearable: boolean
+  clearable!: boolean
 
   clearFilter() {
     this.localValue = ''
