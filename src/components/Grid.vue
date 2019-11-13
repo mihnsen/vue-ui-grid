@@ -3,11 +3,7 @@
   .vgrid-header
     .vgrid-row
       .vgrid-col
-        PageSize(
-          v-model="limit",
-        )
-      .vgrid-col
-        GridFilter(
+        GridSearch(
           v-model="searchKeyword",
         )
       .vgrid-col
@@ -16,7 +12,7 @@
           v-model="columnVisibility",
         )
   .vgrid-body.vgrid-responsive
-    table.vgrid.vgrid-striped.vgrid-bordered
+    table.vgrid-table.vgrid-striped.vgrid-bordered
       thead
         tr
           th(
@@ -35,7 +31,7 @@
             v-for="col in visibleCols",
             :column="col",
             :key="col.id",
-            v-model="where[col.name]",
+            v-model="where[col.field]",
             @clear-filter="clearFilter"
           )
         tr(
@@ -51,9 +47,18 @@
             slot(:name="'column-' + col.field", :entry="entry")
   .vgrid-footer
     .vgrid-row
-      .v-grid-col
-        .vgrid-infor {{ paginationInfo }}
-      .v-grid-col
+      .vgrid-col
+        PageSize(
+          v-model="limit",
+        )
+      .vgrid-col
+        GridStatus(
+          :limit="limit",
+          :current-page="currentPage",
+          :showed="showedData.length",
+          :total="total"
+        )
+      .vgrid-col
         Pagination(
           v-model="currentPage",
           :limit="limit",
@@ -67,7 +72,8 @@ import ColumnType from './ColumnType.vue'
 import ColumnFilter from './ColumnFilter.vue'
 import PageSize from './PageSize.vue'
 import ColumnsVisibility from './ColumnsVisibility.vue'
-import GridFilter from './Filter.vue'
+import GridSearch from './Search.vue'
+import GridStatus from './Status.vue'
 
 interface Where {
   [key: string]: string
@@ -80,7 +86,8 @@ interface Where {
     ColumnFilter,
     PageSize,
     ColumnsVisibility,
-    GridFilter
+    GridSearch,
+    GridStatus
   },
   filters: {
     vgrid_header(str: string) {
@@ -195,12 +202,6 @@ export default class Grid extends Vue {
 
   get total() {
     return this.data.length
-  }
-
-  get paginationInfo() {
-    const from = this.limit * this.currentPage
-    const to = from + this.showedData.length
-    return `Showing ${from + 1} to ${to} of ${this.total} entries`
   }
 
   get visibleCols() {

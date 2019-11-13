@@ -2,12 +2,16 @@
 extends Basic.pug
 </template>
 <script lang="ts">
-import { Component, Prop, PropSync, Emit, Vue } from 'vue-property-decorator'
+import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
+import TextInput from '../TextInput.vue'
 
 @Component({
   model: {
     prop: 'value',
     event: 'update:value'
+  },
+  components: {
+    TextInput
   }
 })
 export default class Basic extends Vue {
@@ -24,11 +28,6 @@ export default class Basic extends Vue {
     const { field } = this.column
 
     return [`column-type-${type}`, `column-data-${field}`]
-  }
-
-  @Emit()
-  clearFilter() {
-    this.localValue = ''
   }
 }
 </script>

@@ -5,9 +5,11 @@
       src="./assets/logo.png"
     )
     div(style="width: 800px; margin: 20px auto")
-      Grid(
+      Grid.vgrid-center(
         :columns="gridColumns",
-        :data="gridData"
+        :data="gridData",
+        :per-page="2",
+        :column-filter="true",
       )
 </template>
 

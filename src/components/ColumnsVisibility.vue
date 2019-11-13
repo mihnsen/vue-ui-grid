@@ -1,6 +1,6 @@
 <template lang="pug">
 .vgrid-visibility(@click.stop="stopClick")
-  button(
+  button.vgrid-visibility-button(
     type="button",
     @click="toggleVisibility"
   )

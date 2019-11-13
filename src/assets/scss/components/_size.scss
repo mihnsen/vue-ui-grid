@@ -1,3 +1,14 @@
-.grid-size {
+.vgrid-size {
+  height: 100%;
+  display: flex;
+  align-items: center;
   text-align: left;
+  font-size: .9em;
+
+  select {
+    margin-left: 3px;
+    margin-right: 3px;
+    font-size: inherit;
+    font-family: inherit;
+  }
 }

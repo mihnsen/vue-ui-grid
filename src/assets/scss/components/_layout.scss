@@ -1,0 +1,24 @@
+.vgrid {
+  text-align: left;
+
+  &,
+  *,
+  &:before,
+  &:after,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+  }
+}
+
+.vgrid-header {
+  margin-bottom: 1rem;
+}
+
+.vgrid-center {
+  text-align: center;
+
+  .vgrid-input {
+    text-align: center;
+  }
+}

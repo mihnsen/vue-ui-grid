@@ -1,15 +1,16 @@
 <template lang="pug">
-nav.axis-pagination.float-right(v-if="totalPage > 1")
-  ul.pagination.mb-0
-    li.page-item(
+nav.vgrid-pagination(v-if="totalPage > 1")
+  ul
+    li(
       v-for="(item, index) in pages",
       :class="{ active: item.page === currentPage, disabled: item.disable }",
       :key="index"
     )
-      a.page-link(
-        href='#',
-        @click="onPageChange(item.page)"
-      ) {{ item.label }}
+      a(
+        href="javascript:;",
+        @click="onPageChange(item.page)",
+        v-html="item.label"
+      )
 </template>
 
 <script lang="ts">
@@ -56,7 +57,7 @@ export default class Pagination extends Vue {
     // prev button.
     const result: Page[] = [
       {
-        label: 'prev',
+        label: '&laquo;',
         page: this.currentPage - 1,
         disable: this.currentPage === 0
       }
@@ -87,7 +88,7 @@ export default class Pagination extends Vue {
 
     // next button.
     result.push({
-      label: 'next',
+      label: '&raquo;',
       page: this.currentPage + 1,
       disable: this.currentPage === this.totalPage - 1
     })

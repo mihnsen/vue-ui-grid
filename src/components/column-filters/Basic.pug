@@ -2,12 +2,6 @@ td(
   :class="classes",
 )
   block content
-    div.vgrid-filter-item
-      input.form-control(
-        v-model="localValue"
-      )
-      a.vgrid-filter-clear(
-        v-if="localValue",
-        href="javascript:;",
-        @click="clearFilter"
-      ) &times;
+    TextInput(
+      v-model="localValue"
+    )
