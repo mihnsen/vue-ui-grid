@@ -93,7 +93,7 @@ export default class App extends Vue {
     },
     {
       field: 'action',
-      type: 'action'
+      type: 'custom'
     }
   ];
 
@@ -137,7 +137,7 @@ export default class App extends Vue {
     },
     {
       field: 'action',
-      type: 'action'
+      type: 'custom'
     }
   ]
 

@@ -18,7 +18,7 @@
         :id="'grid-column-' + item.field",
         v-model="tempValue",
         :value="item.field",
-        :disabled="item.field === 'action'"
+        :disabled="item.type === 'custom'"
       )
       label(
         :for="'grid-column-' + item.field"

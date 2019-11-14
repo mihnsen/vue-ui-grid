@@ -1,5 +1,5 @@
 <template lang="pug">
-td(
+.vgrid-field(
   :class="classes",
 )
   slot

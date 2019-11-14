@@ -7899,12 +7899,12 @@ var Timestamp_component = normalizeComponent(
 )
 
 /* harmony default export */ var column_types_Timestamp = (Timestamp_component.exports);
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"b4ae3f78-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/column-types/Custom.vue?vue&type=template&id=5f3bcbec&lang=pug&
-var Customvue_type_template_id_5f3bcbec_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('td',{class:_vm.classes},[_vm._t("default")],2)}
-var Customvue_type_template_id_5f3bcbec_lang_pug_staticRenderFns = []
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"b4ae3f78-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/column-types/Custom.vue?vue&type=template&id=7af6e29f&lang=pug&
+var Customvue_type_template_id_7af6e29f_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-field",class:_vm.classes},[_vm._t("default")],2)}
+var Customvue_type_template_id_7af6e29f_lang_pug_staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./src/components/column-types/Custom.vue?vue&type=template&id=5f3bcbec&lang=pug&
+// CONCATENATED MODULE: ./src/components/column-types/Custom.vue?vue&type=template&id=7af6e29f&lang=pug&
 
 // CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--14-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/ts-loader??ref--14-3!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/column-types/Custom.vue?vue&type=script&lang=ts&
 
@@ -7943,8 +7943,8 @@ Customvue_type_script_lang_ts_Timestamp = __decorate([vue_class_component_esm], 
 
 var Custom_component = normalizeComponent(
   column_types_Customvue_type_script_lang_ts_,
-  Customvue_type_template_id_5f3bcbec_lang_pug_render,
-  Customvue_type_template_id_5f3bcbec_lang_pug_staticRenderFns,
+  Customvue_type_template_id_7af6e29f_lang_pug_render,
+  Customvue_type_template_id_7af6e29f_lang_pug_staticRenderFns,
   false,
   null,
   null,
@@ -8917,12 +8917,12 @@ var PageSize_component = normalizeComponent(
 )
 
 /* harmony default export */ var components_PageSize = (PageSize_component.exports);
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"b4ae3f78-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/ColumnsVisibility.vue?vue&type=template&id=47bd24e5&lang=pug&
-var ColumnsVisibilityvue_type_template_id_47bd24e5_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-visibility",on:{"click":function($event){$event.stopPropagation();return _vm.stopClick($event)}}},[_c('button',{staticClass:"vgrid-visibility-button",attrs:{"type":"button"},on:{"click":_vm.toggleVisibility}},[_vm._m(0)]),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.showVisibility),expression:"showVisibility"}],staticClass:"vgrid-visibility-body"},_vm._l((_vm.columnData),function(item,index){return _c('div',{directives:[{name:"show",rawName:"v-show",value:(item.type !== 'hidden'),expression:"item.type !== 'hidden'"}],key:item.id,staticClass:"vgrid-visibility-column"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.tempValue),expression:"tempValue"}],attrs:{"type":"checkbox","id":'grid-column-' + item.field,"disabled":item.field === 'action'},domProps:{"value":item.field,"checked":Array.isArray(_vm.tempValue)?_vm._i(_vm.tempValue,item.field)>-1:(_vm.tempValue)},on:{"change":function($event){var $$a=_vm.tempValue,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=item.field,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.tempValue=$$a.concat([$$v]))}else{$$i>-1&&(_vm.tempValue=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}}else{_vm.tempValue=$$c}}}}),_c('label',{attrs:{"for":'grid-column-' + item.field}},[_vm._v(_vm._s(_vm._f("vgrid_header")((item.label || item.field))))]),_c('button',{staticClass:"vgrid-visibility-down",on:{"click":function($event){return _vm.moveDown(index)}}}),_c('button',{staticClass:"vgrid-visibility-up",on:{"click":function($event){return _vm.moveUp(index)}}})])}),0)])}
-var ColumnsVisibilityvue_type_template_id_47bd24e5_lang_pug_staticRenderFns = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[_vm._v("Columns visibility"),_c('span')])}]
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"b4ae3f78-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/ColumnsVisibility.vue?vue&type=template&id=012cef88&lang=pug&
+var ColumnsVisibilityvue_type_template_id_012cef88_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-visibility",on:{"click":function($event){$event.stopPropagation();return _vm.stopClick($event)}}},[_c('button',{staticClass:"vgrid-visibility-button",attrs:{"type":"button"},on:{"click":_vm.toggleVisibility}},[_vm._m(0)]),_c('div',{directives:[{name:"show",rawName:"v-show",value:(_vm.showVisibility),expression:"showVisibility"}],staticClass:"vgrid-visibility-body"},_vm._l((_vm.columnData),function(item,index){return _c('div',{directives:[{name:"show",rawName:"v-show",value:(item.type !== 'hidden'),expression:"item.type !== 'hidden'"}],key:item.id,staticClass:"vgrid-visibility-column"},[_c('input',{directives:[{name:"model",rawName:"v-model",value:(_vm.tempValue),expression:"tempValue"}],attrs:{"type":"checkbox","id":'grid-column-' + item.field,"disabled":item.type === 'custom'},domProps:{"value":item.field,"checked":Array.isArray(_vm.tempValue)?_vm._i(_vm.tempValue,item.field)>-1:(_vm.tempValue)},on:{"change":function($event){var $$a=_vm.tempValue,$$el=$event.target,$$c=$$el.checked?(true):(false);if(Array.isArray($$a)){var $$v=item.field,$$i=_vm._i($$a,$$v);if($$el.checked){$$i<0&&(_vm.tempValue=$$a.concat([$$v]))}else{$$i>-1&&(_vm.tempValue=$$a.slice(0,$$i).concat($$a.slice($$i+1)))}}else{_vm.tempValue=$$c}}}}),_c('label',{attrs:{"for":'grid-column-' + item.field}},[_vm._v(_vm._s(_vm._f("vgrid_header")((item.label || item.field))))]),_c('button',{staticClass:"vgrid-visibility-down",on:{"click":function($event){return _vm.moveDown(index)}}}),_c('button',{staticClass:"vgrid-visibility-up",on:{"click":function($event){return _vm.moveUp(index)}}})])}),0)])}
+var ColumnsVisibilityvue_type_template_id_012cef88_lang_pug_staticRenderFns = [function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('span',[_vm._v("Columns visibility"),_c('span')])}]
 
 
-// CONCATENATED MODULE: ./src/components/ColumnsVisibility.vue?vue&type=template&id=47bd24e5&lang=pug&
+// CONCATENATED MODULE: ./src/components/ColumnsVisibility.vue?vue&type=template&id=012cef88&lang=pug&
 
 // CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--14-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/ts-loader??ref--14-3!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/ColumnsVisibility.vue?vue&type=script&lang=ts&
 
@@ -9080,8 +9080,8 @@ ColumnsVisibilityvue_type_script_lang_ts_ColumnsVisibility = __decorate([vue_cla
 
 var ColumnsVisibility_component = normalizeComponent(
   components_ColumnsVisibilityvue_type_script_lang_ts_,
-  ColumnsVisibilityvue_type_template_id_47bd24e5_lang_pug_render,
-  ColumnsVisibilityvue_type_template_id_47bd24e5_lang_pug_staticRenderFns,
+  ColumnsVisibilityvue_type_template_id_012cef88_lang_pug_render,
+  ColumnsVisibilityvue_type_template_id_012cef88_lang_pug_staticRenderFns,
   false,
   null,
   null,
