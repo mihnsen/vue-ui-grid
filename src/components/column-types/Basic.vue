@@ -48,6 +48,10 @@ export default class Basic extends Vue {
       classes.push(`vgrid-col-${this.column.width}`)
     }
 
+    if (this.column.class) {
+      classes.push(this.column.class)
+    }
+
     return classes
   }
 }
