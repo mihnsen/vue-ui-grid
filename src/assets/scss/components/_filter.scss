@@ -10,7 +10,7 @@
   margin-bottom: .25rem;
 
   &:not(:last-child) {
-    margin-right: .5rem;
+    margin-right: .25rem;
   }
 }
 
@@ -19,9 +19,6 @@
   height: $vgrid-input-height;
   border-radius: $border-radius;
   max-width: $vgrid-filter-width;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   cursor: pointer;
 
   display: flex;
@@ -54,6 +51,9 @@
 
 .vgrid-filter-value {
   font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vgrid-filter-editor {
