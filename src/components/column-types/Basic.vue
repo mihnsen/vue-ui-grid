@@ -26,6 +26,12 @@ export default class Basic extends Vue {
   resize!: boolean
 
   get text() {
+    if (this.column.format) {
+      return this.column.format.replace(/\{(\w*)\}/g, (matched: string, field: string) => {
+        return this.data[field]
+      })
+    }
+
     return this.data[this.column.field]
   }
 

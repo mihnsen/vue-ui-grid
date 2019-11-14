@@ -64,6 +64,7 @@ export default class App extends Vue {
     {
       field: 'name',
       label: 'Name',
+      format: '<strong>Q. {id} - {name} - {salary}</strong>',
       filter: true,
       width: 3
     },
