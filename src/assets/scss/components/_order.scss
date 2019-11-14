@@ -26,10 +26,7 @@
 
     display: flex;
     align-items: center;
-    padding: .4rem 1.45rem .4rem .45rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    padding: .4rem 1.25rem .4rem .45rem;
 
     &:after {
       content: '';
@@ -46,6 +43,12 @@
 
     span {
       margin-right: .25rem;
+    }
+
+    strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   }
 
