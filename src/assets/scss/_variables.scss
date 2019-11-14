@@ -15,7 +15,7 @@ $vgrid-hover-bg:              rgba($black, .075) !default;
 $vgrid-active-bg:             $vgrid-hover-bg !default;
 
 $vgrid-border-width:          $border-width !default;
-$vgrid-border-color:          $border-color !default;
+$vgrid-border-color:          $vgrid-color-light !default;
 
 $vgrid-head-bg:               $gray-200 !default;
 $vgrid-head-color:            $gray-700 !default;
@@ -49,4 +49,7 @@ $vgrid-search-width:          180px;
 $vgrid-select-width:          140px !default;
 $vgrid-select-bg:             $vgrid-color-light !default;
 
-$vgrid-input-height:                34px;
+$vgrid-input-height:          32px;
+
+// Table
+$vgrid-table-border:          $border-color !default;

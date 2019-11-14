@@ -2,7 +2,7 @@
 .vgrid.vgrid-list
   .vgrid-header
     .vgrid-row
-      .vgrid-col.vgrid-col-9
+      .vgrid-col
         GridSearch(
           v-model="searchKeyword",
           v-if="searchable"
@@ -12,7 +12,7 @@
           v-model="where",
           :columns="columns"
         )
-      .vgrid-col.vgrid-col-3.vgrid-align-right
+      .vgrid-col.vgrid-ml-auto.vgrid-align-right
         GridOrder(
           v-if="orderable && hasColumnOrder",
           v-model="order",

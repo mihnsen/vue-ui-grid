@@ -8,7 +8,7 @@
       Grid.vgrid-center(
         :columns="gridColumns",
         :data="gridData",
-        :per-page="2",
+        :per-page="10",
         :column-filterable="true",
         :orderable="true",
         ref="grid"
@@ -17,9 +17,9 @@
       List(
         :columns="listColumns",
         :data="listData",
-        :per-page="2",
+        :per-page="10",
+        :column-visible="true",
         :orderable="true",
-        :column-visible="true"
         ref="list"
       )
 </template>
@@ -27,6 +27,7 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import { Grid, List } from './vue-grid'
+import sample from './sample'
 
 @Component({
   components: {
@@ -37,13 +38,39 @@ import { Grid, List } from './vue-grid'
 export default class App extends Vue {
   gridColumns = [
     {
+      field: 'id',
+      label: 'ID',
+      filter: true,
+      hidden: true,
+      width: 3
+    },
+    {
       field: 'name',
-      label: 'Actor',
+      label: 'Name',
+      filter: true,
+      width: 3
+    },
+    {
+      field: 'salary',
+      label: 'Salary',
+      filter: true
+    },
+    {
+      type: 'number',
+      field: 'start_date',
+      label: 'Start date',
+      filter: true,
       order: true
     },
     {
-      field: 'power',
-      label: 'Power',
+      field: 'office',
+      label: 'Office',
+      filter: true,
+      order: true
+    },
+    {
+      field: 'extn',
+      label: 'Extn',
       filter: true,
       order: true
     }
@@ -51,35 +78,50 @@ export default class App extends Vue {
 
   listColumns = [
     {
+      field: 'id',
+      label: 'ID',
+      filter: true,
+      hidden: true,
+      width: 3
+    },
+    {
       field: 'name',
-      label: 'Actor',
+      label: 'Name',
       filter: true,
       width: 3
     },
     {
-      field: 'power',
-      label: 'Power',
+      field: 'salary',
+      label: 'Salary',
       filter: true
     },
     {
-      field: 'test',
-      label: 'Test',
-      filter: true
+      type: 'number',
+      field: 'start_date',
+      label: 'Start date',
+      filter: true,
+      order: true
+    },
+    {
+      field: 'office',
+      label: 'Office',
+      filter: true,
+      order: true
+    },
+    {
+      field: 'extn',
+      label: 'Extn',
+      filter: true,
+      order: true
     }
   ]
 
   gridData = [
-    { name: 'Chuck Norris', power: Infinity },
-    { name: 'Bruce Lee', power: 9000 },
-    { name: 'Jackie Chan', power: 7000 },
-    { name: 'Jet Li', power: 8000 }
+    ...sample
   ]
 
   listData = [
-    { name: 'Chuck Norris', power: Infinity },
-    { name: 'Bruce Lee', power: 9000 },
-    { name: 'Jackie Chan', power: 7000 },
-    { name: 'Jet Li', power: 8000 }
+    ...sample
   ]
 }
 </script>

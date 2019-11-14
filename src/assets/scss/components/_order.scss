@@ -1,6 +1,7 @@
 .vgrid-order {
   display: inline-flex;
   align-items: center;
+  font-size: .95em;
 
   span {
     margin-right: .25rem;
@@ -23,7 +24,7 @@
     text-align: left;
 
     display: block;
-    padding: .5rem 1.75rem .5rem .75rem;
+    padding: .5rem 1.45rem .5rem .45rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -32,7 +33,7 @@
       content: '';
       position: absolute;
       top: calc(50% - 2px);
-      right: .75rem;
+      right: .45rem;
       display: block;
       width: 0;
       height: 0;
@@ -79,7 +80,7 @@
 
   display: flex;
   align-items: center;
-  padding: .5rem .5rem;
+  padding: .5rem .45rem;
 
   &:focus {
     background: darken($vgrid-select-bg, 5%)

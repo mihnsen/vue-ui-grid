@@ -2,7 +2,7 @@
 .vgrid
   .vgrid-header
     .vgrid-row
-      .vgrid-col.vgrid-col-8
+      .vgrid-header-left.vgrid-col
         GridSearch(
           v-model="searchKeyword",
           v-if="searchable"
@@ -12,7 +12,7 @@
           v-model="where",
           :columns="columns"
         )
-      .vgrid-col.vgrid-col-4.vgrid-align-right
+      .vgrid-header-right.vgrid-col.vgrid-ml-auto.vgrid-align-right
         GridOrder(
           v-if="orderable && hasColumnOrder",
           v-model="order",
@@ -295,7 +295,7 @@ export default class VGrid extends Vue {
 
     // eslint-disable-next-line
     for (const item of this.visibleCols) {
-      if (item.orderable !== false && item.type !== 'custom') {
+      if (item.order !== false && item.type !== 'custom') {
         if (item.field === this.order.by) {
           result[item.field] = 'ordering'
         }
@@ -308,7 +308,7 @@ export default class VGrid extends Vue {
   setOrder(field: string) {
     const column = this.columns.find((c) => c.field === field)
 
-    if (column.orderable !== false && column.type !== 'custom') {
+    if (column.order && column.type !== 'custom') {
       if (this.order.by === field) {
         this.order.type = this.order.type === 'desc' ? 'asc' : 'desc'
       } else {

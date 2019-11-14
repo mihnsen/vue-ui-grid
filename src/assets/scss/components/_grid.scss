@@ -9,16 +9,16 @@
   td {
     padding: $vgrid-cell-padding;
     vertical-align: top;
-    border-top: $vgrid-border-width solid $vgrid-border-color;
+    border-top: $vgrid-border-width solid $vgrid-table-border;
   }
 
   thead th {
     vertical-align: bottom;
-    border-bottom: (2 * $vgrid-border-width) solid $vgrid-border-color;
+    border-bottom: (2 * $vgrid-border-width) solid $vgrid-table-border;
   }
 
   tbody + tbody {
-    border-top: (2 * $vgrid-border-width) solid $vgrid-border-color;
+    border-top: (2 * $vgrid-border-width) solid $vgrid-table-border;
   }
 
   .orderable {
@@ -52,21 +52,13 @@
 
     &.asc {
       &:before {
-        border-bottom-color: $blue;
-      }
-
-      &:after {
-        display: none;
+        border-bottom-color: darken($vgrid-order-color, 60%);
       }
     }
 
     &.desc {
-      &:before {
-        display: none;
-      }
-
       &:after {
-        border-top-color: $blue;
+        border-top-color: darken($vgrid-order-color, 60%);
       }
     }
   }
@@ -94,11 +86,11 @@
 // Add or remove borders all around the vgrid and between all the columns.
 
 .vgrid-bordered {
-  border: $vgrid-border-width solid $vgrid-border-color;
+  border: $vgrid-border-width solid $vgrid-table-border;
 
   th,
   td {
-    border: $vgrid-border-width solid $vgrid-border-color;
+    border: $vgrid-border-width solid $vgrid-table-border;
   }
 
   thead {
@@ -173,7 +165,7 @@
     th {
       color: $vgrid-head-color;
       background-color: $vgrid-head-bg;
-      border-color: $vgrid-border-color;
+      border-color: $vgrid-table-border;
     }
   }
 }

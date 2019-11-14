@@ -10,10 +10,8 @@
   display: flex;
 
   // Put a spacing between items
-  > * {
-    + * {
-      margin-left: .25rem;
-    }
+  > *:not(:last-child) {
+    margin-right: .25rem;
   }
 }
 
@@ -33,4 +31,12 @@
   .vgrid-col-#{$i} {
     @include make-col($i, $grid-columns);
   }
+}
+
+.vgrid-ml-auto {
+  margin-left: auto;
+}
+
+.vgrid-mr-auto {
+  margin-right: auto;
 }

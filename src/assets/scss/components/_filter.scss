@@ -1,18 +1,22 @@
 .vgrid-filter {
+  display: inline-flex;
+  flex-wrap: wrap;
+  font-size: .95em;
 }
 
 .vgrid-filter-item {
   display: inline-flex;
   position: relative;
+  margin-bottom: .25rem;
 
-  + .vgrid-filter-item {
-    margin-left: .5rem;
+  &:not(:last-child) {
+    margin-right: .5rem;
   }
 }
 
 .vgrid-filter-handle {
   background: $vgrid-filter-bg;
-  padding: .5rem 1.75rem .5rem .75rem;
+  padding: .5rem 1.45rem .5rem .45rem;
   border-radius: $border-radius;
   max-width: $vgrid-filter-width;
   overflow: hidden;
@@ -29,7 +33,7 @@
     content: '';
     position: absolute;
     top: calc(50% - 2px);
-    right: .75rem;
+    right: .45rem;
     display: block;
     width: 0;
     height: 0;

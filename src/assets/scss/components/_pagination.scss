@@ -1,5 +1,5 @@
 .vgrid-pagination {
-  font-size: .9em;
+  font-size: .95em;
 
   ul {
     margin: 0;
@@ -17,7 +17,7 @@
         margin-left: -1px;
         line-height: 1.25;
         color: #007bff;
-        border: 1px solid $border-color;
+        border: 1px solid $vgrid-border-color;
         text-decoration: none;
         color: inherit;
       }

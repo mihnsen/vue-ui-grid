@@ -8,7 +8,6 @@
       | Columns visibility
       span
   .vgrid-visibility-body(v-show="showVisibility")
-    pre {{ localValue }}
     .vgrid-visibility-column(
       v-for="(item, index) in columnData",
       :key="item.id",
