@@ -53,3 +53,6 @@ $vgrid-input-height:          32px;
 
 // Table
 $vgrid-table-border:          $border-color !default;
+
+// Action column
+$vgrid-action-column-bg:      darken($vgrid-color-light, 10%) !default;

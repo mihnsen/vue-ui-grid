@@ -1,0 +1,26 @@
+// Support column name action only
+.vgrid .column-data-action {
+  button,
+  a {
+    display: inline-flex;
+    padding: .35rem .5rem;
+    border: 0;
+    border-radius: 2px;
+    outline: 0;
+    font-size: .9em;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    text-decoration: none;
+    transition: background .2s;
+
+    &:hover {
+      background-color: $vgrid-action-column-bg;
+    }
+
+    + button,
+    a {
+      margin-left: .15rem;
+    }
+  }
+}

@@ -16,13 +16,18 @@
 
 .vgrid-filter-handle {
   background: $vgrid-filter-bg;
-  padding: .5rem 1.45rem .5rem .45rem;
+  height: $vgrid-input-height;
   border-radius: $border-radius;
   max-width: $vgrid-filter-width;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  padding: .4rem 1.45rem .4rem .45rem;
+  line-height: 1;
 
   &:hover,
   .active & {

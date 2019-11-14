@@ -13,6 +13,13 @@
         :orderable="true",
         ref="grid"
       )
+        template(
+          slot="column-action"
+          slot-scope="{ entry }"
+        )
+          button(
+            type="button",
+          ) ADD
     div(style="width: 800px; margin: 20px auto")
       List(
         :columns="listColumns",
@@ -22,6 +29,16 @@
         :orderable="true",
         ref="list"
       )
+        template(
+          slot="column-action"
+          slot-scope="{ entry }"
+        )
+          button(
+            type="button",
+          ) ADD
+          a(
+            href="gooogle.com"
+          ) Edit
 </template>
 
 <script lang="ts">
@@ -73,6 +90,10 @@ export default class App extends Vue {
       label: 'Extn',
       filter: true,
       order: true
+    },
+    {
+      field: 'action',
+      type: 'action'
     }
   ];
 
@@ -113,6 +134,10 @@ export default class App extends Vue {
       label: 'Extn',
       filter: true,
       order: true
+    },
+    {
+      field: 'action',
+      type: 'action'
     }
   ]
 
