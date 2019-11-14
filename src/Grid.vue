@@ -167,7 +167,8 @@ export default class VGrid extends Vue {
   where: Where = {}
 
   columnVisibility = this.columns
-    .filter((c) => !c.hidden)
+    .filter((c) => c.type !== 'hidden') // Hidden type
+    .filter((c) => !c.hidden) // Hidden by default
     .map(c => c.field)
 
   get searchedData() {

@@ -103,7 +103,7 @@ export default class App extends Vue {
       field: 'id',
       label: 'ID',
       filter: true,
-      hidden: true,
+      type: 'hidden',
       width: 3
     },
     {
@@ -115,6 +115,7 @@ export default class App extends Vue {
     {
       field: 'salary',
       label: 'Salary',
+      hidden: true,
       filter: true
     },
     {
