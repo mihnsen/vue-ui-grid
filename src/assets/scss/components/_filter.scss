@@ -1,0 +1,61 @@
+.vgrid-filter {
+}
+
+.vgrid-filter-item {
+  display: inline-flex;
+  position: relative;
+
+  + .vgrid-filter-item {
+    margin-left: .5rem;
+  }
+}
+
+.vgrid-filter-handle {
+  background: $vgrid-filter-bg;
+  padding: .5rem 1.75rem .5rem .75rem;
+  border-radius: $border-radius;
+  max-width: $vgrid-filter-width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+
+  &:hover,
+  .active & {
+    background: darken($vgrid-filter-bg, 5%);
+  }
+
+  &:after {
+    content: '';
+    position: absolute;
+    top: calc(50% - 2px);
+    right: .75rem;
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 6px solid darken($vgrid-filter-bg, 30%);
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+  }
+}
+
+.vgrid-filter-label {
+  margin-right: 3px;
+}
+
+.vgrid-filter-value {
+  font-weight: 600;
+}
+
+.vgrid-filter-editor {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 10px);
+  left: 0;
+  width: 100%;
+  min-width: 200px;
+  padding: .75rem 1rem;
+  border-radius: $border-radius;
+  background: #fff;
+  box-shadow: 0 4px 8px -2px rgba(9,30,66,.25), 0 0 1px rgba(9,30,66,.31);
+}

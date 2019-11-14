@@ -19,6 +19,12 @@ export default class Basic extends Vue {
   })
   data: any
 
+  @Prop({
+    type: Boolean,
+    default: false
+  })
+  resize!: boolean
+
   get text() {
     return this.data[this.column.field]
   }
@@ -27,7 +33,16 @@ export default class Basic extends Vue {
     const type = this.column.type || 'text'
     const { field } = this.column
 
-    return [`column-type-${type}`, `column-data-${field}`]
+    const classes = [
+      `column-type-${type}`,
+      `column-data-${field}`
+    ]
+
+    if (this.resize && this.column.width) {
+      classes.push(`vgrid-col-${this.column.width}`)
+    }
+
+    return classes
   }
 }
 </script>

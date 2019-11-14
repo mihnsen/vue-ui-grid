@@ -1,9 +1,11 @@
 <template lang="pug">
 .vgrid-text-input
   input.vgrid-input(
+    ref="input",
     type="text",
     :placeholder="placeholder",
     v-model="localValue",
+    v-on:keyup.enter="onEnter"
   )
   a.vgrid-input-clear(
     v-if="localValue",
@@ -12,7 +14,7 @@
   ) &times;
 </template>
 <script lang="ts">
-import { Component, PropSync, Prop, Vue } from 'vue-property-decorator'
+import { Component, PropSync, Prop, Emit, Vue } from 'vue-property-decorator'
 
 @Component({
   model: {
@@ -20,7 +22,7 @@ import { Component, PropSync, Prop, Vue } from 'vue-property-decorator'
     event: 'update:value'
   }
 })
-export default class ColumnsVisibility extends Vue {
+export default class TextInput extends Vue {
   @PropSync('value', { type: String, default: '' })
   localValue!: string
 
@@ -35,5 +37,15 @@ export default class ColumnsVisibility extends Vue {
   }
 
   stop() {}
+
+  focus() {
+    this.$nextTick(() => {
+      const input = this.$refs.input as HTMLInputElement
+      input.focus()
+    })
+  }
+
+  @Emit('enter')
+  onEnter() {}
 }
 </script>

@@ -20,6 +20,60 @@
   tbody + tbody {
     border-top: (2 * $vgrid-border-width) solid $vgrid-border-color;
   }
+
+  .orderable {
+    position: relative;
+
+    &:before {
+      content: '';
+      position: absolute;
+      bottom: calc(50% + .5px);
+      right: .75rem;
+      display: block;
+      width: 0;
+      height: 0;
+      border-bottom: ($vgrid-order-size * 3 / 2) solid $vgrid-order-color;
+      border-right: $vgrid-order-size solid transparent;
+      border-left: $vgrid-order-size solid transparent;
+    }
+
+    &:after {
+      content: '';
+      position: absolute;
+      top: calc(50% + .5px);
+      right: .75rem;
+      display: block;
+      width: 0;
+      height: 0;
+      border-top: ($vgrid-order-size * 3 / 2) solid $vgrid-order-color;
+      border-right: $vgrid-order-size solid transparent;
+      border-left: $vgrid-order-size solid transparent;
+    }
+
+    &.asc {
+      &:before {
+        border-bottom-color: $blue;
+      }
+
+      &:after {
+        display: none;
+      }
+    }
+
+    &.desc {
+      &:before {
+        display: none;
+      }
+
+      &:after {
+        border-top-color: $blue;
+      }
+    }
+  }
+
+  .vgrid-filter {
+    background: $vgrid-filter-bg !important;
+  }
 }
 
 

@@ -4,37 +4,78 @@
       alt="Vue logo"
       src="./assets/logo.png"
     )
-    div(style="width: 800px; margin: 20px auto")
+    div(style="width: 800px; margin: 20px auto 50px")
       Grid.vgrid-center(
         :columns="gridColumns",
         :data="gridData",
         :per-page="2",
-        :column-filter="true",
+        :column-filterable="true",
+        :orderable="true",
+        ref="grid"
+      )
+    div(style="width: 800px; margin: 20px auto")
+      List(
+        :columns="listColumns",
+        :data="listData",
+        :per-page="2",
+        :orderable="true",
+        :column-visible="true"
+        ref="list"
       )
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Grid from './components/Grid.vue'
+import { Grid, List } from './vue-grid'
 
 @Component({
   components: {
-    Grid
+    Grid,
+    List
   }
 })
 export default class App extends Vue {
   gridColumns = [
     {
       field: 'name',
-      lable: 'Actor'
+      label: 'Actor',
+      order: true
     },
     {
       field: 'power',
-      lable: 'Power'
+      label: 'Power',
+      filter: true,
+      order: true
     }
   ];
 
+  listColumns = [
+    {
+      field: 'name',
+      label: 'Actor',
+      filter: true,
+      width: 3
+    },
+    {
+      field: 'power',
+      label: 'Power',
+      filter: true
+    },
+    {
+      field: 'test',
+      label: 'Test',
+      filter: true
+    }
+  ]
+
   gridData = [
+    { name: 'Chuck Norris', power: Infinity },
+    { name: 'Bruce Lee', power: 9000 },
+    { name: 'Jackie Chan', power: 7000 },
+    { name: 'Jet Li', power: 8000 }
+  ]
+
+  listData = [
     { name: 'Chuck Norris', power: Infinity },
     { name: 'Bruce Lee', power: 9000 },
     { name: 'Jackie Chan', power: 7000 },

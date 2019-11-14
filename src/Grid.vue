@@ -2,12 +2,24 @@
 .vgrid
   .vgrid-header
     .vgrid-row
-      .vgrid-col
+      .vgrid-col.vgrid-col-8
         GridSearch(
           v-model="searchKeyword",
+          v-if="searchable"
         )
-      .vgrid-col
+        GridFilter(
+          v-if="filterable && hasColumnFilter",
+          v-model="where",
+          :columns="columns"
+        )
+      .vgrid-col.vgrid-col-4.vgrid-align-right
+        GridOrder(
+          v-if="orderable && hasColumnOrder",
+          v-model="order",
+          :columns="columns"
+        )
         ColumnsVisibility(
+          v-if="columnVisible"
           :columns="columns",
           v-model="columnVisibility",
         )
@@ -17,72 +29,89 @@
         tr
           th(
             v-for="col in visibleCols",
-            @click="order(col.field)",
+            @click="setOrder(col.field)",
             :class="headerColumnClasses[col.field]"
             :key="col.id"
           )
             span {{ (col.label || col.field) | vgrid_header }}
       tbody
-        tr.vgrid-row-filter(
-          v-if="columnFilter"
+        tr.vgrid-table-filter(
+          v-if="columnFilterable && hasColumnFilter"
         )
-          ColumnFilter(
+          td(
             v-for="col in visibleCols",
-            :column="col",
-            :key="col.id",
-            v-model="where[col.field]",
-            @clear-filter="clearFilter"
+            :key="col.field",
           )
+            ColumnFilter(
+              :column="col",
+              v-model="where[col.field]",
+            )
+        tr.vgrid-nodata(
+          v-if="!totalFiltered",
+        )
+          td(
+            :colspan="visibleCols.length"
+          )
+            span {{ strEmptyData }}
         tr(
           v-for="entry in showedData",
         )
-          ColumnType(
-            v-for="col in visibleCols"
-            :column="col",
-            :data="entry",
-            :key="col.id"
-            :class="columnClasses[col.field]",
+          td(
+            v-for="col in visibleCols",
+            :key="col.field"
           )
-            slot(:name="'column-' + col.field", :entry="entry")
+            ColumnType(
+              :column="col",
+              :data="entry",
+              :key="col.id",
+              :class="columnClasses[col.field]",
+            )
+              slot(:name="'column-' + col.field", :entry="entry")
   .vgrid-footer
     .vgrid-row
       .vgrid-col
         PageSize(
           v-model="limit",
         )
-      .vgrid-col
+      .vgrid-col.vgrid-align-center
         GridStatus(
           :limit="limit",
           :current-page="currentPage",
           :showed="showedData.length",
-          :total="total"
+          :total="totalFiltered"
         )
-      .vgrid-col
+      .vgrid-col.vgrid-align-right
         Pagination(
           v-model="currentPage",
           :limit="limit",
-          :total="total",
+          :total="totalFiltered",
         )
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import Pagination from './Pagination.vue'
-import ColumnType from './ColumnType.vue'
-import ColumnFilter from './ColumnFilter.vue'
-import PageSize from './PageSize.vue'
-import ColumnsVisibility from './ColumnsVisibility.vue'
-import GridSearch from './Search.vue'
-import GridStatus from './Status.vue'
+import Pagination from './components/Pagination.vue'
+import ColumnType from './components/ColumnType.vue'
+import ColumnFilter from './components/ColumnFilter.vue'
+import GridFilter from './components/Filter.vue'
+import GridOrder from './components/Order.vue'
+import PageSize from './components/PageSize.vue'
+import ColumnsVisibility from './components/ColumnsVisibility.vue'
+import GridSearch from './components/Search.vue'
+import GridStatus from './components/Status.vue'
+import Order from './interfaces/order'
 
 interface Where {
   [key: string]: string
 }
 
 @Component({
+  name: 'VGrid',
   components: {
     Pagination,
     ColumnType,
     ColumnFilter,
+    GridFilter,
+    GridOrder,
     PageSize,
     ColumnsVisibility,
     GridSearch,
@@ -99,7 +128,7 @@ interface Where {
     }
   }
 })
-export default class Grid extends Vue {
+export default class VGrid extends Vue {
   @Prop({ required: true, default: () => ([]) })
   data!: any[]
 
@@ -113,16 +142,28 @@ export default class Grid extends Vue {
   index!: number
 
   @Prop({ default: true })
+  filterable!: boolean
+
+  @Prop({ default: false })
+  columnFilterable!: boolean
+
+  @Prop({ default: false })
+  columnVisible!: boolean
+
+  @Prop({ default: true })
   searchable!: boolean
 
   @Prop({ default: false })
-  columnFilter!: boolean
+  orderable!: boolean
+
+  @Prop({ default: 'No matched data' })
+  strEmptyData!: string
 
   currentPage = this.index
   searchKeyword: string = ''
   limit: number = this.perPage
-  orderBy: string = ''
-  orderType: string = 'desc'
+
+  order: Order = { by: '', type: 'desc' }
   where: Where = {}
 
   columnVisibility = this.columns
@@ -164,7 +205,7 @@ export default class Grid extends Vue {
   }
 
   get showedData() {
-    const column = this.columns.find((c) => c.field === this.orderBy)
+    const column = this.columns.find((c) => c.field === this.order.by)
     let showedData = this.filteredData
 
     if (column) {
@@ -172,7 +213,7 @@ export default class Grid extends Vue {
         let field = b[column.field]
         let compareField = a[column.field]
 
-        if (this.orderType === 'desc') {
+        if (this.order.type === 'desc') {
           field = a[column.field]
           compareField = b[column.field]
         }
@@ -203,8 +244,27 @@ export default class Grid extends Vue {
     return this.data.length
   }
 
+  get totalFiltered() {
+    return this.filteredData.length
+  }
+
+  get hasColumnFilter() {
+    return this.visibleCols.some((c) => c.filter)
+  }
+
+  get hasColumnOrder() {
+    return this.visibleCols.some((c) => c.order)
+  }
+
   get visibleCols() {
     return this.columns.filter((c) => this.columnVisibility.includes(c.field))
+      .sort(
+        (a, b) =>
+          (
+            this.columnVisibility.indexOf(a.field) -
+            this.columnVisibility.indexOf(b.field)
+          )
+      )
   }
 
   get headerColumnClasses(): string[] {
@@ -212,11 +272,11 @@ export default class Grid extends Vue {
 
     // eslint-disable-next-line
     for (const item of this.visibleCols) {
-      if (item.orderable !== false && item.type !== 'custom') {
-        let classes = 'orderable '
+      if (item.order && item.type !== 'custom') {
+        let classes = 'orderable'
 
-        if (item.field === this.orderBy) {
-          classes += ` ${this.orderType}`
+        if (item.field === this.order.by) {
+          classes += ` ${this.order.type}`
         }
 
         result[item.field] = classes
@@ -236,7 +296,7 @@ export default class Grid extends Vue {
     // eslint-disable-next-line
     for (const item of this.visibleCols) {
       if (item.orderable !== false && item.type !== 'custom') {
-        if (item.field === this.orderBy) {
+        if (item.field === this.order.by) {
           result[item.field] = 'ordering'
         }
       }
@@ -245,19 +305,15 @@ export default class Grid extends Vue {
     return result
   }
 
-  clearFilter(): void {
-    this.where = {}
-  }
-
-  order(field: string) {
+  setOrder(field: string) {
     const column = this.columns.find((c) => c.field === field)
 
     if (column.orderable !== false && column.type !== 'custom') {
-      if (this.orderBy === field) {
-        this.orderType = this.orderType === 'desc' ? 'asc' : 'desc'
+      if (this.order.by === field) {
+        this.order.type = this.order.type === 'desc' ? 'asc' : 'desc'
       } else {
-        this.orderBy = field
-        this.orderType = 'desc'
+        this.order.by = field
+        this.order.type = 'desc'
       }
     }
   }
@@ -265,5 +321,5 @@ export default class Grid extends Vue {
 </script>
 
 <style lang="scss">
-@import '../assets/scss/index'
+@import './assets/scss/index'
 </style>

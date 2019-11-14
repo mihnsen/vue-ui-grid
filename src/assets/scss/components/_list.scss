@@ -1,0 +1,21 @@
+.vgrid-list {
+  .vgrid-body {
+    .vgrid-row {
+      margin-bottom: 1.2rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .15);
+
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+
+  .vgrid-nodata {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .vgrid-field {
+    padding: 1rem 1rem;
+  }
+}

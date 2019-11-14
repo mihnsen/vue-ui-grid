@@ -1,0 +1,19 @@
+.vgrid-filter-item(
+  v-if="column.filter",
+  :class="classes",
+  @click.stop="stopClick"
+)
+  block label
+    .vgrid-filter-handle(
+      @click="showEditor",
+      :class="{ active: isEditor }"
+    )
+      span.vgrid-filter-label(v-if="showLabel") {{ column.label }}:
+      span.vgrid-filter-value {{ valueInString }}
+  block content
+    .vgrid-filter-editor(v-show="isEditor")
+      TextInput.vgrid-input-sm(
+        ref="input",
+        v-model="localValue",
+        @enter="onEnter"
+      )

@@ -5,6 +5,8 @@
 $vgrid-cell-padding:          .75rem !default;
 $vgrid-cell-padding-sm:       .3rem !default;
 
+$vgrid-color-light:           #f4f6f8 !default;
+
 $vgrid-color:                 $body-color !default;
 $vgrid-bg:                    null !default;
 $vgrid-accent-bg:             rgba($black, .05) !default;
@@ -32,3 +34,19 @@ $vgrid-caption-color:         $text-muted !default;
 
 $vgrid-bg-level:              -9 !default;
 $vgrid-border-level:          -6 !default;
+
+$vgrid-order-color:           #dddddd !default;
+$vgrid-order-size:            5px !default;
+
+$vgrid-filter-bg:             $vgrid-color-light !default;
+$vgrid-filter-width:          200px !default;
+
+$vgrid-visibility-bg:  $vgrid-color-light !default;
+$vgrid-visibility-bg:  $vgrid-color-light !default;
+
+$vgrid-search-width:          180px;
+
+$vgrid-select-width:          140px !default;
+$vgrid-select-bg:             $vgrid-color-light !default;
+
+$vgrid-input-height:                34px;

@@ -7,4 +7,30 @@
   position: relative;
   flex-shrink: 1;
   flex-grow: 1;
+  display: flex;
+
+  // Put a spacing between items
+  > * {
+    + * {
+      margin-left: .25rem;
+    }
+  }
+}
+
+.vgrid-align-center {
+  justify-content: center;
+}
+
+.vgrid-align-left {
+  justify-content: flex-start;
+}
+
+.vgrid-align-right {
+  justify-content: flex-end;
+}
+
+@for $i from 1 through $grid-columns {
+  .vgrid-col-#{$i} {
+    @include make-col($i, $grid-columns);
+  }
 }

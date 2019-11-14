@@ -1,6 +1,6 @@
 .vgrid-visibility {
   position: relative;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   justify-content: right;
   align-items: flex-end;
@@ -14,9 +14,11 @@
   text-align: center;
   vertical-align: middle;
   user-select: none;
-  background-color: transparent;
-  border: $btn-border-width solid transparent;
-  @include button-size($btn-padding-y, $btn-padding-x, $btn-font-size, $btn-line-height, $btn-border-radius);
+  background-color: $vgrid-visibility-bg;
+  border: 0px;
+  padding: .5rem .75rem;
+  border-radius: $border-radius;
+  font-size: inherit;
   @include transition($btn-transition);
   border-color: $border-color;
   cursor: pointer;
@@ -47,19 +49,118 @@
       @include box-shadow($btn-focus-box-shadow, $btn-active-box-shadow);
     }
   }
+
+  > span {
+    padding-top: 3px;
+    position: relative;
+    display: block;
+    width: 18px;
+    height: 20px;
+    font-size: 0px;
+    text-indent: -9999px;
+
+    &:before,
+    &:after,
+    > span {
+      content: '';
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: darken($vgrid-visibility-bg, 50%);
+    }
+
+    > span {
+      margin: 4px 0;
+    }
+  }
 }
 
 .vgrid-visibility-body {
   position: absolute;
   z-index: 10;
-  top: 100%;
+  top: calc(100% + 10px);
   right: 0;
-  padding: 15px 20px;
+  padding: .75rem 1rem;
   min-width: 200px;
   background: #fff;
-  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  border-radius: $border-radius;
+  box-shadow: 0 4px 8px -2px rgba(9,30,66,.25), 0 0 1px rgba(9,30,66,.31);
+  text-align: left;
 }
 
 .vgrid-visibility-column {
+  position: relative;
+  background: $vgrid-visibility-bg;
+  padding: .35rem .5rem;
+  border-radius: $border-radius;
 
+  &:hover {
+    background: darken($vgrid-visibility-bg, 5%);
+  }
+
+  + .vgrid-visibility-column {
+    margin-top: .5rem;
+  }
+
+  &:first-child {
+    .vgrid-visibility-down {
+      display: none;
+    }
+  }
+
+  &:last-child {
+    .vgrid-visibility-up {
+      display: none;
+    }
+  }
+}
+
+.vgrid-visibility-down {
+  position: absolute;
+  bottom: calc(50% + .5px);
+  right: .35rem;
+  background: transparent;
+  border: 0;
+  outline: none;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-bottom: ($vgrid-order-size * 3 / 2) solid darken($vgrid-visibility-bg, 20%);
+    border-right: $vgrid-order-size solid transparent;
+    border-left: $vgrid-order-size solid transparent;
+  }
+
+  &:hover {
+    &:before {
+      border-bottom-color: #000;
+    }
+  }
+}
+
+.vgrid-visibility-up {
+  position: absolute;
+  top: calc(50% + .5px);
+  right: .35rem;
+  background: transparent;
+  border: 0;
+  outline: none;
+
+  &:before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: ($vgrid-order-size * 3 / 2) solid darken($vgrid-visibility-bg, 20%);
+    border-right: $vgrid-order-size solid transparent;
+    border-left: $vgrid-order-size solid transparent;
+  }
+
+  &:hover {
+    &:before {
+      border-top-color: #000;
+    }
+  }
 }
