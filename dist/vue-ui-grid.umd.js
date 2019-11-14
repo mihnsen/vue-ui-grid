@@ -7684,12 +7684,12 @@ function _defineProperty(obj, key, value) {
 
   return obj;
 }
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"b4ae3f78-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/column-types/Basic.vue?vue&type=template&id=f527f886&lang=pug&
-var Basicvue_type_template_id_f527f886_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-field",class:_vm.classes},[_vm._t("default",[_c('span',{domProps:{"innerHTML":_vm._s(_vm.text)}})])],2)}
-var Basicvue_type_template_id_f527f886_lang_pug_staticRenderFns = []
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"b4ae3f78-vue-loader-template"}!./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/column-types/Basic.vue?vue&type=template&id=678032c6&lang=pug&
+var Basicvue_type_template_id_678032c6_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-field",class:_vm.classes},[_vm._t("default",[_c('span',{domProps:{"innerHTML":_vm._s(_vm.text)}})])],2)}
+var Basicvue_type_template_id_678032c6_lang_pug_staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./src/components/column-types/Basic.vue?vue&type=template&id=f527f886&lang=pug&
+// CONCATENATED MODULE: ./src/components/column-types/Basic.vue?vue&type=template&id=678032c6&lang=pug&
 
 // CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js??ref--14-0!./node_modules/thread-loader/dist/cjs.js!./node_modules/babel-loader/lib!./node_modules/ts-loader??ref--14-3!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/vue-loader/lib??vue-loader-options!./src/components/column-types/Basic.vue?vue&type=script&lang=ts&
 
@@ -7773,8 +7773,8 @@ Basicvue_type_script_lang_ts_Basic = __decorate([vue_class_component_esm], Basic
 
 var Basic_component = normalizeComponent(
   column_types_Basicvue_type_script_lang_ts_,
-  Basicvue_type_template_id_f527f886_lang_pug_render,
-  Basicvue_type_template_id_f527f886_lang_pug_staticRenderFns,
+  Basicvue_type_template_id_678032c6_lang_pug_render,
+  Basicvue_type_template_id_678032c6_lang_pug_staticRenderFns,
   false,
   null,
   null,
