@@ -9,6 +9,7 @@
         :columns="gridColumns",
         :data="gridData",
         :per-page="10",
+        :column-visible="true",
         :orderable="true",
         ref="grid"
       )

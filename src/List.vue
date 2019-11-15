@@ -1,28 +1,25 @@
 <template lang="pug">
 .vgrid.vgrid-list
   .vgrid-header
-    .vgrid-row
-      .vgrid-col
-        GridSearch(
-          v-model="searchKeyword",
-          v-if="searchable"
-        )
-        GridFilter(
-          v-if="filterable && hasColumnFilter",
-          v-model="where",
-          :columns="columns"
-        )
-      .vgrid-col.vgrid-ml-auto.vgrid-align-right
-        GridOrder(
-          v-if="orderable && hasColumnOrder",
-          v-model="order",
-          :columns="columns"
-        )
-        ColumnsVisibility(
-          v-if="columnVisible"
-          :columns="columns",
-          v-model="columnVisibility",
-        )
+    GridSearch(
+      v-model="searchKeyword",
+      v-if="searchable"
+    )
+    GridFilter(
+      v-if="filterable && hasColumnFilter",
+      v-model="where",
+      :columns="columns"
+    )
+    GridOrder.vgrid-ml-auto(
+      v-if="orderable && hasColumnOrder",
+      v-model="order",
+      :columns="columns"
+    )
+    ColumnsVisibility.vgrid-ml-auto(
+      v-if="columnVisible"
+      :columns="columns",
+      v-model="columnVisibility",
+    )
   .vgrid-body
     .vgrid-nodata(
       v-if="!showedData.length",

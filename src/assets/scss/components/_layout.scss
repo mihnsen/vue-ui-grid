@@ -13,6 +13,12 @@
 
 .vgrid-header {
   margin-bottom: 1rem;
+  display: flex;
+
+  // Put a spacing between items
+  > *:not(:last-child) {
+    margin-right: .25rem;
+  }
 }
 
 .vgrid-center {
