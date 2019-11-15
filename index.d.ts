@@ -1,3 +1,4 @@
+// @see: https://www.typescriptlang.org/docs/handbook/declaration-files/templates/module-d-ts.html
 // Type definitions for vue-ui-grid
 // Project: Additional UI elements for VueJS
 // Definitions by: mihnsen <https://github.com/mihnsen/>
@@ -17,3 +18,7 @@ export as namespace VGrid;
 /*~ If this module has methods, declare them as functions like so.
  */
 export function gridMethod(a: string): string;
+
+// Grid and List
+export const Grid: object;
+export const List: object;
