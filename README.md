@@ -18,7 +18,34 @@ Grid.vgrid-center(
   :per-page="2",
   :column-filter="true",
 )
+  template(
+    slot="column-action"
+    slot-scope="{ entry }"
+  )
+    button(
+      type="button",
+    ) ADD
 
+// Or list
+
+List(
+  :columns="listColumns",
+  :data="listData",
+  :per-page="10",
+  :column-visible="true",
+  :orderable="true",
+  ref="list"
+)
+  template(
+    slot="column-action"
+    slot-scope="{ entry }"
+  )
+    button(
+      type="button",
+    ) ADD
+    a(
+      href="gooogle.com"
+    ) Edit
 
 // CSS
 @import '~vue-ui-grid/src/assets/scss/index'
@@ -49,6 +76,41 @@ export default {
   }
 }
 ```
+
+#### Column Properties
+```
+{
+  field: 'id',
+  label: 'ID',
+  filter: true,
+  hidden: true,
+  width: 3
+}
+```
+| Option      | Required    | Default     | Description                    |
+| ----------- | ----------- | ----------- | ------------------------------ |
+| field       | Yes         |             | Title                          |
+| label       | No          |             | Label of column                |
+| type        | No          | String      | field type (text/number/date)  |
+| filter      | No          | False       | Set column filter or not       |
+| order       | No          | False       | Set column order or not        |
+| hidden      | No          | False       | Set hidden column, can't see   |
+| width       | No          | False       | Set width column, use for list |
+| format      | No          |             | Format content: '<strong>{name}</strong>' |
+
+#### Props
+| Props          | Required    | Default     | Description                    |
+| -------------- | ----------- | ----------- | ------------------------------ |
+| columns        | Yes         | []          | Column config                  |
+| data           | Yes         | []          | Data source                    |
+| per-page       | No          | 10          | Number of items per page       |
+| searchable     | No          | True        | Search data in header          |
+| filterable     | No          | True        | Filter data in header          |
+| column-visible | No          | False       | Custom show hide, order column |
+| column-filterable | No       | False       | Filter column in side grid     |
+| index          | No          | 0           | Initial page                   |
+| status         | No          | True        | Grid status                    |
+| pagination     | No          | True        | Paginate data                  |
 
 ## Development
 ```

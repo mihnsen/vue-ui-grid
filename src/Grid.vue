@@ -71,10 +71,12 @@
     .vgrid-row
       .vgrid-col
         PageSize(
-          v-model="limit",
+          v-if="pagination",
+          v-model="limit"
         )
       .vgrid-col.vgrid-align-center
         GridStatus(
+          :v-if="status",
           :limit="limit",
           :current-page="currentPage",
           :showed="showedData.length",
@@ -82,6 +84,7 @@
         )
       .vgrid-col.vgrid-align-right
         Pagination(
+          v-if="pagination",
           v-model="currentPage",
           :limit="limit",
           :total="totalFiltered",
@@ -156,6 +159,12 @@ export default class VGrid extends Vue {
   @Prop({ default: false })
   orderable!: boolean
 
+  @Prop({ default: true })
+  status!: boolean
+
+  @Prop({ default: true })
+  pagination!: boolean
+
   @Prop({ default: 'No matched data' })
   strEmptyData!: string
 
@@ -205,12 +214,12 @@ export default class VGrid extends Vue {
     return filtered
   }
 
-  get showedData() {
+  get sortedData() {
     const column = this.columns.find((c) => c.field === this.order.by)
-    let showedData = this.filteredData
+    let sortedData = this.filteredData
 
     if (column) {
-      showedData = showedData.sort((a: any, b: any) => {
+      sortedData = sortedData.sort((a: any, b: any) => {
         let field = b[column.field]
         let compareField = a[column.field]
 
@@ -231,11 +240,19 @@ export default class VGrid extends Vue {
       })
     }
 
-    if (showedData.length > this.limit) {
-      showedData = showedData.slice(
-        this.limit * this.currentPage,
-        this.limit * (this.currentPage + 1)
-      )
+    return sortedData
+  }
+
+  get showedData() { // Or paginatedData
+    let showedData = this.sortedData
+
+    if (this.pagination) {
+      if (this.sortedData.length > this.limit) {
+        showedData = this.sortedData.slice(
+          this.limit * this.currentPage,
+          this.limit * (this.currentPage + 1)
+        )
+      }
     }
 
     return showedData

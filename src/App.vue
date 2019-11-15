@@ -4,12 +4,11 @@
       alt="Vue logo"
       src="./assets/logo.png"
     )
-    div(style="width: 800px; margin: 20px auto 50px")
+    div(style="width: 1000px; margin: 20px auto 50px")
       Grid.vgrid-center(
         :columns="gridColumns",
         :data="gridData",
         :per-page="10",
-        :column-filterable="true",
         :orderable="true",
         ref="grid"
       )
@@ -20,13 +19,14 @@
           button(
             type="button",
           ) ADD
-    div(style="width: 800px; margin: 20px auto")
+    div(style="width: 1000px; margin: 20px auto")
       List(
         :columns="listColumns",
         :data="listData",
         :per-page="10",
         :column-visible="true",
         :orderable="true",
+        :pagination="false",
         ref="list"
       )
         template(

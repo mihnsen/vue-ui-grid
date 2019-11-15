@@ -44,10 +44,12 @@
     .vgrid-row
       .vgrid-col.vgrid-col-4
         PageSize(
-          v-model="limit",
+          v-if="pagination",
+          v-model="limit"
         )
       .vgrid-col.vgrid-col-4.vgrid-align-center
         GridStatus(
+          :v-if="status",
           :limit="limit",
           :current-page="currentPage",
           :showed="showedData.length",
@@ -55,6 +57,7 @@
         )
       .vgrid-col.vgrid-col-4.vgrid-align-right
         Pagination(
+          v-if="pagination",
           v-model="currentPage",
           :limit="limit",
           :total="totalFiltered",
