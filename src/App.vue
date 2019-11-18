@@ -107,6 +107,17 @@ export default class App extends Vue {
       field: 'office',
       label: 'Office',
       filter: true,
+      filter_type: 'checkboxes',
+      filter_data: [
+        {
+          value: 'Edinburgh',
+          label: 'EDIN BURGHERE HEREE'
+        },
+        {
+          value: 'New York',
+          label: 'New York - USA'
+        }
+      ],
       order: true
     },
     {

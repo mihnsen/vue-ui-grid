@@ -5,6 +5,10 @@ extends Basic.pug
 import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
 import TextInput from '../TextInput.vue'
 
+// TODO checkboxes
+// TODO select
+// TODO radio
+// TODO date-range
 @Component({
   model: {
     prop: 'value',
