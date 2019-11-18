@@ -16,7 +16,7 @@
         padding: .5rem .75rem;
         margin-left: -1px;
         line-height: 1.25;
-        color: #007bff;
+        color: inherit;
         border: 1px solid $vgrid-border-color;
         text-decoration: none;
         color: inherit;
@@ -29,9 +29,9 @@
 
       &.active {
         a {
-          background: #333;
-          border-color: #333;
-          color: #fff;
+          background: $vgrid-pagination-active;
+          border-color: $vgrid-pagination-active;
+          color: $vgrid-pagination-active-color;
         }
       }
     }

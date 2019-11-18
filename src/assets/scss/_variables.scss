@@ -44,18 +44,28 @@ $vgrid-order-size:            4px !default;
 $vgrid-filter-bg:             $vgrid-color-light !default;
 $vgrid-filter-width:          200px !default;
 
-$vgrid-visibility-bg:  $vgrid-color-light !default;
-$vgrid-visibility-bg:  $vgrid-color-light !default;
+$vgrid-visibility-bg:         $vgrid-color-light !default;
+$vgrid-visibility-bg:         $vgrid-color-light !default;
 
-$vgrid-search-width:          180px;
+$vgrid-search-width:          180px !default;
 
 $vgrid-select-width:          140px !default;
 $vgrid-select-bg:             $vgrid-color-light !default;
 
-$vgrid-input-height:          32px;
+$vgrid-input-height:          32px !default;
 
 // Table
 $vgrid-table-border:          $border-color !default;
 
+// Pagination
+$vgrid-pagination-active:          #333 !default;
+$vgrid-pagination-active-color:    #fff !default;
+
 // Action column
-$vgrid-action-column-bg:      darken($vgrid-color-light, 10%) !default;
+$vgrid-action-column-color:        inherit !default;
+$vgrid-action-column-bg:           transparent !default;
+$vgrid-action-column-border:       transparent !default;
+$vgrid-action-column-hover-bg:     darken($vgrid-color-light, 10%) !default;
+$vgrid-action-column-hover-color:  inherit !default;
+$vgrid-action-column-hover-bg:     darken($vgrid-color-light, 10%) !default;
+$vgrid-action-column-hover-border: transparent !default;

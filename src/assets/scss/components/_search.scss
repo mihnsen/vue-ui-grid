@@ -1,6 +1,7 @@
 .vgrid-search {
   display: inline-flex;
   width: $vgrid-search-width;
+  min-width: 100px;
 
   .vgrid-input {
     text-align: left;

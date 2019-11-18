@@ -29,7 +29,7 @@
     )
     slot(name="header-end")
   .vgrid-body.vgrid-responsive
-    table.vgrid-table.vgrid-striped.vgrid-bordered
+    table.vgrid-table
       thead
         tr
           th.vgrid-field-header(

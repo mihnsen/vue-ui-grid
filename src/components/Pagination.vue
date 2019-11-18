@@ -97,7 +97,7 @@ export default class Pagination extends Vue {
       // first button.
       if (this.currentPage > 2) {
         result.splice(1, 0, {
-          label: '1 ...',
+          label: '1..',
           page: 0
         })
       }
@@ -105,7 +105,7 @@ export default class Pagination extends Vue {
       // last button.
       if (this.currentPage < this.totalPage - 3) {
         result.splice(result.length - 1, 0, {
-          label: `... ${this.totalPage}`,
+          label: `..${this.totalPage}`,
           page: this.totalPage - 1
         })
       }
