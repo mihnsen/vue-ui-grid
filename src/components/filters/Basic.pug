@@ -13,6 +13,7 @@
     .vgrid-filter-editor(v-show="isEditor")
       TextInput.vgrid-input-sm(
         ref="input",
+        :placeholder="placeholder",
         v-model="localValue",
         @enter="onEnter"
       )

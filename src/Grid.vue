@@ -9,6 +9,7 @@
     )
     GridSearch(
       v-model="searchKeyword",
+      :placeholder="searchPlaceholder",
       v-if="searchable"
     )
     GridOrder.vgrid-ml-auto(
@@ -163,6 +164,9 @@ export default class VGrid extends Vue {
 
   @Prop({ default: true })
   searchable!: boolean
+
+  @Prop()
+  searchPlaceholder!: string
 
   @Prop({ default: false })
   orderable!: boolean
