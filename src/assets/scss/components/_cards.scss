@@ -1,12 +1,17 @@
-.vgrid-list {
-  .vgrid-entry-wrapper {
-    padding: $vgrid-y-gutter $vgrid-gutter;
+.vgrid-cards {
+  .vgrid-col {
     margin-bottom: $vgrid-gutter;
-    box-shadow: 0 1px 5px rgba(0, 0, 0, .15);
-    border-radius: $border-radius;
+  }
 
+  .vgrid-entry-wrapper {
     display: flex;
     flex-wrap: wrap;
+
+    width: 100%;
+    height: 100%;
+    padding: $vgrid-y-gutter $vgrid-gutter;
+    box-shadow: 0 1px 5px rgba(0, 0, 0, .15);
+    border-radius: $border-radius;
   }
 
   .vgrid-nodata {

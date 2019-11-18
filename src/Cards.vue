@@ -1,5 +1,5 @@
 <template lang="pug">
-.vgrid.vgrid-list
+.vgrid.vgrid-cards
   .vgrid-header
     slot(name="header-start")
     GridSearch(
@@ -28,18 +28,21 @@
     )
       span(v-if="!total") {{ strEmptyData }}
       span(v-else) {{ strEmptyFilteredData }}
-    .vgrid-entry-wrapper(
-      v-for="entry in showedData",
-    )
-      ColumnType(
-        v-for="col in visibleCols"
-        :column="col",
-        :data="entry",
-        :key="col.id",
-        :resize="true",
-        :class="columnClasses[col.field]",
+    .vgrid-row
+      .vgrid-col(
+        :class="columnClasses",
+        v-for="entry in showedData"
       )
-        slot(:name="'column-' + col.field", :entry="entry")
+        .vgrid-entry-wrapper
+          ColumnType(
+            v-for="col in visibleCols"
+            :column="col",
+            :data="entry",
+            :key="col.id",
+            :resize="true",
+            :class="columnClasses[col.field]",
+          )
+            slot(:name="'column-' + col.field", :entry="entry")
   .vgrid-footer
     PageSize(
       v-if="pagination",
@@ -60,11 +63,28 @@
     )
 </template>
 <script lang="ts">
-import { Component } from 'vue-property-decorator'
+import { Component, Prop } from 'vue-property-decorator'
 import Grid from './Grid.vue'
 
 @Component({
-  name: 'VList'
+  name: 'VCards'
 })
-export default class VList extends Grid {}
+export default class VCards extends Grid {
+  @Prop({ default: 2 })
+  colMd!: number
+
+  @Prop({ default: 3 })
+  colLg!: number
+
+  @Prop({ default: 4 })
+  colXl!: number
+
+  get columnClasses() {
+    return [
+      `vgrid-col-md-${this.colMd}`,
+      `vgrid-col-lg-${this.colLg}`,
+      `vgrid-col-xl-${this.colXl}`
+    ]
+  }
+}
 </script>

@@ -11,6 +11,7 @@
 @import 'components/input';
 @import 'components/layout';
 @import 'components/rows';
+@import 'components/field';
 @import 'components/size';
 @import 'components/column-visibility';
 @import 'components/search';
@@ -18,10 +19,13 @@
 @import 'components/status';
 @import 'components/filter';
 @import 'components/order';
-@import 'components/list';
 @import 'components/no-data';
 @import 'components/action-column';
 
 // Global components
-@import 'components/field';
 @import 'components/table';
+@import 'components/cards';
+@import 'components/list';
+
+// Modifier
+@import 'components/modifier';

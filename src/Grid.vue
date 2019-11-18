@@ -51,7 +51,8 @@
           td(
             :colspan="visibleCols.length"
           )
-            span {{ strEmptyData }}
+            span(v-if="!total") {{ strEmptyData }}
+            span(v-else) {{ strEmptyFilteredData }}
         tr(
           v-for="entry in showedData",
         )
@@ -67,27 +68,23 @@
             )
               slot(:name="'column-' + col.field", :entry="entry")
   .vgrid-footer
-    .vgrid-row
-      .vgrid-col
-        PageSize(
-          v-if="pagination",
-          v-model="limit"
-        )
-      .vgrid-col.vgrid-align-center
-        GridStatus(
-          :v-if="status",
-          :limit="limit",
-          :current-page="currentPage",
-          :showed="showedData.length",
-          :total="totalFiltered"
-        )
-      .vgrid-col.vgrid-align-right
-        Pagination(
-          v-if="pagination",
-          v-model="currentPage",
-          :limit="limit",
-          :total="totalFiltered",
-        )
+    PageSize(
+      v-if="pagination",
+      v-model="limit"
+    )
+    GridStatus(
+      :v-if="status",
+      :limit="limit",
+      :current-page="currentPage",
+      :showed="showedData.length",
+      :total="totalFiltered"
+    )
+    Pagination(
+      v-if="pagination",
+      v-model="currentPage",
+      :limit="limit",
+      :total="totalFiltered",
+    )
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
@@ -164,7 +161,10 @@ export default class VGrid extends Vue {
   @Prop({ default: true })
   pagination!: boolean
 
-  @Prop({ default: 'No matched data' })
+  @Prop({ default: 'No data matched' })
+  strEmptyFilteredData!: string
+
+  @Prop({ default: 'Empty data' })
   strEmptyData!: string
 
   currentPage = this.index

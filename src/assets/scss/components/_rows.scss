@@ -1,42 +1,53 @@
 .vgrid-row {
   display: flex;
   flex-wrap: wrap;
+  margin-left: -$vgrid-gutter / 2;
+  margin-right: -$vgrid-gutter / 2;
 }
 
-.vgrid-col {
+// Grid framework - from bootstrap
+
+%grid-column {
   position: relative;
-  flex-shrink: 1;
-  flex-grow: 1;
-  display: flex;
+  width: 100%;
+  padding-left: $vgrid-gutter / 2;
+  padding-right: $vgrid-gutter / 2;
+}
 
-  // Put a spacing between items
-  > *:not(:last-child) {
-    margin-right: .25rem;
+$breakpoints: $grid-breakpoints;
+$columns:     $grid-columns;
+
+@each $breakpoint in map-keys($breakpoints) {
+  $infix: breakpoint-infix($breakpoint, $breakpoints);
+
+  // Allow columns to stretch full width below their breakpoints
+  @for $i from 1 through $columns {
+    .vgrid-col#{$infix}-#{$i} {
+      @extend %grid-column;
+    }
   }
-}
-
-.vgrid-align-center {
-  justify-content: center;
-}
-
-.vgrid-align-left {
-  justify-content: flex-start;
-}
-
-.vgrid-align-right {
-  justify-content: flex-end;
-}
-
-@for $i from 1 through $grid-columns {
-  .vgrid-col-#{$i} {
-    @include make-col($i, $grid-columns);
+  .vgrid-col#{$infix},
+  .vgrid-col#{$infix}-auto {
+    @extend %grid-column;
   }
-}
 
-.vgrid-ml-auto {
-  margin-left: auto;
-}
+  @include media-breakpoint-up($breakpoint, $breakpoints) {
+    // Provide basic `.col-{bp}` classes for equal-width flexbox columns
+    .vgrid-col#{$infix} {
+      flex-basis: 0;
+      flex-grow: 1;
+      max-width: 100%;
+    }
+    .vgrid-col#{$infix}-auto {
+      flex: 0 0 auto;
+      width: auto;
+      max-width: 100%; // Reset earlier grid tiers
+    }
 
-.vgrid-mr-auto {
-  margin-right: auto;
+    @for $i from 1 through $columns {
+      .vgrid-col#{$infix}-#{$i} {
+        @include make-col($i, $columns);
+      }
+    }
+  }
 }

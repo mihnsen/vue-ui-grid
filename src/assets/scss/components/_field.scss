@@ -3,3 +3,9 @@
   align-items: center;
   justify-content: flex-start;
 }
+
+@for $i from 1 through $grid-columns {
+  .vgrid-field-#{$i} {
+    @include make-col($i, $grid-columns);
+  }
+}

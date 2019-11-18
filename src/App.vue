@@ -27,6 +27,25 @@
             type="button",
           ) Export
     div(style="width: 1000px; margin: 20px auto")
+      Cards(
+        :columns="gridColumns",
+        :data="gridData",
+        :per-page="10",
+        :column-visible="true",
+        :col-md="4"
+        :col-xl="4"
+        :col-lg="4"
+        ref="list"
+      )
+        template(#column-action="{ entry }")
+          button(
+            type="button",
+            @click="remove(entry)"
+          ) remove
+          a(
+            href="gooogle.com"
+          ) Edit
+    div(style="width: 1000px; margin: 20px auto")
       List(
         :columns="listColumns",
         :data="listData",
@@ -50,12 +69,13 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { Grid, List } from './vue-grid'
+import { Grid, List, Cards } from './vue-grid'
 import sample from './sample'
 
 @Component({
   components: {
     Grid,
+    Cards,
     List
   }
 })
@@ -65,19 +85,19 @@ export default class App extends Vue {
       field: 'id',
       label: 'ID',
       filter: true,
-      hidden: true,
-      width: 3
+      hidden: true
     },
     {
       field: 'name',
       label: 'Name',
       format: '<strong>Q. {id} - {name} - {salary}</strong>',
-      filter: true,
-      width: 3
+      width: 12,
+      filter: true
     },
     {
       field: 'salary',
       label: 'Salary',
+      width: 8,
       filter: true
     },
     {
@@ -85,6 +105,8 @@ export default class App extends Vue {
       field: 'start_date',
       label: 'Start date',
       filter: true,
+      width: 4,
+      class: 'vgrid-align-right',
       order: true
     },
     {
@@ -97,7 +119,8 @@ export default class App extends Vue {
       field: 'extn',
       label: 'Extn',
       filter: true,
-      order: true
+      order: true,
+      width: 4
     },
     {
       field: 'action',
@@ -157,6 +180,10 @@ export default class App extends Vue {
   listData = [
     ...sample
   ]
+
+  remove(entry: any) {
+    this.gridData = this.gridData.filter((e) => e.id !== entry.id)
+  }
 }
 </script>
 
