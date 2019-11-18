@@ -22,3 +22,4 @@ export function gridMethod(a: string): string;
 // Grid and List
 export const Grid: object;
 export const List: object;
+export const Cards: object;
