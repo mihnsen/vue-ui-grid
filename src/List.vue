@@ -2,14 +2,14 @@
 .vgrid.vgrid-list
   .vgrid-header
     slot(name="header-start")
-    GridSearch(
-      v-model="searchKeyword",
-      v-if="searchable"
-    )
     GridFilter(
       v-if="filterable && hasColumnFilter",
       v-model="where",
       :columns="columns"
+    )
+    GridSearch(
+      v-model="searchKeyword",
+      v-if="searchable"
     )
     GridOrder.vgrid-ml-auto(
       v-if="orderable && hasColumnOrder",
