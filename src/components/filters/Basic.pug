@@ -8,7 +8,7 @@
       @click="showEditor",
       :class="{ active: isEditor }"
     )
-      span.vgrid-filter-label {{ valueInString }}
+      span.vgrid-filter-value {{ valueInString }}
   block content
     .vgrid-filter-editor(v-show="isEditor")
       TextInput.vgrid-input-sm(

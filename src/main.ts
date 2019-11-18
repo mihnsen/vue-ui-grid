@@ -5,5 +5,5 @@ import TestVue from './TestVue.vue'
 Vue.config.productionTip = false
 
 new Vue({
-  render: h => h(TestVue)
+  render: h => h(App)
 }).$mount('#app')
