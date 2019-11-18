@@ -20,6 +20,12 @@
           button(
             type="button",
           ) ADD
+        template(
+          slot="header-end"
+        )
+          button(
+            type="button",
+          ) Export
     div(style="width: 1000px; margin: 20px auto")
       List(
         :columns="listColumns",

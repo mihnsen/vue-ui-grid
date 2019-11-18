@@ -1,6 +1,7 @@
 <template lang="pug">
 .vgrid
   .vgrid-header
+    slot(name="header-start")
     GridSearch(
       v-model="searchKeyword",
       v-if="searchable"
@@ -20,6 +21,7 @@
       :columns="columns",
       v-model="columnVisibility",
     )
+    slot(name="header-end")
   .vgrid-body.vgrid-responsive
     table.vgrid-table.vgrid-striped.vgrid-bordered
       thead
