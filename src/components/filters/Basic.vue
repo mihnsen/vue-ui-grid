@@ -30,7 +30,7 @@ export default class Basic extends Vue {
   isEditor: boolean = false
 
   get valueInString() {
-    return this.value ? this.value : `${this.column.label}: Any`
+    return this.localValue ? this.localValue : `${this.column.label}: Any`
   }
 
   get classes() {
