@@ -5,7 +5,6 @@
     :column="col",
     :key="col.id",
     v-model="localValue[col.field]",
-    :show-label="true",
   )
 </template>
 <script lang="ts">

@@ -25,18 +25,12 @@ export default class Basic extends Vue {
   })
   column: any
 
-  @Prop({
-    type: Boolean,
-    default: false
-  })
-  showLabel!: boolean
-
   @PropSync('value', { type: String }) localValue: any
 
   isEditor: boolean = false
 
   get valueInString() {
-    return this.localValue ? this.localValue : 'Any'
+    return this.value ? this.value : `${this.column.label}: Any`
   }
 
   get classes() {
@@ -44,6 +38,10 @@ export default class Basic extends Vue {
     const { field } = this.column
 
     return [`column-type-${type}`, `column-data-${field}`]
+  }
+
+  get placeholder() {
+    return `Find ${this.column.label}`
   }
 
   mounted(): void {
