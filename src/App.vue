@@ -13,6 +13,11 @@
         :orderable="true",
         ref="grid"
       )
+        template(#column-action="{ entry }")
+          button(
+            type="button",
+            @click="remove(entry)"
+          ) remove
         template(
           slot="header-end"
         )

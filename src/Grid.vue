@@ -97,7 +97,7 @@
     )
 </template>
 <script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
+import { Component, Vue, Prop } from 'vue-property-decorator'
 import Pagination from './components/Pagination.vue'
 import ColumnType from './components/ColumnType.vue'
 import ColumnFilter from './components/ColumnFilter.vue'

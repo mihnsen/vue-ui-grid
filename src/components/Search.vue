@@ -1,7 +1,7 @@
 <template lang="pug">
 form.vgrid-search(@submit.prevent="stop")
   TextInput(
-    placeholder="Search..",
+    placeholder="Contain text..",
     v-model="localValue",
   )
 </template>
