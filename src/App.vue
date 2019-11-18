@@ -14,13 +14,6 @@
         ref="grid"
       )
         template(
-          slot="column-action"
-          slot-scope="{ entry }"
-        )
-          button(
-            type="button",
-          ) ADD
-        template(
           slot="header-end"
         )
           button(

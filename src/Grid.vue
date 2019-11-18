@@ -56,17 +56,21 @@
         tr(
           v-for="entry in showedData",
         )
-          td(
-            v-for="col in visibleCols",
-            :key="col.field"
+          slot(
+            :entry="entry",
+            :visible-cols="visibleCols"
           )
-            ColumnType(
-              :column="col",
-              :data="entry",
-              :key="col.id",
-              :class="columnClasses[col.field]",
+            td(
+              v-for="col in visibleCols",
+              :key="col.field"
             )
-              slot(:name="'column-' + col.field", :entry="entry")
+              ColumnType(
+                :column="col",
+                :data="entry",
+                :key="col.id",
+                :class="columnClasses[col.field]",
+              )
+                slot(:name="'column-' + col.field", :entry="entry")
   .vgrid-footer
     PageSize(
       v-if="pagination",

@@ -33,16 +33,20 @@
         :class="columnClasses",
         v-for="entry in showedData"
       )
-        .vgrid-entry-wrapper
-          ColumnType(
-            v-for="col in visibleCols"
-            :column="col",
-            :data="entry",
-            :key="col.id",
-            :resize="true",
-            :class="columnClasses[col.field]",
-          )
-            slot(:name="'column-' + col.field", :entry="entry")
+        slot(
+          :entry="entry",
+          :visible-cols="visibleCols"
+        )
+          .vgrid-entry-wrapper
+            ColumnType(
+              v-for="col in visibleCols"
+              :column="col",
+              :data="entry",
+              :key="col.id",
+              :resize="true",
+              :class="columnClasses[col.field]",
+            )
+              slot(:name="'column-' + col.field", :entry="entry")
   .vgrid-footer
     PageSize(
       v-if="pagination",
