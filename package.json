@@ -1,6 +1,6 @@
 {
   "name": "vue-ui-grid",
-  "version": "0.1.30",
+  "version": "0.1.31",
   "main": "dist/vue-ui-grid.common.js",
   "types": "index.d.ts",
   "scripts": {
@@ -24,10 +24,8 @@
   ],
   "license": "MIT",
   "author": "mihnsen <minhnt.hut@gmail.com> (https://github.com/mihnsen/)",
-  "dependencies": {
-    "vue": "^2.6.10"
-  },
   "devDependencies": {
+    "vue": "^2.6.10",
     "bootstrap": "^4.3.1",
     "@types/jest": "^24.0.11",
     "@types/luxon": "^1.15.2",
