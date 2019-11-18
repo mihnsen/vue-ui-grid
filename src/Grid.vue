@@ -97,7 +97,7 @@
     )
 </template>
 <script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Pagination from './components/Pagination.vue'
 import ColumnType from './components/ColumnType.vue'
 import ColumnFilter from './components/ColumnFilter.vue'
@@ -185,17 +185,21 @@ export default class VGrid extends Vue {
   @Prop()
   exportFileName!: string
 
+  @Watch('columns')
+  setColumnVisibility() {
+    this.columnVisibility = this.columns
+      .filter((c) => c.type !== 'hidden') // Hidden type
+      .filter((c) => !c.hidden) // Hidden by default
+      .map(c => c.field)
+  }
+
   currentPage = this.index
   searchKeyword: string = ''
   limit: number = this.perPage
 
   order: Order = { by: '', type: 'desc' }
   where: Where = {}
-
-  columnVisibility = this.columns
-    .filter((c) => c.type !== 'hidden') // Hidden type
-    .filter((c) => !c.hidden) // Hidden by default
-    .map(c => c.field)
+  columnVisibility: Array<string> = []
 
   get searchedData() {
     let searched = [...this.data.filter((r) => r)]
@@ -338,6 +342,10 @@ export default class VGrid extends Vue {
     }
 
     return result
+  }
+
+  created() {
+    this.setColumnVisibility()
   }
 
   setOrder(field: string) {
