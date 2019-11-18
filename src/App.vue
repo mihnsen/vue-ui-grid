@@ -29,6 +29,7 @@
         :col-xl="4"
         :col-lg="4"
         ref="list"
+        :exportable="true"
       )
         template(#column-action="{ entry }")
           button(

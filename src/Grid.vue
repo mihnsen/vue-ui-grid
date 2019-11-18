@@ -21,6 +21,12 @@
       :columns="columns",
       v-model="columnVisibility",
     )
+    ExportButton.vgrid-ml-auto(
+      v-if="exportable"
+      :columns="visibleCols",
+      :data="data",
+      :file-name="exportFileName"
+    )
     slot(name="header-end")
   .vgrid-body.vgrid-responsive
     table.vgrid-table.vgrid-striped.vgrid-bordered
@@ -101,6 +107,7 @@ import PageSize from './components/PageSize.vue'
 import ColumnsVisibility from './components/ColumnsVisibility.vue'
 import GridSearch from './components/Search.vue'
 import GridStatus from './components/Status.vue'
+import ExportButton from './components/ExportButton.vue'
 import Order from './interfaces/order'
 
 interface Where {
@@ -118,7 +125,8 @@ interface Where {
     PageSize,
     ColumnsVisibility,
     GridSearch,
-    GridStatus
+    GridStatus,
+    ExportButton
   },
   filters: {
     vgrid_header(str: string) {
@@ -170,6 +178,12 @@ export default class VGrid extends Vue {
 
   @Prop({ default: 'Empty data' })
   strEmptyData!: string
+
+  @Prop({ default: false })
+  exportable!: boolean
+
+  @Prop()
+  exportFileName!: string
 
   currentPage = this.index
   searchKeyword: string = ''

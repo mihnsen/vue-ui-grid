@@ -1,5 +1,9 @@
 .vgrid-ml-auto {
   margin-left: auto;
+
+  + .vgrid-ml-auto {
+    margin-left: 0;
+  }
 }
 
 .vgrid-mr-auto {

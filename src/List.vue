@@ -21,6 +21,12 @@
       :columns="columns",
       v-model="columnVisibility",
     )
+    ExportButton.vgrid-ml-auto(
+      v-if="exportable"
+      :columns="visibleCols",
+      :data="data",
+      :file-name="exportFileName"
+    )
     slot(name="header-end")
   .vgrid-body
     .vgrid-nodata(

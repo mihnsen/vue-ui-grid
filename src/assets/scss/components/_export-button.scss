@@ -1,0 +1,23 @@
+.vgrid-export-button {
+  display: inline-flex;
+
+  button {
+    appearance: none;
+    border-radius: $border-radius;
+    background: $vgrid-select-bg;
+    border: 0;
+    font-size: inherit;
+    color: inherit;
+    outline: none;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    padding: .5rem .45rem;
+    height: $vgrid-input-height;
+
+    &:focus {
+      background: darken($vgrid-select-bg, 5%)
+    }
+  }
+}

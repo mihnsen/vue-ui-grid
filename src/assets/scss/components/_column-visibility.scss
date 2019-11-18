@@ -8,20 +8,20 @@
 
 .vgrid-visibility-button {
   display: inline-block;
+  height: $vgrid-input-height;
+  background-color: $vgrid-visibility-bg;
+  padding: .4rem .75rem;
+  border: 0px;
+  border-radius: $border-radius;
+  font-size: inherit;
   font-family: $btn-font-family;
   font-weight: $btn-font-weight;
   color: $body-color;
   text-align: center;
   vertical-align: middle;
-  user-select: none;
-  background-color: $vgrid-visibility-bg;
-  border: 0px;
-  padding: .4rem .75rem;
-  border-radius: $border-radius;
-  font-size: inherit;
-  @include transition($btn-transition);
-  border-color: $vgrid-border-color;
   cursor: pointer;
+  user-select: none;
+  @include transition($btn-transition);
 
   @include hover {
     color: $body-color;
