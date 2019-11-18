@@ -19,10 +19,12 @@
 
     &:hover {
       background-color: $vgrid-action-column-bg;
+      border-color: $vgrid-action-column-border;
+      color: $vgrid-action-column-color;
     }
 
     + button,
-    a {
+    + a {
       margin-left: .15rem;
     }
   }
