@@ -90,13 +90,13 @@ export default class App extends Vue {
       field: 'name',
       label: 'Name',
       format: '<strong>Q. {id} - {name} - {salary}</strong>',
-      width: 12,
+      width: 6,
       filter: true
     },
     {
       field: 'salary',
       label: 'Salary',
-      width: 8,
+      width: 3,
       filter: true
     },
     {

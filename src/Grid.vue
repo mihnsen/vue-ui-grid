@@ -32,10 +32,10 @@
     table.vgrid-table.vgrid-striped.vgrid-bordered
       thead
         tr
-          th(
+          th.vgrid-field-header(
             v-for="col in visibleCols",
             @click="setOrder(col.field)",
-            :class="headerColumnClasses[col.field]"
+            :class="headerColumnClasses(col)"
             :key="col.id"
           )
             span {{ (col.label || col.field) | vgrid_header }}
@@ -306,29 +306,6 @@ export default class VGrid extends Vue {
       )
   }
 
-  get headerColumnClasses(): string[] {
-    const result = []
-
-    // eslint-disable-next-line
-    for (const item of this.visibleCols) {
-      if (item.order && item.type !== 'custom') {
-        let classes = 'orderable'
-
-        if (item.field === this.order.by) {
-          classes += ` ${this.order.type}`
-        }
-
-        result[item.field] = classes
-      }
-
-      if (item.type === 'custom') {
-        result[item.field] = item.field
-      }
-    }
-
-    return result
-  }
-
   get columnClasses() {
     const result = []
 
@@ -359,6 +336,34 @@ export default class VGrid extends Vue {
         this.order.type = 'desc'
       }
     }
+  }
+
+  headerColumnClasses(column: any) {
+    const type = column.type || 'text'
+    const { field } = column
+
+    const classes = [
+      `column-type-${type}`,
+      `column-data-${field}`
+    ]
+
+    if (column.width) {
+      classes.push(`vgrid-field-${column.width}`)
+    }
+
+    if (column.order && column.type !== 'custom') {
+      classes.push('orderable')
+
+      if (column.field === this.order.by) {
+        classes.push(`${this.order.type}`)
+      }
+    }
+
+    if (column.class) {
+      classes.push(column.class)
+    }
+
+    return classes
   }
 }
 </script>

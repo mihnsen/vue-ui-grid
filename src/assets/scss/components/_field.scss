@@ -9,3 +9,11 @@
     @include make-col($i, $grid-columns);
   }
 }
+
+.vgrid-field-header {
+  @for $i from 1 through $grid-columns {
+    &.vgrid-field-#{$i} {
+      width: percentage($i / $grid-columns);
+    }
+  }
+}
