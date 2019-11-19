@@ -17,37 +17,4 @@
 $breakpoints: $grid-breakpoints;
 $columns:     $grid-columns;
 
-@each $breakpoint in map-keys($breakpoints) {
-  $infix: breakpoint-infix($breakpoint, $breakpoints);
-
-  // Allow columns to stretch full width below their breakpoints
-  @for $i from 1 through $columns {
-    .vgrid-col#{$infix}-#{$i} {
-      @extend %grid-column;
-    }
-  }
-  .vgrid-col#{$infix},
-  .vgrid-col#{$infix}-auto {
-    @extend %grid-column;
-  }
-
-  @include media-breakpoint-up($breakpoint, $breakpoints) {
-    // Provide basic `.col-{bp}` classes for equal-width flexbox columns
-    .vgrid-col#{$infix} {
-      flex-basis: 0;
-      flex-grow: 1;
-      max-width: 100%;
-    }
-    .vgrid-col#{$infix}-auto {
-      flex: 0 0 auto;
-      width: auto;
-      max-width: 100%; // Reset earlier grid tiers
-    }
-
-    @for $i from 1 through $columns {
-      .vgrid-col#{$infix}-#{$i} {
-        @include make-col($i, $columns);
-      }
-    }
-  }
-}
+@include vgrid-make-grid-columns($grid-columns, $grid-breakpoints);
