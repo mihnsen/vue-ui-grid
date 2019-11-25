@@ -7,9 +7,10 @@
         :value="col.field"
       ) {{ col.label }}
     label
-      span Order:
+      span Sort:
       strong {{ orderedColumn.label }}
   button.vgrid-order-type(
+    v-if="hasOrderType",
     @click="toggleType"
   ) {{ localValue.type }}
 </template>
@@ -31,6 +32,9 @@ export default class GridOrder extends Vue {
 
   @Prop({ type: Array, default: () => ([]) })
   columns!: Array<any>
+
+  @Prop({ type: Boolean, default: true })
+  hasOrderType!: boolean
 
   get orderedColumn() {
     return this.columns.find((c) => c.field === this.localValue.by) || {}

@@ -8,6 +8,9 @@ $vgrid-y-gutter:              .75rem !default;
 $vgrid-cell-padding:          $vgrid-y-gutter !default;
 $vgrid-cell-padding-sm:       .3rem !default;
 
+$vgrid-margin-bottom:         1.5rem !default;
+$vgrid-data-min-height:       5px !default;
+
 $vgrid-color-light:           #f4f6f8 !default;
 
 $vgrid-color:                 $body-color !default;
@@ -52,7 +55,7 @@ $vgrid-search-width:          180px !default;
 $vgrid-select-width:          140px !default;
 $vgrid-select-bg:             $vgrid-color-light !default;
 
-$vgrid-input-height:          32px !default;
+$vgrid-input-height:          34px !default;
 
 // Table
 $vgrid-table-border:          $border-color !default;
@@ -68,3 +71,8 @@ $vgrid-action-column-border:       transparent !default;
 $vgrid-action-column-hover-color:  inherit !default;
 $vgrid-action-column-hover-bg:     darken($vgrid-color-light, 10%) !default;
 $vgrid-action-column-hover-border: transparent !default;
+
+// Spinner
+
+$vgrid-spinner-width:         30px;
+$vgrid-spinner-border-width:  2px;

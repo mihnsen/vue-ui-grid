@@ -23,3 +23,8 @@ export function gridMethod(a: string): string;
 export const Grid: object;
 export const List: object;
 export const Cards: object;
+
+// Ajax
+export const AjaxGrid: object;
+export const AjaxList: object;
+export const AjaxCards: object;

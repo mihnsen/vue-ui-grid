@@ -1,115 +1,19 @@
 <template lang="pug">
-.vgrid
-  .vgrid-header
-    slot(name="header-start")
-    GridFilter(
-      v-if="filterable && hasColumnFilter",
-      v-model="where",
-      :columns="columns"
-    )
-    GridSearch(
-      v-model="searchKeyword",
-      :placeholder="searchPlaceholder",
-      v-if="searchable"
-    )
-    GridOrder.vgrid-ml-auto(
-      v-if="orderable && hasColumnOrder",
-      v-model="order",
-      :columns="columns"
-    )
-    ColumnsVisibility.vgrid-ml-auto(
-      v-if="columnVisible"
-      :columns="columns",
-      v-model="columnVisibility",
-    )
-    ExportButton.vgrid-ml-auto(
-      v-if="exportable"
-      :columns="visibleCols",
-      :data="dataCollections",
-      :file-name="exportFileName"
-    )
-    slot(name="header-end")
-  .vgrid-body.vgrid-responsive
-    table.vgrid-table
-      thead
-        tr
-          th.vgrid-field-header(
-            v-for="col in visibleCols",
-            @click="setOrder(col.field)",
-            :class="headerColumnClasses(col)"
-            :key="col.id"
-          )
-            span {{ (col.label || col.field) | vgrid_header }}
-      tbody
-        tr.vgrid-table-filter(
-          v-if="columnFilterable && hasColumnFilter"
-        )
-          td(
-            v-for="col in visibleCols",
-            :key="col.field",
-          )
-            ColumnFilter(
-              :column="col",
-              v-model="where[col.field]",
-            )
-        tr.vgrid-nodata(
-          v-if="!total",
-        )
-          td(
-            :colspan="visibleCols.length"
-          )
-            span(v-if="!isFiltered") {{ strEmptyData }}
-            span(v-else) {{ strEmptyFilteredData }}
-        tr(
-          v-for="entry in showedData",
-        )
-          slot(
-            :entry="entry",
-            :visible-cols="visibleCols"
-          )
-            td(
-              v-for="col in visibleCols",
-              :key="col.field"
-            )
-              ColumnType(
-                :column="col",
-                :data="entry",
-                :key="col.id",
-                :class="columnClasses[col.field]",
-              )
-                slot(:name="'column-' + col.field", :entry="entry")
-  .vgrid-footer
-    PageSize(
-      v-if="pagination",
-      v-model="limit"
-    )
-    GridStatus(
-      :v-if="status",
-      :limit="limit",
-      :current-page="currentPage",
-      :showed="showedData.length",
-      :total="total"
-    )
-    Pagination(
-      v-if="pagination",
-      v-model="currentPage",
-      :limit="limit",
-      :total="total",
-    )
+include BasicGrid.pug
 </template>
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import Pagination from './components/Pagination.vue'
-import ColumnType from './components/ColumnType.vue'
-import ColumnFilter from './components/ColumnFilter.vue'
-import GridFilter from './components/Filter.vue'
-import GridOrder from './components/Order.vue'
-import PageSize from './components/PageSize.vue'
-import ColumnsVisibility from './components/ColumnsVisibility.vue'
-import GridSearch from './components/Search.vue'
-import GridStatus from './components/Status.vue'
-import ExportButton from './components/ExportButton.vue'
-import Order from './interfaces/order'
+import Pagination from '../Pagination.vue'
+import ColumnType from '../ColumnType.vue'
+import ColumnFilter from '../ColumnFilter.vue'
+import GridFilter from '../Filter.vue'
+import GridOrder from '../Order.vue'
+import PageSize from '../PageSize.vue'
+import ColumnsVisibility from '../ColumnsVisibility.vue'
+import GridSearch from '../Search.vue'
+import GridStatus from '../Status.vue'
+import ExportButton from '../ExportButton.vue'
+import Order from '../../interfaces/order'
 
 interface Where {
   [key: string]: string
@@ -189,6 +93,16 @@ export default class VGrid extends Vue {
   @Prop()
   exportFileName!: string
 
+  // For cards
+  @Prop({ default: 2 })
+  colMd!: number
+
+  @Prop({ default: 3 })
+  colLg!: number
+
+  @Prop({ default: 4 })
+  colXl!: number
+
   @Watch('columns')
   setColumnVisibility() {
     this.columnVisibility = this.columns
@@ -226,6 +140,10 @@ export default class VGrid extends Vue {
   order: Order = { by: '', type: 'desc' }
   where: Where = {}
   columnVisibility: Array<string> = []
+  hasOrderType: boolean = true
+
+  displayType: string = 'grid'
+  dataType: string = 'js'
 
   get searchedData() {
     let searched = [...this.dataCollections.filter((r) => r)]
@@ -343,6 +261,21 @@ export default class VGrid extends Vue {
     return this.filteredData.length !== this.dataCollections.length
   }
 
+  get gridClasses() {
+    return [
+      `vgrid-${this.displayType}`,
+      `vgrid-${this.dataType}`
+    ]
+  }
+
+  get cardColumnClasses() {
+    return [
+      `vgrid-col-md-${this.colMd}`,
+      `vgrid-col-lg-${this.colLg}`,
+      `vgrid-col-xl-${this.colXl}`
+    ]
+  }
+
   created() {
     this.setColumnVisibility()
     this.setDataCollections()
@@ -353,7 +286,9 @@ export default class VGrid extends Vue {
 
     if (column.order && column.type !== 'custom') {
       if (this.order.by === field) {
-        this.order.type = this.order.type === 'desc' ? 'asc' : 'desc'
+        if (this.hasOrderType) {
+          this.order.type = this.order.type === 'desc' ? 'asc' : 'desc'
+        }
       } else {
         this.order.by = field
         this.order.type = 'desc'
@@ -394,7 +329,3 @@ export default class VGrid extends Vue {
   }
 }
 </script>
-
-<style lang="scss">
-@import './assets/scss/index'
-</style>

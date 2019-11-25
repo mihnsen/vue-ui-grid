@@ -1,0 +1,48 @@
+.vgrid-responsive
+  table.vgrid-table
+    thead
+      tr
+        th.vgrid-field-header(
+          v-for="col in visibleCols",
+          @click="setOrder(col.field)",
+          :class="headerColumnClasses(col)"
+          :key="col.id"
+        )
+          span {{ (col.label || col.field) | vgrid_header }}
+      tr.vgrid-table-filter(
+        v-if="columnFilterable && hasColumnFilter"
+      )
+        td(
+          v-for="col in visibleCols",
+          :key="col.field",
+        )
+          ColumnFilter(
+            :column="col",
+            v-model="where[col.field]",
+          )
+      tr.vgrid-nodata(
+        v-if="!total",
+      )
+        td(
+          :colspan="visibleCols.length"
+        )
+          span(v-if="!isFiltered") {{ strEmptyData }}
+          span(v-else) {{ strEmptyFilteredData }}
+      tr(
+        v-for="entry in showedData",
+      )
+        slot(
+          :entry="entry",
+          :visible-cols="visibleCols"
+        )
+          td(
+            v-for="col in visibleCols",
+            :key="col.field"
+          )
+            ColumnType(
+              :column="col",
+              :data="entry",
+              :key="col.id",
+              :class="columnClasses[col.field]",
+            )
+              slot(:name="'column-' + col.field", :entry="entry")

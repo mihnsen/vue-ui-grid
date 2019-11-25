@@ -96,7 +96,7 @@ export default class App extends Vue {
     {
       field: 'salary',
       label: 'Salary',
-      format: (entry) => `<u/>${entry.salary}</u>`,
+      format: (entry: any) => `<u/>${entry.salary}</u>`,
       width: 3,
       filter: true
     },

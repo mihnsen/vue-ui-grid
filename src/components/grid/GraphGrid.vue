@@ -1,108 +1,10 @@
 <template lang="pug">
-.vgrid
-  .vgrid-header
-    slot(name="header-start")
-    GridFilter(
-      v-if="filterable && hasColumnFilter",
-      v-model="where",
-      :columns="columns"
-    )
-    GridSearch(
-      v-model="searchKeyword",
-      :placeholder="searchPlaceholder",
-      v-if="searchable"
-    )
-    GridOrder.vgrid-ml-auto(
-      v-if="orderable && hasColumnOrder",
-      v-model="order",
-      :columns="columns"
-    )
-    ColumnsVisibility.vgrid-ml-auto(
-      v-if="columnVisible"
-      :columns="columns",
-      v-model="columnVisibility",
-    )
-    ExportButton.vgrid-ml-auto(
-      v-if="exportable"
-      :columns="visibleCols",
-      :data="dataCollections",
-      :file-name="exportFileName"
-    )
-    slot(name="header-end")
-  .vgrid-body.vgrid-responsive
-    .vgrid-loader(v-if="isLoading")
-      span IS LOADING
-    table.vgrid-table(v-else)
-      thead
-        tr
-          th.vgrid-field-header(
-            v-for="col in visibleCols",
-            @click="setOrder(col.field)",
-            :class="headerColumnClasses(col)"
-            :key="col.id"
-          )
-            span {{ (col.label || col.field) | vgrid_header }}
-      tbody
-        tr.vgrid-table-filter(
-          v-if="columnFilterable && hasColumnFilter"
-        )
-          td(
-            v-for="col in visibleCols",
-            :key="col.field",
-          )
-            ColumnFilter(
-              :column="col",
-              v-model="where[col.field]",
-            )
-        tr.vgrid-nodata(
-          v-if="!total",
-        )
-          td(
-            :colspan="visibleCols.length"
-          )
-            span(v-if="!isFiltered") {{ strEmptyData }}
-            span(v-else) {{ strEmptyFilteredData }}
-        tr(
-          v-for="entry in showedData",
-        )
-          slot(
-            :entry="entry",
-            :visible-cols="visibleCols"
-          )
-            td(
-              v-for="col in visibleCols",
-              :key="col.field"
-            )
-              ColumnType(
-                :column="col",
-                :data="entry",
-                :key="col.id",
-                :class="columnClasses[col.field]",
-              )
-                slot(:name="'column-' + col.field", :entry="entry")
-  .vgrid-footer
-    PageSize(
-      v-if="pagination",
-      v-model="limit"
-    )
-    GridStatus(
-      :v-if="status",
-      :limit="limit",
-      :current-page="currentPage",
-      :showed="showedData.length",
-      :total="total"
-    )
-    Pagination(
-      v-if="pagination",
-      v-model="currentPage",
-      :limit="limit",
-      :total="total",
-    )
+extends BasicGrid.pug
 </template>
 <script lang="ts">
 import gql from 'graphql-tag'
 import { Component, Vue, Prop } from 'vue-property-decorator'
-import Grid from './Grid.vue'
+import Grid from './BasicGrid.vue'
 
 @Component
 export default class GraphGrid extends Grid {
@@ -115,6 +17,7 @@ export default class GraphGrid extends Grid {
   @Prop({ required: true })
   resourceMetaQuery!: string
 
+  dataType: string = 'graphql'
   offsetKey: string = this.$graphGrid.offsetKey
   limitKey: string = this.$graphGrid.limitKey
   filterKey: string = this.$graphGrid.filterKey
@@ -242,7 +145,7 @@ export default class GraphGrid extends Grid {
       }
     `
 
-    console.log(query)
+    // console.log(query)
     return query
   }
 

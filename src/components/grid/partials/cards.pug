@@ -1,0 +1,24 @@
+.vgrid-nodata(
+  v-if="!total",
+)
+  span(v-if="!isFiltered") {{ strEmptyData }}
+  span(v-else) {{ strEmptyFilteredData }}
+.vgrid-row
+  .vgrid-col(
+    :class="cardColumnClasses",
+    v-for="entry in showedData"
+  )
+    slot(
+      :entry="entry",
+      :visible-cols="visibleCols"
+    )
+      .vgrid-entry-wrapper
+        ColumnType(
+          v-for="col in visibleCols"
+          :column="col",
+          :data="entry",
+          :key="col.id",
+          :resize="true",
+          :class="columnClasses[col.field]",
+        )
+          slot(:name="'column-' + col.field", :entry="entry")

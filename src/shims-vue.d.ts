@@ -4,7 +4,7 @@ declare module '*.vue' {
   export default Vue
 }
 
-declare interface VGraphGrid {
+declare interface GraphGrid {
   offsetKey: string;
   filterKey: string;
   limitKey: string;
@@ -13,8 +13,24 @@ declare interface VGraphGrid {
   graphqlDataCounter(data: any): number;
 }
 
+declare interface AjaxGridExtracedData {
+  items: Array<any>;
+  total: number;
+}
+
+declare interface AjaxGrid {
+  rootUrl: string;
+  pageKey: string;
+  perPageKey: string;
+  sortKey: string;
+  sortTypeKey: string;
+  getPageIndex(index: number): number;
+  extractData(data: any): AjaxGridExtracedData;
+}
+
 declare module "vue/types/vue" {
   interface Vue {
-    $graphGrid: VGraphGrid;
+    $graphGrid: GraphGrid;
+    $ajaxGrid: AjaxGrid;
   }
 }

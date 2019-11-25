@@ -1,4 +1,5 @@
 .vgrid {
+  margin-bottom: $vgrid-margin-bottom;
   text-align: left;
 
   &,
@@ -11,6 +12,17 @@
   }
 }
 
+.vgrid-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .vgrid-header {
   margin-bottom: 1rem;
   display: flex;
@@ -19,6 +31,11 @@
   > *:not(:last-child) {
     margin-right: .25rem;
   }
+}
+
+.vgrid-body {
+  position: relative;
+  min-height: $vgrid-data-min-height;
 }
 
 .vgrid-footer {

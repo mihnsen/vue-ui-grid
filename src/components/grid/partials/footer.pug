@@ -1,0 +1,18 @@
+.vgrid-footer
+  PageSize(
+    v-if="pagination",
+    v-model="limit"
+  )
+  GridStatus(
+    :v-if="status",
+    :limit="limit",
+    :current-page="currentPage",
+    :showed="showedData.length",
+    :total="total"
+  )
+  Pagination(
+    v-if="pagination",
+    v-model="currentPage",
+    :limit="limit",
+    :total="total",
+  )

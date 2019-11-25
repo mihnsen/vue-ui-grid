@@ -1,16 +1,28 @@
-import Grid from './Grid.vue'
-import Cards from './Cards.vue'
-import List from './List.vue'
-import GraphGrid from './GraphGrid.vue'
+import Grid from './components/grid/BasicGrid.vue'
+import Cards from './components/grid/BasicCards.vue'
+import List from './components/grid/BasicList.vue'
+
+import AjaxGrid from './components/grid/AjaxGrid.vue'
+import AjaxList from './components/grid/AjaxList.vue'
+import AjaxCards from './components/grid/AjaxCards.vue'
+
+import GraphGrid from './components/grid/GraphGrid.vue'
+import GraphList from './components/grid/GraphList.vue'
+import GraphCards from './components/grid/GraphCards.vue'
+
+import './assets/scss/_index.scss'
 
 const Plugin = {
   install(Vue: any, options: any = {}) {
     console.log('here', options)
     Vue.component('VGrid', Grid)
     Vue.component('VList', List)
+    Vue.component('VCards', Cards)
 
     if (options.graphql) {
       Vue.component('VGraphGrid', GraphGrid)
+      Vue.component('VGraphList', GraphList)
+      Vue.component('VGraphCards', GraphCards)
 
       Vue.prototype.$graphGrid = {
         filterKey: options.filterKey || 'where',
@@ -22,6 +34,24 @@ const Plugin = {
       }
     }
 
+    if (options.ajax) {
+      Vue.component('VAjaxGrid', AjaxGrid)
+      Vue.component('VAjaxList', AjaxList)
+      Vue.component('VAjaxCards', AjaxCards)
+
+      Vue.prototype.$ajaxGrid = {
+        rootUrl: options.rootUrl,
+        extractData: options.extractData,
+        pageKey: options.pageKey || 'page',
+        sortKey: options.sortKey || 'sort',
+        sortTypeKey: options.sortTypeKey,
+        perPageKey: options.perPageKey || 'limit',
+
+        // Funcs
+        getPageIndex: options.getPageIndex
+      }
+    }
+
     // TODO option ajax
   }
 }
@@ -29,8 +59,7 @@ const Plugin = {
 export {
   Grid,
   Cards,
-  List,
-  GraphGrid
+  List
 }
 
 export default Plugin

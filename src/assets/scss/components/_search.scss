@@ -2,9 +2,11 @@
   display: inline-flex;
   align-items: flex-start;
   width: $vgrid-search-width;
-  min-width: 100px;
+  min-width: 150px;
 
   .vgrid-input {
     text-align: left;
+    border-width: 2px;
+    background-color: rgb(250, 251, 252);
   }
 }
