@@ -5,16 +5,17 @@
     type="text",
     :placeholder="placeholder",
     v-model="localValue",
+    @input="onChange",
     v-on:keyup.enter="onEnter"
   )
   a.vgrid-input-clear(
-    v-if="localValue",
+    v-if="value",
     href="javascript:;",
     @click="clearFilter"
   ) &times;
 </template>
 <script lang="ts">
-import { Component, PropSync, Prop, Emit, Vue } from 'vue-property-decorator'
+import { Component, PropSync, Watch, Prop, Emit, Vue } from 'vue-property-decorator'
 
 @Component({
   model: {
@@ -23,8 +24,8 @@ import { Component, PropSync, Prop, Emit, Vue } from 'vue-property-decorator'
   }
 })
 export default class TextInput extends Vue {
-  @PropSync('value', { type: String, default: '' })
-  localValue!: string
+  @Prop({ type: String, default: '' })
+  value!: string
 
   @Prop()
   placeholder!: string
@@ -32,8 +33,18 @@ export default class TextInput extends Vue {
   @Prop({ default: true })
   clearable!: boolean
 
+  localValue: string = this.value
+
+  @Watch('value')
+  setValue() {
+    this.localValue = this.value
+  }
+
+  typing: boolean = false
+  timeout: any = false
+
   clearFilter() {
-    this.localValue = ''
+    this.updateValue('')
   }
 
   stop() {}
@@ -47,5 +58,23 @@ export default class TextInput extends Vue {
 
   @Emit('enter')
   onEnter() {}
+
+  onChange(event: Event) {
+    this.typing = true
+    if (this.timeout) {
+      clearTimeout(this.timeout)
+    }
+
+    this.timeout = setTimeout(() => {
+      const value = (event.target as HTMLInputElement).value
+      this.typing = false
+      this.updateValue(value)
+      clearTimeout(this.timeout)
+    }, 500)
+  }
+
+  updateValue(val: string) {
+    this.$emit('update:value', val)
+  }
 }
 </script>

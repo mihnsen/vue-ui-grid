@@ -25,7 +25,7 @@
     ExportButton.vgrid-ml-auto(
       v-if="exportable"
       :columns="visibleCols",
-      :data="data",
+      :data="dataCollections",
       :file-name="exportFileName"
     )
     slot(name="header-end")
@@ -53,12 +53,12 @@
               v-model="where[col.field]",
             )
         tr.vgrid-nodata(
-          v-if="!totalFiltered",
+          v-if="!total",
         )
           td(
             :colspan="visibleCols.length"
           )
-            span(v-if="!total") {{ strEmptyData }}
+            span(v-if="!isFiltered") {{ strEmptyData }}
             span(v-else) {{ strEmptyFilteredData }}
         tr(
           v-for="entry in showedData",
@@ -88,13 +88,13 @@
       :limit="limit",
       :current-page="currentPage",
       :showed="showedData.length",
-      :total="totalFiltered"
+      :total="total"
     )
     Pagination(
       v-if="pagination",
       v-model="currentPage",
       :limit="limit",
-      :total="totalFiltered",
+      :total="total",
     )
 </template>
 <script lang="ts">
@@ -141,11 +141,11 @@ interface Where {
   }
 })
 export default class VGrid extends Vue {
-  @Prop({ required: true, default: () => ([]) })
-  data!: any[]
+  @Prop({ default: () => ([]) })
+  data!: Array<any>
 
   @Prop({ required: true, default: () => ([]) })
-  columns!: any[]
+  columns!: Array<any>
 
   @Prop({ default: 10 })
   perPage!: number
@@ -197,16 +197,38 @@ export default class VGrid extends Vue {
       .map(c => c.field)
   }
 
+  @Watch('where', { immediate: true, deep: true })
+  updateGridAfterQueryChanged() {
+    this.resetState()
+  }
+
+  @Watch('searchKeyword')
+  updateGridAfterSearchChanged() {
+    this.resetState()
+  }
+
+  @Watch('data')
+  setDataCollections() {
+    this.dataCollections = this.data
+
+    this.$nextTick(() => {
+      this.total = this.filteredData.length
+    })
+  }
+
+  // Attributes
+  dataCollections: Array<any> = []
+  total: number = 0
   currentPage = this.index
   searchKeyword: string = ''
   limit: number = this.perPage
-
+  isLoading: boolean = false
   order: Order = { by: '', type: 'desc' }
   where: Where = {}
   columnVisibility: Array<string> = []
 
   get searchedData() {
-    let searched = [...this.data.filter((r) => r)]
+    let searched = [...this.dataCollections.filter((r) => r)]
 
     if (this.searchKeyword) {
       const re = new RegExp(this.searchKeyword, 'gi')
@@ -283,14 +305,6 @@ export default class VGrid extends Vue {
     return showedData
   }
 
-  get total() {
-    return this.data.length
-  }
-
-  get totalFiltered() {
-    return this.filteredData.length
-  }
-
   get hasColumnFilter() {
     return this.visibleCols.some((c) => c.filter)
   }
@@ -325,8 +339,13 @@ export default class VGrid extends Vue {
     return result
   }
 
+  get isFiltered() {
+    return this.filteredData.length !== this.dataCollections.length
+  }
+
   created() {
     this.setColumnVisibility()
+    this.setDataCollections()
   }
 
   setOrder(field: string) {
@@ -368,6 +387,10 @@ export default class VGrid extends Vue {
     }
 
     return classes
+  }
+
+  resetState() {
+    this.currentPage = 0
   }
 }
 </script>

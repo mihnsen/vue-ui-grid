@@ -30,9 +30,9 @@
     slot(name="header-end")
   .vgrid-body
     .vgrid-nodata(
-      v-if="!showedData.length",
+      v-if="!total",
     )
-      span(v-if="!total") {{ strEmptyData }}
+      span(v-if="!isFiltered") {{ strEmptyData }}
       span(v-else) {{ strEmptyFilteredData }}
     .vgrid-row
       .vgrid-col(
@@ -63,13 +63,13 @@
       :limit="limit",
       :current-page="currentPage",
       :showed="showedData.length",
-      :total="totalFiltered"
+      :total="total"
     )
     Pagination(
       v-if="pagination",
       v-model="currentPage",
       :limit="limit",
-      :total="totalFiltered",
+      :total="total",
     )
 </template>
 <script lang="ts">
