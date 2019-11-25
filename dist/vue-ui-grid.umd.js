@@ -16587,7 +16587,6 @@ var _index = __webpack_require__("5a41");
 var Plugin = {
   install: function install(Vue) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-    console.log('here', options);
     Vue.component('VGrid', BasicGrid);
     Vue.component('VList', BasicList);
     Vue.component('VCards', BasicCards);
@@ -16620,8 +16619,7 @@ var Plugin = {
         // Funcs
         getPageIndex: options.getPageIndex
       };
-    } // TODO option ajax
-
+    }
   }
 };
 

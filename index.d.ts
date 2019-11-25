@@ -13,7 +13,14 @@
  *~ loaded outside a module loader environment, declare that global here.
  *~ Otherwise, delete this declaration.
  */
-export as namespace VGrid;
+import Vue, { PluginObject, PluginFunction } from 'vue'
+
+export default class VGrid implements PluginObject<{}>{
+  [key: string]: any
+  install: PluginFunction<{}>
+
+  static install(pVue: typeof Vue, options?:{} | undefined): void
+}
 
 /*~ If this module has methods, declare them as functions like so.
  */
@@ -28,3 +35,8 @@ export const Cards: object;
 export const AjaxGrid: object;
 export const AjaxList: object;
 export const AjaxCards: object;
+
+// Graph
+export const GraphGrid: object;
+export const GraphList: object;
+export const GraphCards: object;
