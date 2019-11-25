@@ -14,7 +14,6 @@ import './assets/scss/_index.scss'
 
 const Plugin = {
   install(Vue: any, options: any = {}) {
-    console.log('here', options)
     Vue.component('VGrid', Grid)
     Vue.component('VList', List)
     Vue.component('VCards', Cards)
@@ -51,8 +50,6 @@ const Plugin = {
         getPageIndex: options.getPageIndex
       }
     }
-
-    // TODO option ajax
   }
 }
 
