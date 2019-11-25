@@ -31,18 +31,3 @@
     animation: vgrid-spinner-border .75s linear infinite;
   }
 }
-
-.vgrid {
-  tbody {
-    min-height: 100px;
-    position: relative;
-
-    .vgrid-loader-tr {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  }
-}

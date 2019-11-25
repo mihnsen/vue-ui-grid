@@ -9,6 +9,7 @@
           :key="col.id"
         )
           span {{ (col.label || col.field) | vgrid_header }}
+    tbody
       tr.vgrid-table-filter(
         v-if="columnFilterable && hasColumnFilter"
       )
