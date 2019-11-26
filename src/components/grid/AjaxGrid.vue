@@ -48,6 +48,10 @@ export default class AjaxGrid extends Grid {
   @Watch('currentPage')
   @Watch('order', { immediate: true, deep: true })
   getAjaxData() {
+    if (this.isLoading) {
+      return
+    }
+
     let currPage = this.currentPage
 
     if (this.getPageIndex) {
