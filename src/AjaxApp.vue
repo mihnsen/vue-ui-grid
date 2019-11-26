@@ -8,7 +8,18 @@
     VAjaxCards(
       search-field="name",
       resource="programmes",
-      :per-page="2",
+      :columns="gridColumns",
+      :orderable="true"
+    )
+    VAjaxGrid(
+      search-field="name",
+      resource="programmes",
+      :columns="gridColumns",
+      :orderable="true"
+    )
+    VAjaxList(
+      search-field="name",
+      resource="programmes",
       :columns="gridColumns",
       :orderable="true"
     )

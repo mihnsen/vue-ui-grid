@@ -5,14 +5,18 @@ import GraphqlApp from './GraphqlApp.vue'
 import AjaxApp from './AjaxApp.vue'
 import apolloProvider from './apollo-provider'
 import VueUIGrid from './vue-grid'
+import axios from 'axios'
 
 Vue.config.productionTip = false
+
+axios.defaults.baseURL = 'http://localhost:3091/api/'
 
 Vue.use(VueUIGrid, {
   graphql: true,
   ajax: true,
-  rootUrl: 'http://localhost:3091/api/',
-  extractData: (data: any) => {
+  fetchData: axios.get,
+  extractData: (responseData: any) => {
+    const data = responseData.data
     return {
       items: data.items,
       total: data.totalItems
@@ -42,5 +46,5 @@ Vue.use(VueUIGrid, {
 
 new Vue({
   apolloProvider,
-  render: h => h(App)
+  render: h => h(AjaxApp)
 }).$mount('#app')

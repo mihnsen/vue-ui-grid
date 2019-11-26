@@ -39,12 +39,12 @@ const Plugin = {
       Vue.component('VAjaxCards', AjaxCards)
 
       Vue.prototype.$ajaxGrid = {
-        rootUrl: options.rootUrl,
         extractData: options.extractData,
         pageKey: options.pageKey || 'page',
         sortKey: options.sortKey || 'sort',
         sortTypeKey: options.sortTypeKey,
         perPageKey: options.perPageKey || 'limit',
+        fetchData: options.fetchData || 'limit',
 
         // Funcs
         getPageIndex: options.getPageIndex

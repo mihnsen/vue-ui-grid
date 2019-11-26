@@ -4,7 +4,6 @@ extends BasicGrid.pug
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Grid from './BasicGrid.vue'
-import axios from 'axios'
 
 @Component({
   name: 'VAjaxGrid'
@@ -18,13 +17,13 @@ export default class AjaxGrid extends Grid {
 
   dataType: string = 'ajax'
   hasOrderType = false
-  rootUrl: string = this.$ajaxGrid.rootUrl
   pageKey: string = this.$ajaxGrid.pageKey
   perPageKey: string = this.$ajaxGrid.perPageKey
   sortKey: string = this.$ajaxGrid.sortKey
   sortTypeKey: string = this.$ajaxGrid.sortTypeKey
   getPageIndex: Function = this.$ajaxGrid.getPageIndex
   extractData: Function = this.$ajaxGrid.extractData
+  fetchData: Function = this.$ajaxGrid.fetchData
 
   // Customize data
   get filteredData() {
@@ -76,12 +75,11 @@ export default class AjaxGrid extends Grid {
 
     this.isLoading = true
 
-    return axios.get(`${this.rootUrl}${this.resource}`, {
+    return this.fetchData(this.resource, {
       params
     })
-      .then((data) => data.data)
-      .then((responseData) => {
-        const extractedData = this.extractData(responseData)
+      .then((data: any) => {
+        const extractedData = this.extractData(data)
 
         if (extractedData) {
           this.dataCollections = extractedData.items

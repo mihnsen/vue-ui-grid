@@ -19,13 +19,13 @@ declare interface AjaxGridExtracedData {
 }
 
 declare interface AjaxGrid {
-  rootUrl: string;
   pageKey: string;
   perPageKey: string;
   sortKey: string;
   sortTypeKey: string;
   getPageIndex(index: number): number;
   extractData(data: any): AjaxGridExtracedData;
+  fetchData(data: any): any;
 }
 
 declare module "vue/types/vue" {
