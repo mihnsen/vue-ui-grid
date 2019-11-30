@@ -19,6 +19,7 @@ interface Where {
   [key: string]: string
 }
 
+// TODO Customize filter from parent
 @Component({
   name: 'VGrid',
   components: {

@@ -162,6 +162,7 @@ export default class GraphGrid extends Grid {
       variables() {
         return this.variables
       },
+      loadingKey: 'loading',
       watchLoading(isLoading: boolean) {
         if (isLoading) {
           _self.isLoading = true
