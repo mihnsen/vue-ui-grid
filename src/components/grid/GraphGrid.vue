@@ -1,5 +1,7 @@
 <template lang="pug">
 extends BasicGrid.pug
+block search
+  // Disable search
 </template>
 <script lang="ts">
 import gql from 'graphql-tag'
@@ -14,13 +16,11 @@ export default class GraphGrid extends Grid {
   @Prop({ required: true })
   resourceMeta!: string
 
-  @Prop({ required: true })
-  resourceMetaQuery!: string
-
   dataType: string = 'graphql'
   offsetKey: string = this.$graphGrid.offsetKey
   limitKey: string = this.$graphGrid.limitKey
   filterKey: string = this.$graphGrid.filterKey
+  aggregateQuery: string = this.$graphGrid.aggregateQuery
   graphqlFilter: Function = this.$graphGrid.graphqlFilter
   graphqlOrder: Function = this.$graphGrid.graphqlOrder
   graphqlDataCounter: Function = this.$graphGrid.graphqlDataCounter
@@ -130,7 +130,7 @@ export default class GraphGrid extends Grid {
             ${this.searchQuery}
           }
         ) {
-          ${this.resourceMetaQuery}
+          ${this.aggregateQuery}
         }
         ${this.resource} (
           ${this.offsetKey}: $offset,

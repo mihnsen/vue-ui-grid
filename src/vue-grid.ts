@@ -27,6 +27,7 @@ const Plugin = {
         filterKey: options.filterKey || 'where',
         limitKey: options.limitKey || 'limit',
         offsetKey: options.offsetKey || 'offset',
+        aggregateQuery: options.aggregateQuery || 'aggregate { count }',
         graphqlFilter: options.graphqlFilter,
         graphqlOrder: options.graphqlOrder,
         graphqlDataCounter: options.graphqlDataCounter

@@ -8,6 +8,7 @@ declare interface GraphGrid {
   offsetKey: string;
   filterKey: string;
   limitKey: string;
+  aggregateQuery: string;
   graphqlFilter(column: any, value: string): string;
   graphqlOrder(by: string, type: string): string;
   graphqlDataCounter(data: any): number;

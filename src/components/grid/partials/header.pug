@@ -1,29 +1,34 @@
 .vgrid-header
   slot(name="header-start")
-  GridSearch(
-    v-model="searchKeyword",
-    :placeholder="searchPlaceholder",
-    v-if="searchable"
-  )
-  GridFilter(
-    v-if="filterable && hasColumnFilter",
-    v-model="where",
-    :columns="columns"
-  )
-  GridOrder.vgrid-ml-auto(
-    v-if="orderable && hasColumnOrder",
-    v-model="order",
-    :columns="columns"
-  )
-  ColumnsVisibility.vgrid-ml-auto(
-    v-if="columnVisible"
-    :columns="columns",
-    v-model="columnVisibility",
-  )
-  ExportButton.vgrid-ml-auto(
-    v-if="exportable"
-    :columns="visibleCols",
-    :data="dataCollections",
-    :file-name="exportFileName"
-  )
+  block search
+    GridSearch(
+      v-model="searchKeyword",
+      :placeholder="searchPlaceholder",
+      v-if="searchable"
+    )
+  block filter
+    GridFilter(
+      v-if="filterable && hasColumnFilter",
+      v-model="where",
+      :columns="columns"
+    )
+  block order
+    GridOrder.vgrid-ml-auto(
+      v-if="orderable && hasColumnOrder",
+      v-model="order",
+      :columns="columns"
+    )
+  block visibility
+    ColumnsVisibility.vgrid-ml-auto(
+      v-if="columnVisible"
+      :columns="columns",
+      v-model="columnVisibility",
+    )
+  block export
+    ExportButton.vgrid-ml-auto(
+      v-if="exportable"
+      :columns="visibleCols",
+      :data="dataCollections",
+      :file-name="exportFileName"
+    )
   slot(name="header-end")
