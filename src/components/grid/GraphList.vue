@@ -2,6 +2,12 @@
 extends BasicGrid.pug
 block body
   include partials/list.pug
+block search
+  GridSearch(
+    v-model="where[searchField]",
+    :placeholder="searchPlaceholder",
+    v-if="searchable"
+  )
 </template>
 <script lang="ts">
 import { Component } from 'vue-property-decorator'

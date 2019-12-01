@@ -1,7 +1,11 @@
 <template lang="pug">
 extends BasicGrid.pug
 block search
-  // Disable search
+  GridSearch(
+    v-model="where[searchField]",
+    :placeholder="searchPlaceholder",
+    v-if="searchable"
+  )
 </template>
 <script lang="ts">
 import gql from 'graphql-tag'
@@ -15,6 +19,9 @@ export default class GraphGrid extends Grid {
 
   @Prop({ required: true })
   resourceMeta!: string
+
+  @Prop()
+  searchField!: string
 
   dataType: string = 'graphql'
   offsetKey: string = this.$graphGrid.offsetKey
@@ -174,7 +181,7 @@ export default class GraphGrid extends Grid {
       },
       result(result: any) {
         const data: any = result.data
-        if (data[_self.resource]) {
+        if (data && data[_self.resource]) {
           _self.$nextTick(() => {
             _self.dataCollections = data[_self.resource]
             _self.total = _self.graphqlDataCounter(data[_self.resourceMeta])
