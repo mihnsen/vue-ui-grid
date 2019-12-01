@@ -76,6 +76,12 @@ export default class VGrid extends Vue {
   @Prop({ default: false })
   orderable!: boolean
 
+  @Prop()
+  sortBy!: string
+
+  @Prop({ default: 'desc' })
+  sortType!: string
+
   @Prop({ default: true })
   status!: boolean
 
@@ -138,7 +144,7 @@ export default class VGrid extends Vue {
   searchKeyword: string = ''
   limit: number = this.perPage
   isLoading: boolean = false
-  order: Order = { by: '', type: 'desc' }
+  order: Order = { by: this.sortBy, type: this.sortType }
   where: Where = {}
   columnVisibility: Array<string> = []
   hasOrderType: boolean = true
