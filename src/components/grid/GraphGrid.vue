@@ -23,6 +23,9 @@ export default class GraphGrid extends Grid {
   @Prop()
   searchField!: string
 
+  @Prop({ default: '' })
+  extraFilter!: string
+
   dataType: string = 'graphql'
   offsetKey: string = this.$graphGrid.offsetKey
   limitKey: string = this.$graphGrid.limitKey
@@ -134,6 +137,7 @@ export default class GraphGrid extends Grid {
       query getData($offset: Int!, $limit: Int!) {
         ${this.resourceMeta} (
           ${this.filterKey}: {
+            ${this.extraFilter}
             ${this.searchQuery}
           }
         ) {
@@ -143,6 +147,7 @@ export default class GraphGrid extends Grid {
           ${this.offsetKey}: $offset,
           ${this.limitKey}: $limit,
           ${this.filterKey}: {
+            ${this.extraFilter}
             ${this.searchQuery}
           }
           ${this.orderQuery}
