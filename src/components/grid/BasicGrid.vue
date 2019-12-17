@@ -83,7 +83,10 @@ export default class VGrid extends Vue {
   sortType!: string
 
   @Prop({ default: true })
-  status!: boolean
+  statusable!: boolean
+
+  @Prop({ default: true })
+  pagable!: boolean
 
   @Prop({ default: true })
   pagination!: boolean
