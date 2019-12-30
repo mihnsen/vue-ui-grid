@@ -1,4 +1,9 @@
 # vue-ui-grid
+Simple, fast, powerful grid package for vuejs
+
+## Demo
+https://mihnsen.github.io/vue-ui-grid/
+
 
 ## Installation
 ```
