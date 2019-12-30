@@ -1,0 +1,3 @@
+{
+  base: "/vue-ui-grid/"
+}
