@@ -1,3 +1,3 @@
-{
-  base: "/vue-ui-grid/"
+module.exports = {
+  base: '/vue-ui-grid/'
 }
