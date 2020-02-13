@@ -5,7 +5,7 @@
       src="./assets/logo.png"
     )
     div(style="width: 1000px; margin: 20px auto 50px")
-      Grid.vgrid-center(
+      Grid(
         :columns="gridColumns",
         :data="gridData",
         :per-page="6",
@@ -89,7 +89,7 @@ export default class App extends Vue {
     {
       field: 'name',
       label: 'Name',
-      format: '<strong>Q. {id} - {name} - {salary}</strong>',
+      format: 'Q. {id} - {name} - {salary}',
       width: 6,
       filter: true
     },
@@ -106,7 +106,6 @@ export default class App extends Vue {
       label: 'Start date',
       filter: true,
       width: 4,
-      class: 'vgrid-align-right',
       order: true
     },
     {

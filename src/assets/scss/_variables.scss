@@ -6,6 +6,7 @@ $vgrid-gutter:                1rem !default;
 $vgrid-y-gutter:              .75rem !default;
 
 $vgrid-cell-padding:          $vgrid-y-gutter !default;
+$vgrid-header-cell-padding:   $vgrid-y-gutter * 1.5 $vgrid-y-gutter !default;
 $vgrid-cell-padding-sm:       .3rem !default;
 
 $vgrid-margin-bottom:         1.5rem !default;
