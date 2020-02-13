@@ -330,16 +330,22 @@ export default class VGrid extends Vue {
       classes.push(`vgrid-field-${column.width}`)
     }
 
+    if (column.class) {
+      classes.push(column.class)
+    }
+
+    return classes
+  }
+
+  orderableColumnClasses(column: any) {
+    const classes = []
+
     if (column.order && column.type !== 'custom') {
       classes.push('orderable')
 
       if (column.field === this.order.by) {
         classes.push(`${this.order.type}`)
       }
-    }
-
-    if (column.class) {
-      classes.push(column.class)
     }
 
     return classes

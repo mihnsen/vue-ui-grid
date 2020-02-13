@@ -26,14 +26,19 @@
     border-top: (2 * $vgrid-border-width) solid $vgrid-table-border;
   }
 
+  .vgrid-field-header-content {
+    display: inline-flex;
+  }
+
   .orderable {
     position: relative;
+    margin-left: .5rem;
 
     &:before {
       content: '';
       position: absolute;
       bottom: calc(50% + .5px);
-      right: .1rem;
+      left: 0;
       display: block;
       width: 0;
       height: 0;
@@ -46,7 +51,7 @@
       content: '';
       position: absolute;
       top: calc(50% + .5px);
-      right: .1rem;
+      left: 0;
       display: block;
       width: 0;
       height: 0;

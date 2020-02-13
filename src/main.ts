@@ -39,25 +39,43 @@ Vue.use(VueUIGrid, {
   getPageIndex: (index: number) => (index + 1),
 
   graphql: true,
-  filterKey: 'filter',
-  limitKey: 'last',
-  offsetKey: 'skip',
+  // filterKey: 'filter',
+  // limitKey: 'last',
+  // offsetKey: 'skip',
+  // graphqlFilter(column: any, value: string) {
+  //   let result = ''
+
+  //   if (column) {
+  //     result = `${column.field}_contains: "${value}"`
+  //   }
+
+  //   return result
+  // },
+  // graphqlOrder(by: string, type: string) {
+  //   console.log(by, type)
+  //   const typeStr = type.toUpperCase()
+  //   return `orderBy: ${by}_${typeStr}`
+  // },
+  // aggregateQuery: 'count',
+  // graphqlDataCounter: (data: any) => data.count
+
   graphqlFilter(column: any, value: string) {
     let result = ''
 
     if (column) {
-      result = `${column.field}_contains: "${value}"`
+      if (column.type === 'uuid') {
+        result = `${column.field}: { _eq: "${value}" }`
+      } else {
+        result = `${column.field}: { _like: "%${value}%" }`
+      }
     }
 
     return result
   },
   graphqlOrder(by: string, type: string) {
-    console.log(by, type)
-    const typeStr = type.toUpperCase()
-    return `orderBy: ${by}_${typeStr}`
+    return `order_by: { ${by}: ${type} }`
   },
-  aggregateQuery: 'count',
-  graphqlDataCounter: (data: any) => data.count
+  graphqlDataCounter: (data: any) => data.aggregate.count
 })
 
 new Vue({

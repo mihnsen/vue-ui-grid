@@ -62,23 +62,8 @@ export default class GraphDataProvider extends ADataProvider {
     )
     const queryCols = this.options.columns.filter(col => (col.type === 'query'))
 
-    const normalCol = cols
-      .filter(col => !col.field.match(/\./))
+    return cols.filter(col => !col.field.match(/\./))
       .map(col => col.field).join('\n')
-
-    const ref: any = {}
-
-    let s = normalCol
-    Object.keys(ref).forEach((key) => {
-      const refQuery = `
-        ${key} {
-          ${ref[key].join('\n')}
-        }
-      `
-      s = `${s} ${refQuery}`
-    })
-
-    return s
   }
 
   getSearchQuery(filter?: object) {
@@ -124,16 +109,26 @@ export default class GraphDataProvider extends ADataProvider {
 
     const query = `
       query getData($offset: Int!, $limit: Int!) {
+        ${this.resource}_aggregate (
+          ${this.options.filterKey}: {
+            ${this.options.refFilter}
+            ${searchQuery}
+          }
+          ${orderQuery}
+        ) {
+          ${this.options.aggregateQuery}
+        }
         ${this.resource} (
           ${this.options.offsetKey}: $offset,
           ${this.options.limitKey}: $limit,
           ${this.options.filterKey}: {
-            ${this.options.extraFilter}
+            ${this.options.refFilter}
             ${searchQuery}
           }
           ${orderQuery}
         ) {
           ${graphColumn}
+          ${this.options.refQuery}
         }
       }
     `

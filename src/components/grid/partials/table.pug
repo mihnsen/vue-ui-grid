@@ -8,7 +8,11 @@
           :class="headerColumnClasses(col)"
           :key="col.id"
         )
-          span {{ (col.label || col.field) | vgrid_header }}
+          .vgrid-field-header-content
+            span {{ (col.label || col.field) | vgrid_header }}
+            b(
+              :class="orderableColumnClasses(col)"
+            )
     tbody
       tr.vgrid-table-filter(
         v-if="columnFilterable && hasColumnFilter"
