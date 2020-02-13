@@ -30,10 +30,11 @@
           span(v-if="!isFiltered") {{ strEmptyData }}
           span(v-else) {{ strEmptyFilteredData }}
       tr(
-        v-for="entry in showedData",
+        v-for="(entry, entryIndex) in showedData",
       )
         slot(
           :entry="entry",
+          :index="entryIndex",
           :visible-cols="visibleCols"
         )
           td(
@@ -46,4 +47,8 @@
               :key="col.id",
               :class="columnClasses[col.field]",
             )
-              slot(:name="'column-' + col.field", :entry="entry")
+              slot(
+                :name="'column-' + col.field", 
+                :entry="entry", 
+                :index="entryIndex"
+              )

@@ -16,6 +16,7 @@
     GridOrder.vgrid-ml-auto(
       v-if="orderable && hasColumnOrder",
       v-model="order",
+      :has-sort-type="hasSortType",
       :columns="columns"
     )
   block visibility

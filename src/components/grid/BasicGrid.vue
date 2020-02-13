@@ -14,6 +14,9 @@ import GridSearch from '../Search.vue'
 import GridStatus from '../Status.vue'
 import ExportButton from '../ExportButton.vue'
 import Order from '../../interfaces/order'
+import { JsonDataProvider } from '../../data-providers'
+import ColumnOption from '../../interfaces/column-option'
+import GridOption from '../../interfaces/grid-option'
 
 interface Where {
   [key: string]: string
@@ -50,7 +53,7 @@ export default class VGrid extends Vue {
   data!: Array<any>
 
   @Prop({ required: true, default: () => ([]) })
-  columns!: Array<any>
+  columns!: Array<ColumnOption>
 
   @Prop({ default: 10 })
   perPage!: number
@@ -121,7 +124,7 @@ export default class VGrid extends Vue {
       .map(c => c.field)
   }
 
-  @Watch('where', { immediate: true, deep: true })
+  @Watch('where', { deep: true })
   updateGridAfterQueryChanged() {
     this.resetState()
   }
@@ -133,14 +136,26 @@ export default class VGrid extends Vue {
 
   @Watch('data')
   setDataCollections() {
-    this.dataCollections = this.data
+    if (this.dataProvider instanceof JsonDataProvider) {
+      this.dataProvider.updateData(this.data)
+      this.getData()
+    }
+  }
 
-    this.$nextTick(() => {
-      this.total = this.filteredData.length
-    })
+  @Watch('limit') // Items per page
+  onChangeLimit() {
+    this.resetState()
+  }
+
+  @Watch('searchKeyword')
+  @Watch('currentPage')
+  @Watch('order', { deep: true })
+  onStateChanged() {
+    this.getData()
   }
 
   // Attributes
+  debug: boolean = this.$vgrid.debug || false
   dataCollections: Array<any> = []
   total: number = 0
   currentPage = this.index
@@ -150,87 +165,35 @@ export default class VGrid extends Vue {
   order: Order = { by: this.sortBy, type: this.sortType }
   where: Where = {}
   columnVisibility: Array<string> = []
-  hasOrderType: boolean = true
+  hasSortType: boolean = this.$vgrid.hasSortType || true
 
   displayType: string = 'grid'
   dataType: string = 'js'
+  dataQuery: string = ''
 
-  get searchedData() {
-    let searched = [...this.dataCollections.filter((r) => r)]
-
-    if (this.searchKeyword) {
-      const re = new RegExp(this.searchKeyword, 'gi')
-
-      searched = searched.filter((d) => {
-        let matched = false
-
-        this.columns.forEach((c) => {
-          if (re.test(`${d[c.field]}`)) {
-            matched = true
-          }
-        })
-
-        return matched
-      })
+  get gridOption(): GridOption {
+    return {
+      searchable: this.searchable,
+      orderable: this.orderable,
+      filterable: this.filterable,
+      columnFilterable: this.columnFilterable,
+      columnVisible: this.columnVisible,
+      statusable: this.statusable,
+      pagination: this.pagination,
+      exportable: this.exportable,
+      columns: this.columns,
+      searchField: this.searchField,
+      limit: this.limit,
+      ...this.extraGridOption
     }
-
-    return searched
   }
 
-  get filteredData() {
-    let filtered = this.searchedData
-
-    Object.keys(this.where).map((key) => {
-      const re = new RegExp(this.where[key], 'gi')
-
-      filtered = filtered.filter((d) => re.test(d[key]))
-    })
-
-    return filtered
+  get extraGridOption() {
+    return {}
   }
 
-  get sortedData() {
-    const column = this.columns.find((c) => c.field === this.order.by)
-    let sortedData = this.filteredData
-
-    if (column) {
-      sortedData = sortedData.sort((a: any, b: any) => {
-        let field = b[column.field]
-        let compareField = a[column.field]
-
-        if (this.order.type === 'desc') {
-          field = a[column.field]
-          compareField = b[column.field]
-        }
-
-        if (column.type === 'number') {
-          return field - compareField
-        }
-
-        if (typeof field === 'string') {
-          return field.localeCompare(compareField)
-        }
-
-        return 0
-      })
-    }
-
-    return sortedData
-  }
-
-  get showedData() { // Or paginatedData
-    let showedData = this.sortedData
-
-    if (this.pagination) {
-      if (this.sortedData.length > this.limit) {
-        showedData = this.sortedData.slice(
-          this.limit * this.currentPage,
-          this.limit * (this.currentPage + 1)
-        )
-      }
-    }
-
-    return showedData
+  get showedData() {
+    return this.dataCollections
   }
 
   get hasColumnFilter() {
@@ -268,7 +231,13 @@ export default class VGrid extends Vue {
   }
 
   get isFiltered() {
-    return this.filteredData.length !== this.dataCollections.length
+    let flag = false
+
+    Object.keys(this.where).forEach((key) => {
+      flag = flag || this.where[key]
+    })
+
+    return flag
   }
 
   get gridClasses() {
@@ -287,8 +256,49 @@ export default class VGrid extends Vue {
   }
 
   created() {
+    this.initProvider()
     this.setColumnVisibility()
     this.setDataCollections()
+
+    if (this.resource) {
+      this[this.resource] = {}
+    }
+
+    // First action
+    this.getData()
+  }
+
+  initProvider() {
+    this.dataProvider = new JsonDataProvider(this.data, this.gridOption)
+  }
+
+  getData() {
+    this.isLoading = true
+
+    this.dataProvider.getData(
+      this.currentPage,
+      this.limit,
+      this.searchKeyword,
+      this.where,
+      this.order
+    )
+      .then(({ items, total, query }: DataResponse) => {
+        this.dataCollections = items
+        this.total = total
+        this.dataQuery = query
+      })
+      .catch((error: any) => {
+        if (error.query) {
+          this.dataQuery = error.query
+        }
+
+        console.log(error) // eslint-disable-line
+      })
+      .then(() => {
+        setTimeout(() => {
+          this.isLoading = false
+        }, 250) // Delay 250ms
+      })
   }
 
   setOrder(field: string) {
@@ -296,7 +306,7 @@ export default class VGrid extends Vue {
 
     if (column.order && column.type !== 'custom') {
       if (this.order.by === field) {
-        if (this.hasOrderType) {
+        if (this.hasSortType) {
           this.order.type = this.order.type === 'desc' ? 'asc' : 'desc'
         }
       } else {
@@ -304,6 +314,7 @@ export default class VGrid extends Vue {
         this.order.type = 'desc'
       }
     }
+    console.log('order', this.order)
   }
 
   headerColumnClasses(column: any) {
@@ -336,6 +347,7 @@ export default class VGrid extends Vue {
 
   resetState() {
     this.currentPage = 0
+    this.getData()
   }
 }
 </script>

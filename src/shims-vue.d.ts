@@ -4,7 +4,13 @@ declare module '*.vue' {
   export default Vue
 }
 
-declare interface GraphGrid {
+declare interface AjaxGridExtracedData {
+  items: Array<any>;
+  total: number;
+}
+
+declare interface VGrid {
+  debug: boolean;
   offsetKey: string;
   filterKey: string;
   limitKey: string;
@@ -12,14 +18,6 @@ declare interface GraphGrid {
   graphqlFilter(column: any, value: string): string;
   graphqlOrder(by: string, type: string): string;
   graphqlDataCounter(data: any): number;
-}
-
-declare interface AjaxGridExtracedData {
-  items: Array<any>;
-  total: number;
-}
-
-declare interface AjaxGrid {
   pageKey: string;
   perPageKey: string;
   sortKey: string;
@@ -31,7 +29,6 @@ declare interface AjaxGrid {
 
 declare module "vue/types/vue" {
   interface Vue {
-    $graphGrid: GraphGrid;
-    $ajaxGrid: AjaxGrid;
+    $vgrid: VGrid;
   }
 }

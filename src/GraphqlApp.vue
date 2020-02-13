@@ -5,36 +5,13 @@
     src="./assets/logo.png"
   )
   div(style="width: 1000px; margin: 20px auto 50px")
-    VGraphGrid(
-      resource="allAssets",
-      resource-meta="_allAssetsMeta",
-      resource-meta-query="count",
-      :columns="gridColumns",
-      :orderable="true"
-      :per-page="5",
-      offset-key="skip",
-      limit-key="last",
-      filter-key="filter",
-    )
-    VGraphCards(
-      resource="allAssets",
-      resource-meta="_allAssetsMeta",
-      resource-meta-query="count",
-      :columns="gridColumns",
-      :orderable="true"
-      offset-key="skip",
-      limit-key="last",
-      filter-key="filter",
-    )
     VGraphList(
-      resource="allAssets",
-      resource-meta="_allAssetsMeta",
-      resource-meta-query="count",
-      :columns="gridColumns",
+      resource="ie_programs",
+      resource-meta="ie_programs_aggregate",
+      search-field="name",
+      sort-by="updated_at",
+      :columns="columns",
       :orderable="true"
-      offset-key="skip",
-      limit-key="last",
-      filter-key="filter",
     )
 </template>
 <script lang="ts">
@@ -42,37 +19,43 @@ import { Component, Vue } from 'vue-property-decorator'
 
 @Component
 export default class GraphqlApp extends Vue {
-  gridColumns = [
+  columns = [
     {
-      field: 'id',
-      label: 'ID',
-      filter: true,
-      hidden: true
+      field: '_id',
+      type: 'hidden'
     },
     {
-      field: 'fileName',
+      field: 'name',
       label: 'Name',
-      format: '<strong>{fileName}</strong>',
-      width: 6,
+      type: 'string',
       order: true,
-      filter: true
+      class: 'mb-3',
+      width: 7
     },
     {
-      field: 'handle',
-      label: 'Handle',
-      width: 3,
+      field: 'updated_at',
+      label: 'Last edit',
       order: true,
-      filter: true
+      format: (program: any) => {
+        return DateTime.fromISO(program.updated_at, {
+          zone: 'UTC'
+        })
+          .toLocal()
+          .toLocaleString(DateTime.DATE_FULL)
+      },
+      class: 'vgrid-align-right',
+      width: 5
     },
     {
-      field: 'url',
-      width: 4,
-      format: '<img src="{url}" width="80" />',
-      order: true
+      field: 'description',
+      label: 'Description',
+      width: 9
     },
     {
       field: 'action',
-      type: 'custom'
+      type: 'custom',
+      label: 'Action',
+      width: 3
     }
   ]
 }

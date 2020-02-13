@@ -9,21 +9,36 @@ import axios from 'axios'
 
 Vue.config.productionTip = false
 
-axios.defaults.baseURL = 'http://localhost:3091/api/'
+axios.defaults.baseURL = 'https://reqres.in/api'
+axios.interceptors.response.use((response) => {
+  return response
+}, (error) => {
+  // Do something with response error
+  if (error.response && error.response.status === 401) {
+    // TODO logout
+  }
+
+  console.log('error', error)
+  return Promise.reject(error.response)
+})
 
 Vue.use(VueUIGrid, {
-  graphql: true,
+  debug: true,
   ajax: true,
   fetchData: axios.get,
+  pageKey: 'page',
+  perPageKey: 'per_page',
   extractData: (responseData: any) => {
     const data = responseData.data
+    // console.log('hello', data)
     return {
-      items: data.items,
-      total: data.totalItems
+      items: data.data,
+      total: data.total
     }
   },
   getPageIndex: (index: number) => (index + 1),
 
+  graphql: true,
   filterKey: 'filter',
   limitKey: 'last',
   offsetKey: 'skip',
@@ -41,10 +56,11 @@ Vue.use(VueUIGrid, {
     const typeStr = type.toUpperCase()
     return `orderBy: ${by}_${typeStr}`
   },
+  aggregateQuery: 'count',
   graphqlDataCounter: (data: any) => data.count
 })
 
 new Vue({
   apolloProvider,
-  render: h => h(AjaxApp)
+  render: h => h(GraphqlApp)
 }).$mount('#app')

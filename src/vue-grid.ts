@@ -18,12 +18,19 @@ const Plugin = {
     Vue.component('VList', List)
     Vue.component('VCards', Cards)
 
+    const gridOption = {
+      debug: options.debug
+    }
+
+    let graphqlOption = {}
+    let ajaxOption = {}
+
     if (options.graphql) {
       Vue.component('VGraphGrid', GraphGrid)
       Vue.component('VGraphList', GraphList)
       Vue.component('VGraphCards', GraphCards)
 
-      Vue.prototype.$graphGrid = {
+      graphqlOption = {
         filterKey: options.filterKey || 'where',
         limitKey: options.limitKey || 'limit',
         offsetKey: options.offsetKey || 'offset',
@@ -39,17 +46,24 @@ const Plugin = {
       Vue.component('VAjaxList', AjaxList)
       Vue.component('VAjaxCards', AjaxCards)
 
-      Vue.prototype.$ajaxGrid = {
+      ajaxOption = {
         extractData: options.extractData,
         pageKey: options.pageKey || 'page',
+        hasSortType: options.hasSortType,
         sortKey: options.sortKey || 'sort',
-        sortTypeKey: options.sortTypeKey,
+        sortTypeKey: options.sortTypeKey || 'sort_type',
         perPageKey: options.perPageKey || 'limit',
         fetchData: options.fetchData || 'limit',
 
         // Funcs
         getPageIndex: options.getPageIndex
       }
+    }
+
+    Vue.prototype.$vgrid = {
+      ...gridOption,
+      ...ajaxOption,
+      ...graphqlOption
     }
   }
 }

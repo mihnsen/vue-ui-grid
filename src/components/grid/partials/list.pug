@@ -4,10 +4,11 @@
   span(v-if="!isFiltered") {{ strEmptyData }}
   span(v-else) {{ strEmptyFilteredData }}
 .vgrid-entry-wrapper(
-  v-for="entry in showedData",
+  v-for="(entry, entryIndex) in showedData",
 )
   slot(
     :entry="entry",
+    :index="entryIndex",
     :visible-cols="visibleCols"
   )
     ColumnType(
@@ -18,4 +19,8 @@
       :resize="true",
       :class="columnClasses[col.field]",
     )
-      slot(:name="'column-' + col.field", :entry="entry")
+      slot(
+        :name="'column-' + col.field", 
+        :entry="entry",
+        :index="entryIndex"
+      )

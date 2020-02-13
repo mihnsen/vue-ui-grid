@@ -8,7 +8,7 @@
       Grid.vgrid-center(
         :columns="gridColumns",
         :data="gridData",
-        :per-page="10",
+        :per-page="6",
         :column-visible="true",
         :orderable="true",
         ref="grid"
@@ -42,7 +42,7 @@
             @click="remove(entry)"
           ) remove
           a(
-            href="gooogle.com"
+            href="javascript:;"
           ) Edit
     div(style="width: 1000px; margin: 20px auto")
       List(
@@ -62,7 +62,7 @@
             type="button",
           ) ADD
           a(
-            href="gooogle.com"
+            href="javascript:;"
           ) Edit
 </template>
 

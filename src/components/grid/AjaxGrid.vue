@@ -4,6 +4,7 @@ extends BasicGrid.pug
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Grid from './BasicGrid.vue'
+import { AjaxDataProvider } from '../../data-providers'
 
 @Component({
   name: 'VAjaxGrid'
@@ -16,85 +17,32 @@ export default class AjaxGrid extends Grid {
   searchField!: string
 
   dataType: string = 'ajax'
-  hasOrderType = false
-  pageKey: string = this.$ajaxGrid.pageKey
-  perPageKey: string = this.$ajaxGrid.perPageKey
-  sortKey: string = this.$ajaxGrid.sortKey
-  sortTypeKey: string = this.$ajaxGrid.sortTypeKey
-  getPageIndex: Function = this.$ajaxGrid.getPageIndex
-  extractData: Function = this.$ajaxGrid.extractData
-  fetchData: Function = this.$ajaxGrid.fetchData
+  pageKey: string = this.$vgrid.pageKey
+  perPageKey: string = this.$vgrid.perPageKey
+  sortKey: string = this.$vgrid.sortKey
+  sortTypeKey: string = this.$vgrid.sortTypeKey
+  getPageIndex: Function = this.$vgrid.getPageIndex
+  extractData: Function = this.$vgrid.extractData
+  fetchData: Function = this.$vgrid.fetchData
 
-  // Customize data
-  get filteredData() {
-    return this.dataCollections
+  initProvider() {
+    this.dataProvider = new AjaxDataProvider(this.resource, this.gridOption)
+  }
+
+  get extraGridOption() {
+    return {
+      pageKey: this.pageKey,
+      perPageKey: this.perPageKey,
+      sortKey: this.sortKey,
+      sortTypeKey: this.sortTypeKey,
+      getPageIndex: this.getPageIndex,
+      extractData: this.extractData,
+      fetchData: this.fetchData
+    }
   }
 
   get showedData() {
     return this.dataCollections
-  }
-
-  created() {
-    this.getAjaxData()
-  }
-
-  @Watch('limit') // Items per page
-  onChangeLimit() {
-    this.currentPage = 0
-    this.getAjaxData()
-  }
-
-  @Watch('searchKeyword')
-  @Watch('currentPage')
-  @Watch('order', { immediate: true, deep: true })
-  getAjaxData() {
-    if (this.isLoading) {
-      return
-    }
-
-    let currPage = this.currentPage
-
-    if (this.getPageIndex) {
-      currPage = this.getPageIndex(this.currentPage)
-    }
-
-    const params: any = {
-      [this.pageKey]: currPage,
-      [this.perPageKey]: this.limit
-    }
-
-    if (this.orderable && this.order) {
-      if (this.sortKey && this.order.by) {
-        params[this.sortKey] = this.order.by
-      }
-
-      if (this.sortTypeKey && this.order.type) {
-        params[this.sortTypeKey] = this.order.type
-      }
-    }
-
-    if (this.searchable && this.searchField && this.searchKeyword) {
-      params[this.searchField] = this.searchKeyword
-    }
-
-    this.isLoading = true
-
-    return this.fetchData(this.resource, {
-      params
-    })
-      .then((data: any) => {
-        const extractedData = this.extractData(data)
-
-        if (extractedData) {
-          this.dataCollections = extractedData.items
-          this.total = extractedData.total
-        }
-      })
-      .then(() => {
-        setTimeout(() => {
-          this.isLoading = false
-        }, 350)
-      })
   }
 }
 </script>
