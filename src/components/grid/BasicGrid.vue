@@ -15,8 +15,10 @@ import GridStatus from '../Status.vue'
 import ExportButton from '../ExportButton.vue'
 import Order from '../../interfaces/order'
 import { JsonDataProvider } from '../../data-providers'
-import ColumnOption from '../../interfaces/column-option'
 import GridOption from '../../interfaces/grid-option'
+import ColumnOption from '../../interfaces/column-option'
+import DataResponse from '../../interfaces/data-response'
+import IDataProvider from '../../data-providers/abstract'
 
 interface Where {
   [key: string]: string
@@ -169,7 +171,9 @@ export default class VGrid extends Vue {
 
   displayType: string = 'grid'
   dataType: string = 'js'
-  dataQuery: string = ''
+  dataQuery: any = ''
+
+  dataProvider: IDataProvider | null = null
 
   get gridOption(): GridOption {
     return {
@@ -182,7 +186,6 @@ export default class VGrid extends Vue {
       pagination: this.pagination,
       exportable: this.exportable,
       columns: this.columns,
-      searchField: this.searchField,
       limit: this.limit,
       ...this.extraGridOption
     }
@@ -216,7 +219,7 @@ export default class VGrid extends Vue {
   }
 
   get columnClasses() {
-    const result = []
+    const result: any = []
 
     // eslint-disable-next-line
     for (const item of this.visibleCols) {
@@ -234,7 +237,7 @@ export default class VGrid extends Vue {
     let flag = false
 
     Object.keys(this.where).forEach((key) => {
-      flag = flag || this.where[key]
+      flag = flag || !!this.where[key]
     })
 
     return flag
@@ -260,10 +263,6 @@ export default class VGrid extends Vue {
     this.setColumnVisibility()
     this.setDataCollections()
 
-    if (this.resource) {
-      this[this.resource] = {}
-    }
-
     // First action
     this.getData()
   }
@@ -273,6 +272,11 @@ export default class VGrid extends Vue {
   }
 
   getData() {
+    if (!this.dataProvider) {
+      console.log('Your grid is not config any data provider') // eslint-disable-line
+      return
+    }
+
     this.isLoading = true
 
     this.dataProvider.getData(
@@ -302,9 +306,9 @@ export default class VGrid extends Vue {
   }
 
   setOrder(field: string) {
-    const column = this.columns.find((c) => c.field === field)
+    const column: ColumnOption | undefined = this.columns.find((c) => c.field === field)
 
-    if (column.order && column.type !== 'custom') {
+    if (column && column.order && column.type !== 'custom') {
       if (this.order.by === field) {
         if (this.hasSortType) {
           this.order.type = this.order.type === 'desc' ? 'asc' : 'desc'
@@ -314,7 +318,6 @@ export default class VGrid extends Vue {
         this.order.type = 'desc'
       }
     }
-    console.log('order', this.order)
   }
 
   headerColumnClasses(column: any) {

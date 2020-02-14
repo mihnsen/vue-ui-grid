@@ -31,6 +31,7 @@ export default class AjaxGrid extends Grid {
 
   get extraGridOption() {
     return {
+      searchField: this.searchField,
       pageKey: this.pageKey,
       perPageKey: this.perPageKey,
       sortKey: this.sortKey,

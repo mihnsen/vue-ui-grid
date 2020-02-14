@@ -11,16 +11,19 @@ export default class AjaxDataProvider extends ADataProvider {
     this.resource = resource
   }
 
-  getData(page: number, limit?: number, searchKeyword?: string, filter?: object, order?: Order): Promise<Response> {
+  getData(page: number, limit?: number, searchKeyword?: string, filter?: object, order?: Order): Promise<DataResponse> {
     let currPage = page
 
     if (this.options.getPageIndex) {
       currPage = this.options.getPageIndex(page)
     }
 
-    const params: any = {
-      [this.options.pageKey]: currPage,
-      [this.options.perPageKey]: limit
+    const params: any = {}
+    if (this.options.pageKey) {
+      params[this.options.pageKey] = currPage
+    }
+    if (this.options.perPageKey) {
+      params[this.options.perPageKey] = limit
     }
 
     if (this.options.orderable && order) {
@@ -37,9 +40,20 @@ export default class AjaxDataProvider extends ADataProvider {
       params[this.options.searchField] = searchKeyword
     }
 
+    if (!this.options.fetchData) {
+      return Promise.reject(new Error('no fetch data option'))
+    }
+
     return this.options.fetchData(this.resource, { params })
       .then((data: any): DataResponse => {
-        const { items, total } = this.options.extractData(data)
+        let items: any = []
+        let total = 0
+
+        if (this.options.extractData) {
+          const res = this.options.extractData(data)
+          items = res.items
+          total = res.total
+        }
 
         return {
           items,

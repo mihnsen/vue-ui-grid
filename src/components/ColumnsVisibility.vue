@@ -33,7 +33,7 @@
 </template>
 <script lang="ts">
 import { Component, Prop, PropSync, Watch, Vue } from 'vue-property-decorator'
-import Field from '../interfaces/field'
+import ColumnOption from '../interfaces/column-option'
 
 @Component({
   model: {
@@ -56,12 +56,12 @@ export default class ColumnsVisibility extends Vue {
   localValue!: Array<string>
 
   @Prop({ type: Array, default: () => ([]) })
-  columns!: Array<Field>
+  columns!: Array<ColumnOption>
 
   showVisibility: boolean = false
 
   tempValue: Array<string> = []
-  columnData: Array<Field> = []
+  columnData: Array<ColumnOption> = []
 
   @Watch('tempValue')
   onTempValueChange() {

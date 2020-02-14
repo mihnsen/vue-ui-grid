@@ -18,25 +18,28 @@ export default class GraphDataProvider extends ADataProvider {
    * Inherit from parent
    * Search keyword is not using
    */
-  getData(page: number, limit: number, searchKeyword?: string, filter?: object, order?: Order): Promise<Response> {
+  getData(page: number, limit: number, searchKeyword?: string, filter?: object, order?: Order): Promise<DataResponse> {
     return new Promise((resolve, reject) => {
-      const query = this.getQuery(page, limit, filter, order)
+      const queryInStr = this.getQuery(page, limit, filter, order)
+      const query = { query: queryInStr }
       const variables = {
         offset: limit * page,
         limit: limit
       }
-      const graphqlQuery = gql`${query}`
+      const graphqlQuery = gql`${queryInStr}`
 
       this.apolloProvider.query({
         query: graphqlQuery,
         variables
       })
-        .then((result) => {
+        .then((result: any) => {
           if (!result.loading) {
             if (result.error) {
               const err: ErrorResponse = {
+                name: 'graphql query from vue-ui-grid',
                 query,
-                error: result.error
+                error: result.error,
+                message: result.error
               }
 
               return reject(err)
@@ -44,10 +47,15 @@ export default class GraphDataProvider extends ADataProvider {
 
             const data: any = result.data
             if (data && data[this.resource]) {
+              let total = data[this.resource].length
+              if (this.options.graphqlDataCounter && this.options.resourceMeta) {
+                total = this.options.graphqlDataCounter(data[this.options.resourceMeta])
+              }
+
               const res: DataResponse = {
                 query,
                 items: data[this.resource],
-                total: this.options.graphqlDataCounter(data[this.options.resourceMeta])
+                total
               }
               resolve(res)
             }
@@ -58,7 +66,7 @@ export default class GraphDataProvider extends ADataProvider {
 
   getGraphColumn() {
     const cols = this.options.columns.filter(
-      col => !['custom', 'query'].includes(col.type)
+      (col: any) => !['custom', 'query'].includes(col.type)
     )
     const queryCols = this.options.columns.filter(col => (col.type === 'query'))
 
@@ -69,7 +77,7 @@ export default class GraphDataProvider extends ADataProvider {
   getSearchQuery(filter?: object) {
     let search: Array<string> = []
     if (filter) {
-      const where = { ...filter }
+      const where: any = { ...filter }
 
       search = Object.keys(where).map((key) => {
         const filter = this.getFilter(key, where[key])
@@ -95,7 +103,7 @@ export default class GraphDataProvider extends ADataProvider {
   }
 
   getOrderQuery(order?: Order) {
-    if (this.options.graphqlOrder && order.by) {
+    if (this.options.graphqlOrder && order && order.by) {
       return this.options.graphqlOrder(order.by, order.type)
     }
 

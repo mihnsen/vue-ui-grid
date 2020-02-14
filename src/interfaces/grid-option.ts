@@ -1,7 +1,6 @@
 import ColumnOption from './column-option'
 
 export default interface GridOption {
-  perPageKey: string;
   searchable?: boolean;
   orderable?: boolean;
   filterable?: boolean;
@@ -13,13 +12,26 @@ export default interface GridOption {
 
   columns: Array<ColumnOption>;
 
+  perPageKey?: string; // Ajax & Graphql
+  pageKey?: string; // Ajax & Graphql
+
   searchField?: string;
   limit: number;
-  pageKey: string;
   sortKey?: string;
   sortTypeKey?: string;
   getPageIndex?: Function;
-  extractData: Function;
-  fetchData: Function;
+  extractData?: Function;
+  fetchData?: Function;
+
+  filterKey?: string;
+  offsetKey?: string;
+  limitKey?: string;
+  resourceMeta?: string;
+  refFilter?: string;
+  refQuery?: string;
+  graphqlFilter?: Function;
+  graphqlOrder?: Function;
+  aggregateQuery?: Function;
+  graphqlDataCounter?: Function;
 }
 

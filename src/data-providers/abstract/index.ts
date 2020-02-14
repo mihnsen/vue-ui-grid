@@ -1,8 +1,5 @@
 import GridOption from '../../interfaces/grid-option'
-
-export interface Response {
-
-}
+import DataResponse from '../../interfaces/data-response'
 
 export interface IDataProvider {
   applySearch(search?: string): IDataProvider;
@@ -18,9 +15,12 @@ export default class ADataProvider implements IDataProvider {
     this.options = options
   }
 
-  getData(page: number, limit?: number, search?: string, filter?: object, order?: object): Promise<Response> {
+  getData(page: number, limit?: number, search?: string, filter?: object, order?: object): Promise<DataResponse> {
     return new Promise((resolve, reject) => {
-      const response = new Response()
+      const response: DataResponse = {
+        items: [],
+        total: 0
+      }
       resolve(response)
     })
   }

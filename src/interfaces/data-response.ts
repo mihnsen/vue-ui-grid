@@ -5,6 +5,6 @@ export default interface DataResponse {
 }
 
 export interface ErrorResponse extends Error {
-  error: object;
   query?: object;
+  error: object;
 }

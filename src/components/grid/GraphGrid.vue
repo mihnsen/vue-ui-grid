@@ -45,6 +45,7 @@ export default class GraphGrid extends Grid {
 
   get extraGridOption() {
     return {
+      searchField: this.searchField,
       resourceMeta: this.resourceMeta,
       refFilter: this.refFilter,
       refQuery: this.refQuery,
