@@ -27,9 +27,6 @@ export default class GraphGrid extends Grid {
   @Prop({ default: '' })
   refFilter!: string
 
-  @Prop({ default: '' })
-  refQuery!: string
-
   dataType: string = 'graphql'
   offsetKey: string = this.$vgrid.offsetKey
   limitKey: string = this.$vgrid.limitKey
@@ -48,7 +45,6 @@ export default class GraphGrid extends Grid {
       searchField: this.searchField,
       resourceMeta: this.resourceMeta,
       refFilter: this.refFilter,
-      refQuery: this.refQuery,
       offsetKey: this.offsetKey,
       limitKey: this.limitKey,
       filterKey: this.filterKey,

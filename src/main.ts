@@ -59,14 +59,14 @@ Vue.use(VueUIGrid, {
   // aggregateQuery: 'count',
   // graphqlDataCounter: (data: any) => data.count
 
-  graphqlFilter(column: any, value: string) {
+  graphqlFilter(field: string, fieldType: string, value: string) {
     let result = ''
 
-    if (column) {
-      if (column.type === 'uuid') {
-        result = `${column.field}: { _eq: "${value}" }`
+    if (field) {
+      if (fieldType === 'uuid') {
+        result = `${field}: { _eq: "${value}" }`
       } else {
-        result = `${column.field}: { _like: "%${value}%" }`
+        result = `${field}: { _ilike: "%${value}%" }`
       }
     }
 

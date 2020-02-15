@@ -9,7 +9,7 @@
       resource="products",
       resource-meta="products_aggregate",
       resource-meta-query="count",
-      ref-query="instance { platform_domain, shop_id }"
+      search-field="name",
       :columns="columns",
       :orderable="true"
       :per-page="5",
@@ -54,28 +54,47 @@ export default class GraphqlApp extends Vue {
       format: '{name}',
       width: 4,
       order: true,
+      filter: true,
       class: 'mb-3'
     },
     {
       field: 'linked_product',
       label: 'Linked product',
-      width: 3,
       order: true
     },
     {
       field: 'updated_at',
       label: 'Last edit',
-      order: true,
-      width: 2
+      order: true
     },
     {
-      type: 'custom',
+      field: 'instance.platform_domain',
       label: 'Myshopify domain',
-      format: (entry: any) => {
-        return entry.instance.platform_domain
-      },
-      width: 3
+      filter: true
     },
+    {
+      field: 'instance.shop_id',
+      label: 'Shopify shop id',
+      filter: true
+    },
+    {
+      field: 'instance.user.email',
+      label: 'User email',
+      filter: true
+    },
+    {
+      field: 'instance.user.id',
+      label: 'User ID'
+    },
+    {
+      field: 'instance.platform.display_name',
+      label: 'Platform long long name'
+    },
+    // {
+    //   field: 'orders.count',
+    //   label: 'Number of orders',
+    //   width: 3
+    // },
     {
       field: 'action',
       type: 'custom',

@@ -1,5 +1,6 @@
 import ADataProvider, { IDataProvider } from './abstract'
 import GridOption from '../interfaces/grid-option'
+import ColumnOption from '../interfaces/column-option'
 import Order from '../interfaces/order'
 import DataResponse, { ErrorResponse } from '../interfaces/data-response'
 import gql from 'graphql-tag'
@@ -20,13 +21,12 @@ export default class GraphDataProvider extends ADataProvider {
    */
   getData(page: number, limit: number, searchKeyword?: string, filter?: object, order?: Order): Promise<DataResponse> {
     return new Promise((resolve, reject) => {
-      const queryInStr = this.getQuery(page, limit, filter, order)
-      const query = { query: queryInStr }
+      const query = this.getQuery(page, limit, filter, order)
       const variables = {
         offset: limit * page,
         limit: limit
       }
-      const graphqlQuery = gql`${queryInStr}`
+      const graphqlQuery = gql`${query}`
 
       this.apolloProvider.query({
         query: graphqlQuery,
@@ -68,36 +68,52 @@ export default class GraphDataProvider extends ADataProvider {
     const cols = this.options.columns.filter(
       (col: any) => !['custom', 'query'].includes(col.type)
     )
-    const queryCols = this.options.columns.filter(col => (col.type === 'query'))
 
-    return cols.filter(col => !col.field.match(/\./))
+    const normalCols = cols.filter(col => !col.field.match(/\./))
+    const refColumn = cols.filter(col => col.field.match(/\./))
+
+    const normalQuery = normalCols.filter(col => !col.field.match(/\./))
       .map(col => col.field).join('\n')
+
+    const refQuery = this.getRefQuery(refColumn)
+
+    return `
+    ${normalQuery}
+    ${refQuery}
+    `
   }
 
   getSearchQuery(filter?: object) {
     let search: Array<string> = []
     if (filter) {
       const where: any = { ...filter }
+      const normalKeys = Object.keys(where).filter(key => !key.match(/\./))
+      const refKeys = Object.keys(where).filter(key => key.match(/\./))
 
-      search = Object.keys(where).map((key) => {
+      const normalSearch = normalKeys.map((key) => {
         const filter = this.getFilter(key, where[key])
         return where[key]
           ? `${filter}`
           : ''
-      }).filter(s => s)
-
-      const normalSearch = Object.keys(where)
-        .filter(key => !key.match(/\./))
-        .map((key) => {
-          const filter = this.getFilter(key, where[key])
-          return where[key]
-            ? `${filter}`
-            : ''
-        })
+      })
         .filter(s => s)
+        .join('')
 
-      search = normalSearch
+      const refFilters = refKeys.map((key) => {
+        return {
+          key,
+          value: where[key]
+        }
+      })
+      const refSearch = this.getRefFilter(refFilters)
+
+      search = [
+        normalSearch,
+        refSearch
+      ]
     }
+
+    console.log(search)
 
     return search.join('\n')
   }
@@ -136,21 +152,111 @@ export default class GraphDataProvider extends ADataProvider {
           ${orderQuery}
         ) {
           ${graphColumn}
-          ${this.options.refQuery}
         }
       }
     `
 
+    console.log(query)
+
     return query
   }
 
-  getFilter(refKey: string, receivedValue: string): string {
+  getFilter(columnKey: string, receivedValue: string): string {
     const value = receivedValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
-    const column = this.options.columns.find(c => c.field === refKey)
-    if (this.options.graphqlFilter) {
-      return this.options.graphqlFilter(column, value)
+    const column = this.options.columns.find(c => c.field === columnKey)
+    if (this.options.graphqlFilter && column) {
+      return this.options.graphqlFilter(column.field, column.type, value)
     }
 
     return ''
+  }
+
+  getRefQuery(columns: ColumnOption[]) {
+    const fields = columns.map(c => c.field)
+      .map(field => field.split('.'))
+
+    const tree = {}
+    fields.forEach(row => {
+      row.reduce((acc: any, curr) => {
+        if (!acc[curr]) {
+          acc[curr] = {}
+        }
+
+        return acc[curr]
+      }, tree)
+    })
+
+    return this.getRefQueryByNode(tree, true)
+  }
+
+  getRefQueryByNode(node: any, isRoot: boolean = false): string {
+    const keys = Object.keys(node)
+    if (keys.length) {
+      const q = keys.map(key => {
+        return `
+          ${key} ${this.getRefQueryByNode(node[key])}
+        `
+      })
+        .join('\n')
+
+      return isRoot ? q : `{ ${q} }`
+    }
+
+    return ''
+  }
+
+  getRefFilter(filters: any[]): string {
+    if (!filters || !filters.length) {
+      return ''
+    }
+
+    const tree = {}
+
+    filters.forEach(filter => {
+      const column = this.options.columns.find(c => c.field === filter.key)
+      const fields = filter.key.split('.')
+      const len = fields.length
+
+      fields.reduce((acc: any, curr: string, index: number) => {
+        let filterValue = {}
+        if (index === len - 1) {
+          filterValue = filter.value
+          if (this.options.graphqlFilter && column) {
+            filterValue = this.options.graphqlFilter(curr, column.type, filter.value)
+          }
+        }
+
+        if (!acc[curr]) {
+          acc[curr] = filterValue
+        }
+
+        return acc[curr]
+      }, tree)
+    })
+
+    return this.getRefFilterByNode(tree, true)
+  }
+
+  getRefFilterByNode(node: any, isRoot: boolean = false): string {
+    if (typeof node === 'object') {
+      const keys = Object.keys(node)
+
+      if (keys.length) {
+        const q = keys.map(key => {
+          if (typeof node[key] === 'object') {
+            return `
+              ${key}: ${this.getRefFilterByNode(node[key])}
+            `
+          }
+
+          return this.getRefFilterByNode(node[key])
+        })
+          .join('\n')
+
+        return isRoot ? q : `{ ${q} }`
+      }
+    }
+
+    return node
   }
 }

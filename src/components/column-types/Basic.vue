@@ -31,12 +31,12 @@ export default class Basic extends Vue {
         return this.column.format(this.data)
       } else {
         return this.column.format.replace(/\{(\w*)\}/g, (matched: string, field: string) => {
-          return this.data[field]
+          return this.getData(field)
         })
       }
     }
 
-    return this.data[this.column.field]
+    return this.getData(this.column.field)
   }
 
   get classes() {
@@ -57,6 +57,14 @@ export default class Basic extends Vue {
     }
 
     return classes
+  }
+
+  getData(field: string) {
+    const fields = field.split('.')
+
+    return fields.reduce((acc: any, curr: string) => {
+      return acc[curr]
+    }, this.data)
   }
 }
 </script>

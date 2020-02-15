@@ -11,6 +11,7 @@
       span.vgrid-filter-value {{ valueInString }}
   block content
     .vgrid-filter-editor(v-show="isEditor")
+      span.vgrid-filter-label {{ column.label }}:
       TextInput.vgrid-input-sm(
         ref="input",
         :placeholder="placeholder",

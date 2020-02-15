@@ -28,7 +28,6 @@ export default interface GridOption {
   limitKey?: string;
   resourceMeta?: string;
   refFilter?: string;
-  refQuery?: string;
   graphqlFilter?: Function;
   graphqlOrder?: Function;
   aggregateQuery?: Function;
