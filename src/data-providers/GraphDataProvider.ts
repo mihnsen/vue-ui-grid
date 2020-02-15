@@ -29,6 +29,7 @@ export default class GraphDataProvider extends ADataProvider {
       const graphqlQuery = gql`${query}`
 
       this.apolloProvider.query({
+        fetchPolicy: 'no-cache',
         query: graphqlQuery,
         variables
       })

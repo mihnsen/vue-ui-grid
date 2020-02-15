@@ -14495,6 +14495,7 @@ function (_ADataProvider) {
         var graphqlQuery = src_default()(_templateObject(), query);
 
         _this2.apolloProvider.query({
+          fetchPolicy: 'no-cache',
           query: graphqlQuery,
           variables: variables
         }).then(function (result) {

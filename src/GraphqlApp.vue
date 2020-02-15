@@ -17,26 +17,26 @@
       limit-key="last",
       filter-key="filter",
     )
-    // VGraphCards(
-    //   resource="allAssets",
-    //   resource-meta="_allAssetsMeta",
-    //   resource-meta-query="count",
-    //   :columns="columns",
-    //   :orderable="true"
-    //   offset-key="skip",
-    //   limit-key="last",
-    //   filter-key="filter",
-    // )
-    // VGraphList(
-    //   resource="allAssets",
-    //   resource-meta="_allAssetsMeta",
-    //   resource-meta-query="count",
-    //   :columns="columns",
-    //   :orderable="true"
-    //   offset-key="skip",
-    //   limit-key="last",
-    //   filter-key="filter",
-    // )
+    VGraphCards(
+      resource="allAssets",
+      resource-meta="products_aggregate",
+      resource-meta-query="count",
+      :columns="columns",
+      :orderable="true"
+      offset-key="skip",
+      limit-key="last",
+      filter-key="filter",
+    )
+    VGraphList(
+      resource="allAssets",
+      resource-meta="products_aggregate",
+      resource-meta-query="count",
+      :columns="columns",
+      :orderable="true"
+      offset-key="skip",
+      limit-key="last",
+      filter-key="filter",
+    )
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
