@@ -113,8 +113,6 @@ export default class GraphDataProvider extends ADataProvider {
       ]
     }
 
-    console.log(search)
-
     return search.join('\n')
   }
 
@@ -155,8 +153,6 @@ export default class GraphDataProvider extends ADataProvider {
         }
       }
     `
-
-    console.log(query)
 
     return query
   }

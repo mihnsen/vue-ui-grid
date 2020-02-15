@@ -80,5 +80,5 @@ Vue.use(VueUIGrid, {
 
 new Vue({
   apolloProvider,
-  render: h => h(GraphqlApp)
+  render: h => h(AjaxApp)
 }).$mount('#app')
