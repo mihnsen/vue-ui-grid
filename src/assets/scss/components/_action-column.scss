@@ -1,6 +1,8 @@
 // Support column name action only
 .vgrid .column-data-action {
   margin-left: auto;
+  text-align: right;
+  justify-content: flex-end;
 
   button,
   a {
