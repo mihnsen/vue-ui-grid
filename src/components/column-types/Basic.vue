@@ -61,9 +61,8 @@ export default class Basic extends Vue {
 
   getData(field: string) {
     const fields = field.split('.')
-
-    return fields.reduce((acc: any, curr: string) => {
-      return acc[curr]
+    return fields.reduce((acc: any, curr: string, index) => {
+      return acc[curr] || (index < fields.length - 1 ? {} : null)
     }, this.data)
   }
 }

@@ -6,8 +6,8 @@
   )
   div(style="width: 1000px; margin: 20px auto 50px")
     VGraphGrid(
-      resource="products",
-      resource-meta="products_aggregate",
+      resource="orders",
+      resource-meta="orders_aggregate",
       resource-meta-query="count",
       search-field="name",
       :columns="columns",
@@ -16,10 +16,12 @@
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
+      sort-by="id",
+      sort-type="asc"
     )
     VGraphCards(
-      resource="allAssets",
-      resource-meta="products_aggregate",
+      resource="orders",
+      resource-meta="orders_aggregate",
       resource-meta-query="count",
       :columns="columns",
       :orderable="true"
@@ -28,8 +30,8 @@
       filter-key="filter",
     )
     VGraphList(
-      resource="allAssets",
-      resource-meta="products_aggregate",
+      resource="orders",
+      resource-meta="orders_aggregate",
       resource-meta-query="count",
       :columns="columns",
       :orderable="true"
@@ -45,27 +47,25 @@ import { Component, Vue } from 'vue-property-decorator'
 export default class GraphqlApp extends Vue {
   columns = [
     {
-      field: 'id',
-      type: 'hidden'
+      field: 'id'
     },
     {
-      field: 'name',
-      label: 'Name',
-      format: '{name}',
+      field: 'linked_id',
       width: 4,
       order: true,
       filter: true,
       class: 'mb-3'
     },
     {
-      field: 'linked_product',
-      label: 'Linked product',
-      order: true
-    },
-    {
       field: 'updated_at',
       label: 'Last edit',
       order: true
+    },
+    {
+      field: 'customer.email',
+      label: 'Email',
+      order: true,
+      filter: true
     },
     {
       field: 'instance.platform_domain',
