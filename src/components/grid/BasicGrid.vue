@@ -109,13 +109,13 @@ export default class VGrid extends Vue {
   exportFileName!: string
 
   // For cards
-  @Prop({ default: 2 })
+  @Prop({ default: 6 })
   colMd!: number
 
-  @Prop({ default: 3 })
+  @Prop({ default: 4 })
   colLg!: number
 
-  @Prop({ default: 4 })
+  @Prop({ default: 3 })
   colXl!: number
 
   @Watch('columns')
