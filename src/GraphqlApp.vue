@@ -8,7 +8,6 @@
     VGraphGrid(
       resource="orders",
       resource-meta="orders_aggregate",
-      resource-meta-query="count",
       search-field="name",
       :columns="columns",
       :orderable="true"
@@ -22,7 +21,6 @@
     VGraphCards(
       resource="orders",
       resource-meta="orders_aggregate",
-      resource-meta-query="count",
       :columns="columns",
       :orderable="true"
       offset-key="skip",
@@ -32,7 +30,6 @@
     VGraphList(
       resource="orders",
       resource-meta="orders_aggregate",
-      resource-meta-query="count",
       :columns="columns",
       :orderable="true"
       offset-key="skip",

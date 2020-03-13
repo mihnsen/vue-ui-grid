@@ -46,12 +46,12 @@
     // Allow columns to stretch full width below their breakpoints
     @for $i from 1 through $columns {
       .vgrid-col#{$infix}-#{$i} {
-        @extend %grid-column;
+        @extend %vgrid-column;
       }
     }
     .vgrid-col#{$infix},
     .vgrid-col#{$infix}-auto {
-      @extend %grid-column;
+      @extend %vgrid-column;
     }
 
     @include media-breakpoint-up($breakpoint, $breakpoints) {
