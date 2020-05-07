@@ -63,7 +63,7 @@ Vue.use(VueUIGrid, {
     let result = ''
 
     if (field) {
-      if (fieldType === 'uuid') {
+      if (fieldType === 'uuid' || fieldType === 'id') {
         result = `${field}: { _eq: "${value}" }`
       } else {
         result = `${field}: { _ilike: "%${value}%" }`

@@ -12,9 +12,10 @@
   block content
     .vgrid-filter-editor(v-show="isEditor")
       span.vgrid-filter-label {{ column.label }}:
-      TextInput.vgrid-input-sm(
-        ref="input",
-        :placeholder="placeholder",
-        v-model="localValue",
-        @enter="onEnter"
-      )
+      block input
+        TextInput.vgrid-input-sm(
+          ref="input",
+          :placeholder="placeholder",
+          v-model="localValue",
+          @enter="onEnter"
+        )

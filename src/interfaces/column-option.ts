@@ -1,8 +1,11 @@
 export default interface ColumnOption {
-  field: string;
   type?: string;
+  field: string;
+  field_type?: string;
   label?: string;
   filter?: boolean;
+  filter_type?: string;
+  filter_value?: any;
   order?: boolean;
   hidden?: boolean;
   width?: number;

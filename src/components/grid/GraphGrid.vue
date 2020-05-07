@@ -9,7 +9,7 @@ block search
 </template>
 <script lang="ts">
 import gql from 'graphql-tag'
-import { Component, Vue, Prop } from 'vue-property-decorator'
+import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Grid from './BasicGrid.vue'
 import { GraphDataProvider } from '../../data-providers'
 
@@ -35,6 +35,12 @@ export default class GraphGrid extends Grid {
   graphqlFilter: Function = this.$vgrid.graphqlFilter
   graphqlOrder: Function = this.$vgrid.graphqlOrder
   graphqlDataCounter: Function = this.$vgrid.graphqlDataCounter
+
+  @Watch('refFilter')
+  onRefFilterChanged() {
+    this.initProvider()
+    this.getData()
+  }
 
   initProvider() {
     this.dataProvider = new GraphDataProvider(this.$apollo, this.resource, this.gridOption)

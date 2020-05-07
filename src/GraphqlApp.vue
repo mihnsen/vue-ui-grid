@@ -6,11 +6,11 @@
   )
   div(style="width: 1000px; margin: 20px auto 50px")
     VGraphGrid(
-      resource="orders",
-      resource-meta="orders_aggregate",
+      resource="catalogs",
+      resource-meta="catalogs_aggregate",
       search-field="name",
       :columns="columns",
-      :orderable="true"
+      :catalogable="true"
       :per-page="5",
       offset-key="skip",
       limit-key="last",
@@ -19,19 +19,19 @@
       sort-type="asc"
     )
     VGraphCards(
-      resource="orders",
-      resource-meta="orders_aggregate",
+      resource="catalogs",
+      resource-meta="catalogs_aggregate",
       :columns="columns",
-      :orderable="true"
+      :catalogable="true"
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
     )
     VGraphList(
-      resource="orders",
-      resource-meta="orders_aggregate",
+      resource="catalogs",
+      resource-meta="catalogs_aggregate",
       :columns="columns",
-      :orderable="true"
+      :catalogable="true"
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
@@ -47,49 +47,40 @@ export default class GraphqlApp extends Vue {
       field: 'id'
     },
     {
-      field: 'linked_id',
-      width: 4,
-      order: true,
-      filter: true,
-      class: 'mb-3'
-    },
-    {
       field: 'updated_at',
       label: 'Last edit',
-      order: true
+      catalog: true
     },
     {
-      field: 'customer.email',
-      label: 'Email',
-      order: true,
+      field: 'title',
+      label: 'Title',
       filter: true
     },
     {
-      field: 'instance.platform_domain',
-      label: 'Myshopify domain',
-      filter: true
+      field: 'fulfillment.id',
+      type: 'hidden',
+      field_type: 'id',
+      label: 'Fulfillment',
+      filter: true,
+      filter_type: 'dropdown',
+      filter_value: [
+        {
+          id: 1,
+          label: 'CustomCat'
+        },
+        {
+          id: 2,
+          label: 'Printful'
+        }
+      ]
     },
     {
-      field: 'instance.shop_id',
-      label: 'Shopify shop id',
-      filter: true
-    },
-    {
-      field: 'instance.user.email',
-      label: 'User email',
-      filter: true
-    },
-    {
-      field: 'instance.user.id',
-      label: 'User ID'
-    },
-    {
-      field: 'instance.platform.display_name',
-      label: 'Platform long long name'
+      field: 'fulfillment.display_name',
+      label: 'Fulfillment name'
     },
     // {
-    //   field: 'orders.count',
-    //   label: 'Number of orders',
+    //   field: 'catalogs.count',
+    //   label: 'Number of catalogs',
     //   width: 3
     // },
     {

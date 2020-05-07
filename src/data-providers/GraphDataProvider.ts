@@ -161,8 +161,8 @@ export default class GraphDataProvider extends ADataProvider {
   getFilter(columnKey: string, receivedValue: string): string {
     const value = receivedValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
     const column = this.options.columns.find(c => c.field === columnKey)
-    if (this.options.graphqlFilter && column) {
-      return this.options.graphqlFilter(column.field, column.type, value)
+    if (this.options.graphqlFilter && column && value) {
+      return this.options.graphqlFilter(column.field, column.field_type, value)
     }
 
     return ''
@@ -218,8 +218,8 @@ export default class GraphDataProvider extends ADataProvider {
         let filterValue = {}
         if (index === len - 1) {
           filterValue = filter.value
-          if (this.options.graphqlFilter && column) {
-            filterValue = this.options.graphqlFilter(curr, column.type, filter.value)
+          if (this.options.graphqlFilter && column && filter.value) {
+            filterValue = this.options.graphqlFilter(curr, column.field_type, filter.value)
           }
         }
 

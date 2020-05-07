@@ -3,6 +3,7 @@ import Vue from 'vue'
 
 import Basic from './filters/Basic.vue'
 import DateTime from './filters/DateTime.vue'
+import Dropdown from './filters/Dropdown.vue'
 
 export default Vue.extend({
   name: 'GridFilterItem',
@@ -19,9 +20,12 @@ export default Vue.extend({
 
       let filterLayout = null
 
-      switch (column.type) {
+      switch (column.filter_type) {
         case 'datetime':
           filterLayout = DateTime
+          break
+        case 'dropdown':
+          filterLayout = Dropdown
           break
         default:
           filterLayout = Basic

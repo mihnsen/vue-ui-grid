@@ -72,7 +72,9 @@ export default class Basic extends Vue {
 
     const textInput = this.$refs.input as HTMLElement
     if (textInput) {
-      textInput.focus()
+      setTimeout(() => {
+        textInput.focus()
+      }, 100)
     }
   }
 
