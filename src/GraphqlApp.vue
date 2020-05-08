@@ -58,7 +58,7 @@ export default class GraphqlApp extends Vue {
     },
     {
       field: 'fulfillment.id',
-      type: 'hidden',
+      // type: 'hidden',
       field_type: 'id',
       label: 'Fulfillment',
       filter: true,

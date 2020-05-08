@@ -39,7 +39,7 @@ export default class GraphGrid extends Grid {
   @Watch('refFilter')
   onRefFilterChanged() {
     this.initProvider()
-    this.getData()
+    this.resetState()
   }
 
   initProvider() {
