@@ -301,6 +301,7 @@ export default class VGrid extends Vue {
       .then(() => {
         setTimeout(() => {
           this.isLoading = false
+          this.$emit('data-changed', this.dataCollections)
         }, 250) // Delay 250ms
       })
   }
