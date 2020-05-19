@@ -61,9 +61,11 @@ export default class Basic extends Vue {
 
   getData(field: string) {
     const fields = field.split('.')
-    return fields.reduce((acc: any, curr: string, index) => {
+    const res = fields.reduce((acc: any, curr: string, index) => {
       return acc[curr] || (index < fields.length - 1 ? {} : null)
     }, this.data)
+
+    return res ? res : '' // eslint-disable-line
   }
 }
 </script>
