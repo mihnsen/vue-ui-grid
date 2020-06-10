@@ -5,12 +5,14 @@
   ) Export
 </template>
 <script lang="ts">
+import { mixins } from 'vue-class-component'
 import { Component, Prop, Vue } from 'vue-property-decorator'
+import DataMixin from '../mixins/DataMixin'
 
 @Component({
   name: 'ExportButton'
 })
-export default class ExportButton extends Vue {
+export default class ExportButton extends mixins(DataMixin) {
   @Prop({ type: Array, default: () => ([]) })
   data!: Array<any>
 
@@ -31,7 +33,7 @@ export default class ExportButton extends Vue {
     const header = this.filteredColumn.map(c => c.label).join(',')
 
     const body = this.data.map(d => {
-      return this.filteredColumn.map(c => d[c.field]) // Get data
+      return this.filteredColumn.map(c => this.getData(c.field, d[c.field])) // Get data
         .map(v => `"${v}"`) // Cast string
         .join(',') // Split row
     }).join('\n')

@@ -11,7 +11,8 @@
       resource="users",
       :columns="gridColumns",
       :orderable="true",
-      :per-page="6"
+      :per-page="6",
+      :exportable="true",
     )
       template(#column-action="{ entry }")
         button(

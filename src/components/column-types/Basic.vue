@@ -3,21 +3,23 @@ extends Basic.pug
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator'
+import { mixins } from 'vue-class-component'
+import { Component, Prop } from 'vue-property-decorator'
+import DataMixin from '../../mixins/DataMixin'
 
 @Component
-export default class Basic extends Vue {
+export default class Basic extends mixins(DataMixin) {
+  @Prop({
+    type: Object,
+    required: true
+  })
+
+  data: any
   @Prop({
     type: Object,
     required: true
   })
   column: any
-
-  @Prop({
-    type: Object,
-    required: true
-  })
-  data: any
 
   @Prop({
     type: Boolean,
@@ -31,12 +33,12 @@ export default class Basic extends Vue {
         return this.column.format(this.data)
       } else {
         return this.column.format.replace(/\{(\w*)\}/g, (matched: string, field: string) => {
-          return this.getData(field)
+          return this.getData(field, this.data)
         })
       }
     }
 
-    return this.getData(this.column.field)
+    return this.getData(this.column.field, this.data)
   }
 
   get classes() {
@@ -57,15 +59,6 @@ export default class Basic extends Vue {
     }
 
     return classes
-  }
-
-  getData(field: string) {
-    const fields = field.split('.')
-    const res = fields.reduce((acc: any, curr: string, index) => {
-      return acc[curr] || (index < fields.length - 1 ? {} : null)
-    }, this.data)
-
-    return res ? res : '' // eslint-disable-line
   }
 }
 </script>
