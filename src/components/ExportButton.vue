@@ -33,7 +33,7 @@ export default class ExportButton extends mixins(DataMixin) {
     const header = this.filteredColumn.map(c => c.label).join(',')
 
     const body = this.data.map(d => {
-      return this.filteredColumn.map(c => this.getData(c.field, d[c.field])) // Get data
+      return this.filteredColumn.map(c => this.getData(c.field, d)) // Get data
         .map(v => `"${v}"`) // Cast string
         .join(',') // Split row
     }).join('\n')

@@ -17,6 +17,7 @@
       filter-key="filter",
       sort-by="id",
       sort-type="asc"
+      :exportable="true"
     )
     VGraphCards(
       resource="catalogs",

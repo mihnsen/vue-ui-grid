@@ -14050,12 +14050,12 @@ var Status_component = normalizeComponent(
 )
 
 /* harmony default export */ var Status = (Status_component.exports);
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"3f9b8379-vue-loader-template"}!./node_modules/@vue/cli-service/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/@vue/cli-service/node_modules/vue-loader/lib??vue-loader-options!./src/components/ExportButton.vue?vue&type=template&id=7959610f&lang=pug&
-var ExportButtonvue_type_template_id_7959610f_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-export-button"},[_c('button',{on:{"click":_vm.exportData}},[_vm._v("Export")])])}
-var ExportButtonvue_type_template_id_7959610f_lang_pug_staticRenderFns = []
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"3f9b8379-vue-loader-template"}!./node_modules/@vue/cli-service/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/@vue/cli-service/node_modules/vue-loader/lib??vue-loader-options!./src/components/ExportButton.vue?vue&type=template&id=d4aeeda0&lang=pug&
+var ExportButtonvue_type_template_id_d4aeeda0_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid-export-button"},[_c('button',{on:{"click":_vm.exportData}},[_vm._v("Export")])])}
+var ExportButtonvue_type_template_id_d4aeeda0_lang_pug_staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./src/components/ExportButton.vue?vue&type=template&id=7959610f&lang=pug&
+// CONCATENATED MODULE: ./src/components/ExportButton.vue?vue&type=template&id=d4aeeda0&lang=pug&
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.array.join.js
 var es_array_join = __webpack_require__("a15b");
@@ -14104,7 +14104,7 @@ function (_mixins) {
       }).join(',');
       var body = this.data.map(function (d) {
         return _this.filteredColumn.map(function (c) {
-          return _this.getData(c.field, d[c.field]);
+          return _this.getData(c.field, d);
         }) // Get data
         .map(function (v) {
           return "\"".concat(v, "\"");
@@ -14169,8 +14169,8 @@ ExportButtonvue_type_script_lang_ts_ExportButton = __decorate([vue_class_compone
 
 var ExportButton_component = normalizeComponent(
   components_ExportButtonvue_type_script_lang_ts_,
-  ExportButtonvue_type_template_id_7959610f_lang_pug_render,
-  ExportButtonvue_type_template_id_7959610f_lang_pug_staticRenderFns,
+  ExportButtonvue_type_template_id_d4aeeda0_lang_pug_render,
+  ExportButtonvue_type_template_id_d4aeeda0_lang_pug_staticRenderFns,
   false,
   null,
   null,
