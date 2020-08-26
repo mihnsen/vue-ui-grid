@@ -3,27 +3,32 @@
 )
   span(v-if="!isFiltered") {{ strEmptyData }}
   span(v-else) {{ strEmptyFilteredData }}
-.vgrid-row
-  .vgrid-col(
-    :class="cardColumnClasses",
-    v-for="(entry, entryIndex) in showedData"
-  )
-    slot(
-      :entry="entry",
-      :index="entryIndex",
-      :visible-cols="visibleCols"
+slot(
+  name="body",
+  :entries="showedData",
+  :visible-cols="visibleCols"
+)
+  .vgrid-row
+    .vgrid-col(
+      :class="cardColumnClasses",
+      v-for="(entry, entryIndex) in showedData"
     )
-      .vgrid-entry-wrapper
-        ColumnType(
-          v-for="col in visibleCols"
-          :column="col",
-          :data="entry",
-          :key="col.id",
-          :resize="true",
-          :class="columnClasses[col.field]",
-        )
-          slot(
-            :name="'column-' + col.field", 
-            :entry="entry",
-            :index="entryIndex"
+      slot(
+        :entry="entry",
+        :index="entryIndex",
+        :visible-cols="visibleCols"
+      )
+        .vgrid-entry-wrapper
+          ColumnType(
+            v-for="col in visibleCols"
+            :column="col",
+            :data="entry",
+            :key="col.id",
+            :resize="true",
+            :class="columnClasses[col.field]",
           )
+            slot(
+              :name="'column-' + col.field", 
+              :entry="entry",
+              :index="entryIndex"
+            )
