@@ -1,6 +1,7 @@
 import ColumnOption from './column-option'
 
 export default interface GridOption {
+  debug?: boolean;
   searchable?: boolean;
   orderable?: boolean;
   filterable?: boolean;
@@ -10,12 +11,13 @@ export default interface GridOption {
   pagination?: boolean;
   exportable?: boolean;
 
+  perPage?: number;
+  pageSizes?: Array<number>;
   columns: Array<ColumnOption>;
 
   perPageKey?: string; // Ajax & Graphql
   pageKey?: string; // Ajax & Graphql
-
-  searchField?: string;
+searchField?: string;
   limit: number;
   sortKey?: string;
   sortTypeKey?: string;

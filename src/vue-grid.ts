@@ -19,7 +19,9 @@ const Plugin = {
     Vue.component('VCards', Cards)
 
     const gridOption = {
-      debug: options.debug
+      debug: options.debug,
+      perPage: options.perPage,
+      pageSizes: options.pageSizes
     }
 
     let graphqlOption = {}

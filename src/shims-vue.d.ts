@@ -11,6 +11,8 @@ declare interface AjaxGridExtracedData {
 
 declare interface VGrid {
   debug: boolean;
+  perPage: boolean;
+  pageSizes: boolean;
   hasSortType?: boolean;
   offsetKey: string;
   filterKey: string;

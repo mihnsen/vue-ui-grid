@@ -162,12 +162,18 @@ export default class VGrid extends Vue {
   total: number = 0
   currentPage = this.index
   searchKeyword: string = ''
-  limit: number = this.perPage
+
   isLoading: boolean = false
   order: Order = { by: this.sortBy, type: this.sortType }
   where: Where = {}
   columnVisibility: Array<string> = []
   hasSortType: boolean = this.$vgrid.hasSortType || true
+
+  // @ts-ignore
+  limit: number = this.perPage ? this.perPage : this.$vgrid.perPage
+
+  // @ts-ignore
+  pageSizes: Array<number> = this.$vgrid.pageSizes || [5, 10, 20, 50, 100]
 
   displayType: string = 'grid'
   dataType: string = 'js'
