@@ -1,6 +1,6 @@
 {
   "name": "vue-ui-grid",
-  "version": "0.1.55",
+  "version": "0.1.56",
   "main": "dist/vue-ui-grid.common.js",
   "types": "index.d.ts",
   "scripts": {

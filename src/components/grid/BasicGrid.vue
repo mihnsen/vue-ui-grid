@@ -57,7 +57,7 @@ export default class VGrid extends Vue {
   @Prop({ required: true, default: () => ([]) })
   columns!: Array<ColumnOption>
 
-  @Prop({ default: 10 })
+  @Prop()
   perPage!: number
 
   @Prop({ default: 0 })
@@ -170,7 +170,7 @@ export default class VGrid extends Vue {
   hasSortType: boolean = this.$vgrid.hasSortType || true
 
   // @ts-ignore
-  limit: number = this.perPage ? this.perPage : this.$vgrid.perPage
+  limit: number = this.perPage ? this.perPage : (this.$vgrid.perPage || 10)
 
   // @ts-ignore
   pageSizes: Array<number> = this.$vgrid.pageSizes || [5, 10, 20, 50, 100]
