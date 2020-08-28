@@ -1,25 +1,26 @@
 .vgrid-footer
-  PageSize(
-    v-if="pagable",
-    v-model="limit",
-    :sizes="pageSizes",
-  )
-  GridStatus(
-    v-if="statusable",
-    :limit="limit",
-    :current-page="currentPage",
-    :showed="showedData.length",
-    :total="total"
-  )
-  Pagination(
-    v-if="pagination",
-    v-model="currentPage",
-    :limit="limit",
-    :total="total",
-  )
+  slot(name="footer")
+    PageSize(
+      v-if="pagable",
+      v-model="limit",
+      :sizes="pageSizes",
+    )
+    GridStatus(
+      v-if="statusable",
+      :limit="limit",
+      :current-page="currentPage",
+      :showed="showedData.length",
+      :total="total"
+    )
+    Pagination(
+      v-if="pagination",
+      v-model="currentPage",
+      :limit="limit",
+      :total="total",
+    )
 
-.vgrid-devbar(v-if="debug")
-  .vgrid-col-9
-    pre {{ dataQuery }}
-  .vgrid-col-3.vgrid-align-right
-    span(v-if="isLoading") Loading..
+  .vgrid-devbar(v-if="debug")
+    .vgrid-col-9
+      pre {{ dataQuery }}
+    .vgrid-col-3.vgrid-align-right
+      span(v-if="isLoading") Loading..
