@@ -206,7 +206,7 @@ export default class VGrid extends Vue {
   }
 
   get isEmptyData() {
-    return !!this.dataCollections.length
+    return !this.dataCollections.length
   }
 
   get hasColumnFilter() {
