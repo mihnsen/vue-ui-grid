@@ -4,6 +4,7 @@
   span(v-if="!isFiltered") {{ strEmptyData }}
   span(v-else) {{ strEmptyFilteredData }}
 slot(
+  v-if="!isEmptyData",
   name="body",
   :entries="showedData",
   :visible-cols="visibleCols"
