@@ -20,10 +20,14 @@ slot(
             :key="col.id"
           )
             .vgrid-field-header-content
-              span {{ (col.label || col.field) | vgrid_header }}
-              b(
-                :class="orderableColumnClasses(col)"
+              slot(
+                :name="'column-header-' + col.field",
+                :col="col"
               )
+                span {{ (col.label || col.field) | vgrid_header }}
+                b(
+                  :class="orderableColumnClasses(col)"
+                )
       tbody
         tr.vgrid-table-filter(
           v-if="columnFilterable && hasColumnFilter"
