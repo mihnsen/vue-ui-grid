@@ -40,3 +40,5 @@ export const AjaxCards: object;
 export const GraphGrid: object;
 export const GraphList: object;
 export const GraphCards: object;
+
+export const Pagination: object;

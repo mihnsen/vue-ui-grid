@@ -10,6 +10,8 @@ import GraphGrid from './components/grid/GraphGrid.vue'
 import GraphList from './components/grid/GraphList.vue'
 import GraphCards from './components/grid/GraphCards.vue'
 
+import Pagination from './components/Pagination.vue'
+
 import './assets/scss/_index.scss'
 
 const Plugin = {
@@ -73,7 +75,8 @@ const Plugin = {
 export {
   Grid,
   Cards,
-  List
+  List,
+  Pagination
 }
 
 export default Plugin
