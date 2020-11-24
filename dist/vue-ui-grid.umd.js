@@ -12000,7 +12000,6 @@ var es_number_constructor = __webpack_require__("a9e3");
 
 
 
-
 var Paginationvue_type_script_lang_ts_Pagination =
 /*#__PURE__*/
 function (_Vue) {
@@ -15942,6 +15941,7 @@ function vue_grid_objectSpread(target) { for (var i = 1; i < arguments.length; i
 
 
 
+
 var Plugin = {
   install: function install(Vue) {
     var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -15997,6 +15997,7 @@ var Plugin = {
 /* concated harmony reexport Grid */__webpack_require__.d(__webpack_exports__, "Grid", function() { return BasicGrid; });
 /* concated harmony reexport Cards */__webpack_require__.d(__webpack_exports__, "Cards", function() { return BasicCards; });
 /* concated harmony reexport List */__webpack_require__.d(__webpack_exports__, "List", function() { return BasicList; });
+/* concated harmony reexport Pagination */__webpack_require__.d(__webpack_exports__, "Pagination", function() { return components_Pagination; });
 
 
 /* harmony default export */ var entry_lib = __webpack_exports__["default"] = (vue_grid);

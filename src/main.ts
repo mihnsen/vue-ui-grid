@@ -18,7 +18,6 @@ axios.interceptors.response.use((response) => {
     // TODO logout
   }
 
-  console.log('error', error)
   return Promise.reject(error.response)
 })
 
@@ -80,5 +79,5 @@ Vue.use(VueUIGrid, {
 
 new Vue({
   apolloProvider,
-  render: h => h(AjaxApp)
+  render: h => h(App)
 }).$mount('#app')
