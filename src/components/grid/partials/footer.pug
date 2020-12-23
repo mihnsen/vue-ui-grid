@@ -1,5 +1,6 @@
 .vgrid-footer
   slot(name="footer")
+    slot(name="footer-start")
     PageSize(
       v-if="pagable",
       v-model="limit",
@@ -18,6 +19,7 @@
       :limit="limit",
       :total="total",
     )
+    slot(name="footer-end")
 
   .vgrid-devbar(v-if="debug")
     .vgrid-col-9
