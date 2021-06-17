@@ -70,7 +70,7 @@ export default class TextInput extends Vue {
       this.typing = false
       this.updateValue(value)
       clearTimeout(this.timeout)
-    }, 500)
+    }, 0)
   }
 
   updateValue(val: string) {

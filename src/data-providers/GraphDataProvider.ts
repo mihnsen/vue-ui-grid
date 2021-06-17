@@ -8,11 +8,13 @@ import gql from 'graphql-tag'
 export default class GraphDataProvider extends ADataProvider {
   protected apolloProvider: any;
   protected resource: string;
+  protected cancelRequest: any;
 
   constructor(apollo: any, resource: string, options: GridOption) {
     super(options)
     this.apolloProvider = apollo
     this.resource = resource
+    this.cancelRequest = null
   }
 
   /**
@@ -28,9 +30,25 @@ export default class GraphDataProvider extends ADataProvider {
       }
       const graphqlQuery = gql`${query}`
 
+      if (this.cancelRequest) {
+        this.cancelRequest.abort()
+      }
+
+      // Cancel request
+      // Use https://developer.mozilla.org/en-US/docs/Web/API/AbortController
+      const abortController = new AbortController()
+      this.cancelRequest = abortController
+
+      console.log('do it')
+
       this.apolloProvider.query({
         fetchPolicy: 'no-cache',
         query: graphqlQuery,
+        context: {
+          fetchOptions: {
+            signal: abortController.signal
+          }
+        },
         variables
       })
         .then((result: any) => {
@@ -61,6 +79,9 @@ export default class GraphDataProvider extends ADataProvider {
               resolve(res)
             }
           }
+        })
+        .finally(() => {
+          this.cancelRequest = null
         })
     })
   }

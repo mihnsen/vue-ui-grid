@@ -28,7 +28,8 @@ const apolloClient = new ApolloClient({
 })
 
 const apolloProvider = new VueApollo({
-  defaultClient: apolloClient
+  defaultClient: apolloClient,
+  queryDeduplication: false
 })
 
 export default apolloProvider
