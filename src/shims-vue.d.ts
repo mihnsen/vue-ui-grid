@@ -28,6 +28,7 @@ declare interface VGrid {
   getPageIndex(index: number): number;
   extractData(data: any): AjaxGridExtracedData;
   fetchData(data: any): any;
+  cancelToken: any;
 }
 
 declare module "vue/types/vue" {

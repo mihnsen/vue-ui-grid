@@ -17,13 +17,14 @@ export default interface GridOption {
 
   perPageKey?: string; // Ajax & Graphql
   pageKey?: string; // Ajax & Graphql
-searchField?: string;
+  searchField?: string;
   limit: number;
   sortKey?: string;
   sortTypeKey?: string;
   getPageIndex?: Function;
   extractData?: Function;
   fetchData?: Function;
+  cancelToken?: any;
 
   filterKey?: string;
   offsetKey?: string;

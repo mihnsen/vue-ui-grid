@@ -57,7 +57,8 @@ const Plugin = {
         sortKey: options.sortKey || 'sort',
         sortTypeKey: options.sortTypeKey || 'sort_type',
         perPageKey: options.perPageKey || 'limit',
-        fetchData: options.fetchData || 'limit',
+        fetchData: options.fetchData,
+        cancelToken: options.cancelToken,
 
         // Funcs
         getPageIndex: options.getPageIndex

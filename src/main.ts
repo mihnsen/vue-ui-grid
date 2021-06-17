@@ -25,6 +25,7 @@ Vue.use(VueUIGrid, {
   debug: true,
   ajax: true,
   fetchData: axios.get,
+  cancelToken: axios.CancelToken,
   pageKey: 'page',
   perPageKey: 'per_page',
   extractData: (responseData: any) => {

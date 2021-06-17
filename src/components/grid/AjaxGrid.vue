@@ -24,6 +24,7 @@ export default class AjaxGrid extends Grid {
   getPageIndex: Function = this.$vgrid.getPageIndex
   extractData: Function = this.$vgrid.extractData
   fetchData: Function = this.$vgrid.fetchData
+  cancelToken: any = this.$vgrid.cancelToken
 
   initProvider() {
     this.dataProvider = new AjaxDataProvider(this.resource, this.gridOption)
@@ -38,7 +39,8 @@ export default class AjaxGrid extends Grid {
       sortTypeKey: this.sortTypeKey,
       getPageIndex: this.getPageIndex,
       extractData: this.extractData,
-      fetchData: this.fetchData
+      fetchData: this.fetchData,
+      cancelToken: this.cancelToken
     }
   }
 

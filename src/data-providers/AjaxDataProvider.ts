@@ -5,10 +5,12 @@ import DataResponse from '../interfaces/data-response'
 
 export default class AjaxDataProvider extends ADataProvider {
   protected resource: string;
+  protected cancelRequest: any;
 
   constructor(resource: string, options: GridOption) {
     super(options)
     this.resource = resource
+    this.cancelRequest = null
   }
 
   getData(page: number, limit?: number, searchKeyword?: string, filter?: object, order?: Order): Promise<DataResponse> {
@@ -44,7 +46,24 @@ export default class AjaxDataProvider extends ADataProvider {
       return Promise.reject(new Error('no fetch data option'))
     }
 
-    return this.options.fetchData(this.resource, { params })
+    let cancelToken = null
+
+    if (this.options.cancelToken) {
+      // Check if there are any previous pending requests
+      if (this.cancelRequest) {
+        this.cancelRequest('Operation canceled due to new request.')
+      }
+
+      const CancelToken = this.options.cancelToken
+      cancelToken = new CancelToken((executor: Function) => {
+        this.cancelRequest = executor
+      })
+    }
+
+    return this.options.fetchData(this.resource, {
+      params,
+      cancelToken
+    })
       .then((data: any): DataResponse => {
         let items: any = []
         let total = 0
@@ -60,6 +79,9 @@ export default class AjaxDataProvider extends ADataProvider {
           total,
           query: params
         }
+      })
+      .finally(() => {
+        this.cancelRequest = null
       })
   }
 }
