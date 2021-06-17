@@ -149,7 +149,6 @@ export default class VGrid extends Vue {
     this.resetState()
   }
 
-  @Watch('searchKeyword')
   @Watch('currentPage')
   @Watch('order', { deep: true })
   onStateChanged() {
@@ -302,11 +301,11 @@ export default class VGrid extends Vue {
         this.dataQuery = query
       })
       .catch((error: any) => {
-        if (error.query) {
+        if (error) {
           this.dataQuery = error.query
         }
 
-        console.log(error) // eslint-disable-line
+        console.log('vgrid error', error) // eslint-disable-line
       })
       .then(() => {
         setTimeout(() => {
