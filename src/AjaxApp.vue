@@ -84,7 +84,6 @@ export default class GraphqlApp extends Vue {
     axios.delete(`/users/${entry.id}`)
       .then((res) => {
         // TODO
-        console.log(res)
         this.$refs.ajaxCards.getData()
       })
   }
