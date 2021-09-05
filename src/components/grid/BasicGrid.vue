@@ -122,6 +122,9 @@ export default class VGrid extends Vue {
   @Prop({ default: false })
   routeState!: boolean
 
+  @Prop()
+  searchField!: string // Prepare for GraphGrid + AjaxGrid
+
   @Watch('columns')
   setColumnVisibility() {
     this.columnVisibility = this.columns
@@ -438,6 +441,11 @@ export default class VGrid extends Vue {
       }
 
       let filter : any = {}
+
+      if (this.searchField && query[this.searchField]) {
+        filter[this.searchField] = query[this.searchField]
+      }
+
       Object.keys(query).forEach((key) => {
         const column = this.columns.find(c => c.field === key)
         if (column && column.filter) {

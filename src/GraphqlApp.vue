@@ -10,7 +10,6 @@
       resource-meta="catalogs_aggregate",
       search-field="title",
       :columns="columns",
-      :catalogable="true"
       :per-page="5",
       offset-key="skip",
       limit-key="last",
@@ -24,7 +23,6 @@
       resource="catalogs",
       resource-meta="catalogs_aggregate",
       :columns="columns",
-      :catalogable="true"
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
@@ -33,7 +31,6 @@
       resource="catalogs",
       resource-meta="catalogs_aggregate",
       :columns="columns",
-      :catalogable="true"
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
@@ -56,7 +53,7 @@ export default class GraphqlApp extends Vue {
     {
       field: 'title',
       label: 'Title',
-      filter: true,
+      // filter: true,
       order: true
     },
     {
