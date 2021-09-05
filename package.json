@@ -63,5 +63,8 @@
   "bugs": {
     "url": "https://github.com/mihnsen/vue-ui-grid/issues"
   },
-  "homepage": "https://github.com/mihnsen/vue-ui-grid#readme"
+  "homepage": "https://github.com/mihnsen/vue-ui-grid#readme",
+  "dependencies": {
+    "vue-router": "^3.5.2"
+  }
 }

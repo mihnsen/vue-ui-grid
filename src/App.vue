@@ -11,6 +11,7 @@
         :per-page="6",
         :column-visible="true",
         :orderable="true",
+        :route-state="true",
         ref="grid"
       )
         template(#column-action="{ entry }")

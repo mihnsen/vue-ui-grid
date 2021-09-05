@@ -8,7 +8,7 @@
     VGraphGrid(
       resource="catalogs",
       resource-meta="catalogs_aggregate",
-      search-field="name",
+      search-field="title",
       :columns="columns",
       :catalogable="true"
       :per-page="5",
@@ -18,6 +18,7 @@
       sort-by="id",
       sort-type="asc"
       :exportable="true"
+      :route-state="true"
     )
     VGraphCards(
       resource="catalogs",
@@ -55,7 +56,8 @@ export default class GraphqlApp extends Vue {
     {
       field: 'title',
       label: 'Title',
-      filter: true
+      filter: true,
+      order: true
     },
     {
       field: 'fulfillment.id',
@@ -72,6 +74,10 @@ export default class GraphqlApp extends Vue {
         {
           id: 2,
           label: 'Printful'
+        },
+        {
+          id: 6,
+          label: 'Dreamship'
         }
       ]
     },

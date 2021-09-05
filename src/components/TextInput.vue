@@ -1,6 +1,7 @@
 <template lang="pug">
 .vgrid-text-input
   input.vgrid-input(
+    :class="{ 'vgrid-input--active' : localValue }"
     ref="input",
     type="text",
     :placeholder="placeholder",

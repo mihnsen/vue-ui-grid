@@ -3,9 +3,13 @@ import App from './App.vue'
 import TestVue from './TestVue.vue'
 import GraphqlApp from './GraphqlApp.vue'
 import AjaxApp from './AjaxApp.vue'
+import MainApp from './MainApp.vue'
 import apolloProvider from './apollo-provider'
 import VueUIGrid from './vue-grid'
 import axios from 'axios'
+import VueRouter from 'vue-router'
+
+Vue.use(VueRouter)
 
 Vue.config.productionTip = false
 
@@ -78,7 +82,29 @@ Vue.use(VueUIGrid, {
   graphqlDataCounter: (data: any) => data.aggregate.count
 })
 
+const router = new VueRouter({
+  mode: 'history',
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: App
+    },
+    {
+      path: '/ajax',
+      name: 'ajax',
+      component: AjaxApp
+    },
+    {
+      path: '/graph',
+      name: 'graph',
+      component: GraphqlApp
+    }
+  ]
+})
+
 new Vue({
+  router,
   apolloProvider,
-  render: h => h(AjaxApp)
+  render: h => h(MainApp)
 }).$mount('#app')

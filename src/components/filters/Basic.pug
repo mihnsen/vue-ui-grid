@@ -6,7 +6,7 @@
   block label
     .vgrid-filter-handle(
       @click="showEditor",
-      :class="{ active: isEditor }"
+      :class="{ active: isEditor, 'vgrid-input--active' : localValue }"
     )
       span.vgrid-filter-value {{ valueInString }}
   block content

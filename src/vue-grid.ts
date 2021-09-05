@@ -23,7 +23,8 @@ const Plugin = {
     const gridOption = {
       debug: options.debug,
       perPage: options.perPage,
-      pageSizes: options.pageSizes
+      pageSizes: options.pageSizes,
+      routeState: options.routeState
     }
 
     let graphqlOption = {}

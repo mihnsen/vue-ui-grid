@@ -42,3 +42,7 @@
     font-size: .85em;
   }
 }
+
+.vgrid-input--active {
+  box-shadow: 0 0 1px 1px $vgrid-input-active !important;
+}

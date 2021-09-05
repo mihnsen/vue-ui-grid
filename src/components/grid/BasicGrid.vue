@@ -118,6 +118,9 @@ export default class VGrid extends Vue {
   @Prop({ default: 3 })
   colXl!: number
 
+  @Prop({ default: false })
+  routeState!: boolean
+
   @Watch('columns')
   setColumnVisibility() {
     this.columnVisibility = this.columns
@@ -132,7 +135,7 @@ export default class VGrid extends Vue {
   }
 
   @Watch('searchKeyword')
-  updateGridAfterSearchChanged() {
+  updateGridAfterSearchChanged(newVal, oldVal) {
     this.resetState()
   }
 
@@ -149,27 +152,32 @@ export default class VGrid extends Vue {
     this.resetState()
   }
 
-  @Watch('currentPage')
-  @Watch('order', { deep: true })
-  onStateChanged() {
+  @Watch('currentState', { deep: true })
+  onCurrentStateParamsChanged() {
     this.getData()
+    this.updateRouteIfNeeded()
   }
 
   // Attributes
+  initialState = this.getStateFromRouteIfNeeded()
   debug: boolean = this.$vgrid.debug || false
   dataCollections: Array<any> = []
   total: number = 0
-  currentPage = this.index
-  searchKeyword: string = ''
 
   isLoading: boolean = false
-  order: Order = { by: this.sortBy, type: this.sortType }
-  where: Where = {}
   columnVisibility: Array<string> = []
   hasSortType: boolean = this.$vgrid.hasSortType || true
 
+  currentPage = this.initialState.currentPage || this.index
+  searchKeyword: string = this.initialState.searchKeyword || ''
+  order: Order = this.initialState.order
+    ? this.initialState.order
+    : { by: this.sortBy, type: this.sortType }
+  where: Where = this.initialState.where ? this.initialState.where : {}
   // @ts-ignore
-  limit: number = this.perPage ? this.perPage : (this.$vgrid.perPage || 10)
+  limit: number = this.initialState.limit
+    ? this.initialState.limit
+    : this.perPage ? this.perPage : (this.$vgrid.perPage || 10)
 
   // @ts-ignore
   pageSizes: Array<number> = this.$vgrid.pageSizes || [5, 10, 20, 50, 100]
@@ -179,6 +187,26 @@ export default class VGrid extends Vue {
   dataQuery: any = ''
 
   dataProvider: IDataProvider | null = null
+
+  get currentState() {
+    let state = {
+      s: this.searchKeyword,
+      page: this.currentPage,
+      limit: this.limit
+    }
+
+    if (this.order && this.order.by) {
+      state.order = this.order.by
+      state.order_type = this.order.type
+    }
+
+    state = Object.keys(this.where).reduce((acc, curr) => ({
+      ...acc,
+      [curr]: this.where[curr]
+    }), state)
+
+    return state
+  }
 
   get gridOption(): GridOption {
     return {
@@ -281,13 +309,16 @@ export default class VGrid extends Vue {
   }
 
   getData() {
+    if (this.debug) {
+      console.log('vgrid - start get data ', this.searchKeyword)
+    }
+
     if (!this.dataProvider) {
-      console.log('Your grid is not config any data provider') // eslint-disable-line
+      console.log('vgrid - Your grid is not config any data provider') // eslint-disable-line
       return
     }
 
     this.isLoading = true
-
     this.dataProvider.getData(
       this.currentPage,
       this.limit,
@@ -366,7 +397,57 @@ export default class VGrid extends Vue {
 
   resetState() {
     this.currentPage = 0
-    this.getData()
+  }
+
+  updateRouteIfNeeded() {
+    if (!this.routeState) {
+      return
+    }
+
+    const newQuery = {
+      ...this.$route.query,
+      ...this.currentState
+    }
+    this.$router.replace({ query: newQuery })
+  }
+
+  getStateFromRouteIfNeeded() {
+    let state = {}
+
+    if (this.routeState) {
+      const query = this.$route.query
+
+      if (query.s) {
+        state.searchKeyword = query.s
+      }
+
+      if (query.page) {
+        state.currentPage = parseInt(query.page, 10)
+      }
+
+      if (query.limit) {
+        state.limit = parseInt(query.limit, 10)
+      }
+
+      if (query.order) {
+        state.order = {
+          by: query.order,
+          type: query.order_type || 'desc'
+        }
+      }
+
+      let filter = {}
+      Object.keys(query).forEach((key) => {
+        const column = this.columns.find(c => c.field === key)
+        if (column && column.filter) {
+          filter[key] = query[key]
+        }
+      })
+
+      state.where = filter
+    }
+
+    return state
   }
 }
 </script>
