@@ -16,6 +16,7 @@ import ExportButton from '../ExportButton.vue'
 import Order from '../../interfaces/order'
 import { JsonDataProvider } from '../../data-providers'
 import GridOption from '../../interfaces/grid-option'
+import GridState from '../../interfaces/grid-state'
 import ColumnOption from '../../interfaces/column-option'
 import DataResponse from '../../interfaces/data-response'
 import IDataProvider from '../../data-providers/abstract'
@@ -135,7 +136,7 @@ export default class VGrid extends Vue {
   }
 
   @Watch('searchKeyword')
-  updateGridAfterSearchChanged(newVal, oldVal) {
+  updateGridAfterSearchChanged() {
     this.resetState()
   }
 
@@ -159,7 +160,7 @@ export default class VGrid extends Vue {
   }
 
   // Attributes
-  initialState = this.getStateFromRouteIfNeeded()
+  initialState: GridState = this.getStateFromRouteIfNeeded()
   debug: boolean = this.$vgrid.debug || false
   dataCollections: Array<any> = []
   total: number = 0
@@ -189,7 +190,7 @@ export default class VGrid extends Vue {
   dataProvider: IDataProvider | null = null
 
   get currentState() {
-    let state = {
+    let state: any = {
       s: this.searchKeyword,
       page: this.currentPage,
       limit: this.limit
@@ -310,7 +311,7 @@ export default class VGrid extends Vue {
 
   getData() {
     if (this.debug) {
-      console.log('vgrid - start get data ', this.searchKeyword)
+      console.log('vgrid - start get data ', this.searchKeyword) // eslint-disable-line
     }
 
     if (!this.dataProvider) {
@@ -412,10 +413,10 @@ export default class VGrid extends Vue {
   }
 
   getStateFromRouteIfNeeded() {
-    let state = {}
+    let state : any = {}
 
     if (this.routeState) {
-      const query = this.$route.query
+      const query : any = this.$route.query || {}
 
       if (query.s) {
         state.searchKeyword = query.s
@@ -436,7 +437,7 @@ export default class VGrid extends Vue {
         }
       }
 
-      let filter = {}
+      let filter : any = {}
       Object.keys(query).forEach((key) => {
         const column = this.columns.find(c => c.field === key)
         if (column && column.filter) {
