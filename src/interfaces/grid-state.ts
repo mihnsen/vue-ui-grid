@@ -4,4 +4,5 @@ export default interface GridState {
   limit?: number;
   order?: any;
   where?: any;
+  gridstate?: number;
 }

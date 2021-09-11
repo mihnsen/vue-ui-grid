@@ -19,22 +19,22 @@
       :exportable="true"
       :route-state="true"
     )
-    VGraphCards(
-      resource="catalogs",
-      resource-meta="catalogs_aggregate",
-      :columns="columns",
-      offset-key="skip",
-      limit-key="last",
-      filter-key="filter",
-    )
-    VGraphList(
-      resource="catalogs",
-      resource-meta="catalogs_aggregate",
-      :columns="columns",
-      offset-key="skip",
-      limit-key="last",
-      filter-key="filter",
-    )
+    // VGraphCards(
+    //   resource="catalogs",
+    //   resource-meta="catalogs_aggregate",
+    //   :columns="columns",
+    //   offset-key="skip",
+    //   limit-key="last",
+    //   filter-key="filter",
+    // )
+    // VGraphList(
+    //   resource="catalogs",
+    //   resource-meta="catalogs_aggregate",
+    //   :columns="columns",
+    //   offset-key="skip",
+    //   limit-key="last",
+    //   filter-key="filter",
+    // )
 </template>
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'

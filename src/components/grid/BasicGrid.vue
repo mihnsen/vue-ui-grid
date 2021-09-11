@@ -61,9 +61,6 @@ export default class VGrid extends Vue {
   @Prop()
   perPage!: number
 
-  @Prop({ default: 0 })
-  index!: number
-
   @Prop({ default: true })
   filterable!: boolean
 
@@ -151,15 +148,17 @@ export default class VGrid extends Vue {
     }
   }
 
-  @Watch('limit') // Items per page
-  onChangeLimit() {
-    this.resetState()
-  }
-
   @Watch('currentState', { deep: true })
   onCurrentStateParamsChanged() {
     this.getData()
     this.updateRouteIfNeeded()
+  }
+
+  @Watch('routeGridState')
+  onRouteGridStateChanged(newVal: any, oldVal: any) {
+    if (oldVal && !newVal) {
+      this.resetGrid()
+    }
   }
 
   // Attributes
@@ -172,7 +171,7 @@ export default class VGrid extends Vue {
   columnVisibility: Array<string> = []
   hasSortType: boolean = this.$vgrid.hasSortType || true
 
-  currentPage = this.initialState.currentPage || this.index
+  currentPage: number = this.initialState.currentPage || 0
   searchKeyword: string = this.initialState.searchKeyword || ''
   order: Order = this.initialState.order
     ? this.initialState.order
@@ -192,6 +191,22 @@ export default class VGrid extends Vue {
 
   dataProvider: IDataProvider | null = null
 
+  get gridstate() {
+    return this.initialState.gridstate
+  }
+
+  get routeGridState() {
+    if (this.routeState) {
+      const query = this.$route.query
+
+      if (query.gridstate) {
+        return query.gridstate
+      }
+    }
+
+    return null
+  }
+
   get currentState() {
     let state: any = {
       s: this.searchKeyword,
@@ -208,6 +223,9 @@ export default class VGrid extends Vue {
       ...acc,
       [curr]: this.where[curr]
     }), state)
+
+    // Put a state to it
+    state.gridstate = this.gridstate
 
     return state
   }
@@ -403,6 +421,17 @@ export default class VGrid extends Vue {
     this.currentPage = 0
   }
 
+  resetGrid() {
+    this.initialState = {
+      ...this.initialState,
+      gridstate: (new Date()).getTime()
+    }
+    this.currentPage = 0
+    this.searchKeyword = ''
+    this.order = { by: this.sortBy, type: this.sortType }
+    this.where = {}
+  }
+
   updateRouteIfNeeded() {
     if (!this.routeState) {
       return
@@ -420,6 +449,12 @@ export default class VGrid extends Vue {
 
     if (this.routeState) {
       const query : any = this.$route.query || {}
+
+      if (query.gridstate) {
+        state.gridstate = query.gridstate
+      } else {
+        state.gridstate = (new Date()).getTime()
+      }
 
       if (query.s) {
         state.searchKeyword = query.s
