@@ -131,12 +131,9 @@ export default class VGrid extends Vue {
   }
 
   @Watch('where', { deep: true })
-  updateGridAfterQueryChanged() {
-    this.resetState()
-  }
-
   @Watch('searchKeyword')
-  updateGridAfterSearchChanged() {
+  @Watch('limit')
+  onStateChange() {
     this.resetState()
   }
 
