@@ -14684,6 +14684,19 @@ var es_promise_finally = __webpack_require__("a79d");
 
 
 
+
+
+
+
+
+
+
+function AjaxDataProvider_ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function AjaxDataProvider_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { AjaxDataProvider_ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { AjaxDataProvider_ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+
+
 var AjaxDataProvider_AjaxDataProvider =
 /*#__PURE__*/
 function (_ADataProvider) {
@@ -14733,6 +14746,14 @@ function (_ADataProvider) {
 
       if (this.options.searchable && this.options.searchField && searchKeyword) {
         params[this.options.searchField] = searchKeyword;
+      }
+
+      if (filter) {
+        var where = AjaxDataProvider_objectSpread({}, filter);
+
+        var filtered = Object.keys(where).forEach(function (key) {
+          params[key] = where[key];
+        });
       }
 
       if (!this.options.fetchData) {

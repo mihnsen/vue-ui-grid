@@ -42,6 +42,13 @@ export default class AjaxDataProvider extends ADataProvider {
       params[this.options.searchField] = searchKeyword
     }
 
+    if (filter) {
+      const where: any = { ...filter }
+      const filtered: any = Object.keys(where).forEach((key) => {
+        params[key] = where[key]
+      })
+    }
+
     if (!this.options.fetchData) {
       return Promise.reject(new Error('no fetch data option'))
     }

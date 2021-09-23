@@ -5,7 +5,7 @@
     src="./assets/logo.png"
   )
   div(style="width: 1000px; margin: 20px auto 50px")
-    VAjaxCards(
+    VAjaxGrid(
       ref="ajaxCards",
       search-field="name",
       resource="users",
@@ -20,23 +20,23 @@
           type="button",
           @click="remove(entry)"
         ) remove
-    VAjaxGrid(
-      search-field="name",
-      resource="users",
-      :columns="gridColumns",
-      :orderable="true",
-      :per-page="5"
-    )
-      template(#column-index="{ index, entry }")
-        span #
-        span {{index}}
-    VAjaxList(
-      search-field="name",
-      resource="users",
-      :columns="gridColumns",
-      :orderable="true",
-      :per-page="5"
-    )
+    // VAjaxCards(
+    //   search-field="name",
+    //   resource="users",
+    //   :columns="gridColumns",
+    //   :orderable="true",
+    //   :per-page="5"
+    // )
+    //   template(#column-index="{ index, entry }")
+    //     span #
+    //     span {{index}}
+    // VAjaxList(
+    //   search-field="name",
+    //   resource="users",
+    //   :columns="gridColumns",
+    //   :orderable="true",
+    //   :per-page="5"
+    // )
 </template>
 <script lang="ts">
 import axios from 'axios'
@@ -60,6 +60,28 @@ export default class GraphqlApp extends Vue {
       field: 'id',
       label: 'ID',
       width: 1
+    },
+    {
+      field: 'fulfillment.id',
+      // type: 'hidden',
+      field_type: 'id',
+      label: 'Fulfillment',
+      filter: true,
+      filter_type: 'radio',
+      filter_value: [
+        {
+          id: 1,
+          label: 'CustomCat'
+        },
+        {
+          id: 2,
+          label: 'Printful'
+        },
+        {
+          id: 6,
+          label: 'Dreamship'
+        }
+      ]
     },
     {
       field: 'first_name',
