@@ -62,7 +62,7 @@ export default class GraphqlApp extends Vue {
       field_type: 'id',
       label: 'Fulfillment',
       filter: true,
-      filter_type: 'dropdown',
+      filter_type: 'radio',
       filter_value: [
         {
           id: 1,

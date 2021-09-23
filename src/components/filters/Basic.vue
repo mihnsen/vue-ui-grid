@@ -25,7 +25,7 @@ export default class Basic extends Vue {
   })
   column: any
 
-  @PropSync('value', { type: String }) localValue: any
+  @PropSync('value') localValue: any
 
   isEditor: boolean = false
 

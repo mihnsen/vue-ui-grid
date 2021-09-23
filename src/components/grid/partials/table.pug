@@ -11,55 +11,63 @@ slot(
 )
   .vgrid-responsive
     table.vgrid-table
-      thead
-        tr
-          th.vgrid-field-header(
-            v-for="col in visibleCols",
-            @click="setOrder(col.field)",
-            :class="headerColumnClasses(col)"
-            :key="col.id"
-          )
-            .vgrid-field-header-content
-              slot(
-                :name="'column-header-' + col.field",
-                :col="col"
-              )
-                span {{ (col.label || col.field) | vgrid_header }}
-                b(
-                  :class="orderableColumnClasses(col)"
-                )
-      tbody
-        tr.vgrid-table-filter(
-          v-if="columnFilterable && hasColumnFilter"
-        )
-          td(
-            v-for="col in visibleCols",
-            :key="col.field",
-          )
-            ColumnFilter(
-              :column="col",
-              v-model="where[col.field]",
+      slot(
+        name="table-head",
+        :cols="visibleCols",
+      )
+        thead
+          tr
+            th.vgrid-field-header(
+              v-for="col in visibleCols",
+              @click="setOrder(col.field)",
+              :class="headerColumnClasses(col)"
+              :key="col.id"
             )
-        tr(
-          v-for="(entry, entryIndex) in showedData",
-        )
-          slot(
-            :entry="entry",
-            :index="entryIndex",
-            :visible-cols="visibleCols"
+              .vgrid-field-header-content
+                slot(
+                  :name="'column-header-' + col.field",
+                  :col="col"
+                )
+                  span {{ (col.label || col.field) | vgrid_header }}
+                  b(
+                    :class="orderableColumnClasses(col)"
+                  )
+      slot(
+        name="table-body",
+        :entries="showedData",
+      )
+        tbody
+          tr.vgrid-table-filter(
+            v-if="columnFilterable && hasColumnFilter"
           )
             td(
               v-for="col in visibleCols",
-              :key="col.field"
+              :key="col.field",
             )
-              ColumnType(
+              ColumnFilter(
                 :column="col",
-                :data="entry",
-                :key="col.id",
-                :class="columnClasses[col.field]",
+                v-model="where[col.field]",
               )
-                slot(
-                  :name="'column-' + col.field", 
-                  :entry="entry", 
-                  :index="entryIndex"
+          tr(
+            v-for="(entry, entryIndex) in showedData",
+          )
+            slot(
+              :entry="entry",
+              :index="entryIndex",
+              :visible-cols="visibleCols"
+            )
+              td(
+                v-for="col in visibleCols",
+                :key="col.field"
+              )
+                ColumnType(
+                  :column="col",
+                  :data="entry",
+                  :key="col.id",
+                  :class="columnClasses[col.field]",
                 )
+                  slot(
+                    :name="'column-' + col.field", 
+                    :entry="entry", 
+                    :index="entryIndex"
+                  )

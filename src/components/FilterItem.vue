@@ -4,6 +4,8 @@ import Vue from 'vue'
 import Basic from './filters/Basic.vue'
 import DateTime from './filters/DateTime.vue'
 import Dropdown from './filters/Dropdown.vue'
+import Checkbox from './filters/Checkbox.vue'
+import Radio from './filters/Radio.vue'
 
 export default Vue.extend({
   name: 'GridFilterItem',
@@ -26,6 +28,12 @@ export default Vue.extend({
           break
         case 'dropdown':
           filterLayout = Dropdown
+          break
+        case 'checkbox':
+          filterLayout = Checkbox
+          break
+        case 'radio':
+          filterLayout = Radio
           break
         default:
           filterLayout = Basic

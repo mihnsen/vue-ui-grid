@@ -63,11 +63,13 @@ Vue.use(VueUIGrid, {
   // aggregateQuery: 'count',
   // graphqlDataCounter: (data: any) => data.count
 
-  graphqlFilter(field: string, fieldType: string, value: string) {
+  graphqlFilter(field: string, fieldType: string, value: any, filterType: string) {
     let result = ''
 
     if (field) {
-      if (fieldType === 'uuid' || fieldType === 'id') {
+      if (filterType === 'checkbox') {
+        result = `${field}: { _in: [${value.join(', ')}] }`
+      } else if (fieldType === 'uuid' || fieldType === 'id') {
         result = `${field}: { _eq: "${value}" }`
       } else {
         result = `${field}: { _ilike: "%${value}%" }`

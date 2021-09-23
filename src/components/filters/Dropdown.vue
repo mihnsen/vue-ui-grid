@@ -19,7 +19,8 @@ import BasicFilter from './Basic.vue'
 export default class DropdownFilter extends BasicFilter {
   get valueInString() {
     if (this.localValue) {
-      const v = this.column.filter_value.find((f: any) => f.id == this.localValue) // eslint-disable-line
+      const v = this.column.filter_value
+        .find((f: any) => f.id == this.localValue) // eslint-disable-line
 
       return v ? v.label : this.localValue
     }

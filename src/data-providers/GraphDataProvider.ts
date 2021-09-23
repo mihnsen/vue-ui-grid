@@ -155,6 +155,7 @@ export default class GraphDataProvider extends ADataProvider {
       }
     `
 
+    console.log(query)
     return query
   }
 
@@ -162,7 +163,7 @@ export default class GraphDataProvider extends ADataProvider {
     const value = receivedValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
     const column = this.options.columns.find(c => c.field === columnKey)
     if (this.options.graphqlFilter && column && value) {
-      return this.options.graphqlFilter(column.field, column.field_type, value)
+      return this.options.graphqlFilter(column.field, column.field_type, value, column.filter_type)
     }
 
     return ''
@@ -219,7 +220,7 @@ export default class GraphDataProvider extends ADataProvider {
         if (index === len - 1) {
           filterValue = filter.value
           if (this.options.graphqlFilter && column && filter.value) {
-            filterValue = this.options.graphqlFilter(curr, column.field_type, filter.value)
+            filterValue = this.options.graphqlFilter(curr, column.field_type, filter.value, column.filter_type)
           }
         }
 
