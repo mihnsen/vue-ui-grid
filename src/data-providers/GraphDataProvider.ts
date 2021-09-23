@@ -155,12 +155,15 @@ export default class GraphDataProvider extends ADataProvider {
       }
     `
 
-    console.log(query)
     return query
   }
 
-  getFilter(columnKey: string, receivedValue: string): string {
-    const value = receivedValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+  getFilter(columnKey: string, receivedValue: any): string {
+    let value = receivedValue
+    if (typeof receivedValue === 'string') {
+      value = receivedValue.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+    }
+
     const column = this.options.columns.find(c => c.field === columnKey)
     if (this.options.graphqlFilter && column && value) {
       return this.options.graphqlFilter(column.field, column.field_type, value, column.filter_type)

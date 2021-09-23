@@ -256,11 +256,11 @@ export default class VGrid extends Vue {
   }
 
   get hasColumnFilter() {
-    return this.visibleCols.some((c) => c.filter)
+    return this.columns.some((c) => c.filter)
   }
 
   get hasColumnOrder() {
-    return this.visibleCols.some((c) => c.order)
+    return this.columns.some((c) => c.order)
   }
 
   get visibleCols() {
