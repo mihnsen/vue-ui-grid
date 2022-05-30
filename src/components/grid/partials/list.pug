@@ -23,7 +23,7 @@ slot(
         :data="entry",
         :key="col.id",
         :resize="true",
-        :class="columnClasses[col.field]",
+        :class="col.columnClasses",
       )
         slot(
           :name="'column-' + col.field", 

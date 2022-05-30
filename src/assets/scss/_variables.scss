@@ -2,6 +2,8 @@
 //
 // Customizes the `.vgrid` component with basic values, each used across all vgrid variations.
 
+$variable-prefix:             vgrid- !default;
+
 $vgrid-gutter:                1rem !default;
 $vgrid-y-gutter:              .75rem !default;
 

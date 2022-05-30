@@ -1,49 +1,36 @@
-<script lang="ts">
-import Vue from 'vue'
-
+<template lang="pug">
+component(
+  :is="generateFieldByType(column.type)"
+  :column="column",
+  v-bind="column"
+)
+</template>
+<script setup lang="ts">
 import Basic from './column-filters/Basic.vue'
-import DateTime from './column-filters/DateTime.vue'
-import Dropdown from './column-filters/Dropdown.vue'
+// import DateTime from './column-filters/DateTime.vue'
+// import Dropdown from './column-filters/Dropdown.vue'
 
-export default Vue.extend({
-  name: 'GridColumnFilter',
-  functional: true,
-  props: {
-    column: {
-      type: Object,
-      required: true
-    }
-  },
-  render: (createElement, context) => {
-    const appropriateTypeComponent = () => {
-      const { column } = context.props
+interface Props {
+  column: Record<string, any>,
+}
 
-      if (column.searchType === 'dropdown') {
-        return Dropdown
-      }
+const props = defineProps<Props>();
+const generateFieldByType = (ftype: string) => {
+  let filterLayout = null
 
-      let filterLayout = null
-
-      switch (column.type) {
-        case 'datetime':
-          filterLayout = DateTime
-          break
-        default:
-          filterLayout = Basic
-          break
-      }
-
-      return filterLayout
-    }
-
-    return createElement(
-      appropriateTypeComponent(),
-      {
-        ...context.data,
-        props: context.props
-      },
-      context.children
-    )
+  switch (ftype) {
+    // case 'datetime':
+    //   filterLayout = DateTime
+    //   break
+    default:
+      filterLayout = Basic
+      break
   }
-})
+
+  if (filterLayout) {
+    return filterLayout
+  }
+
+  throw new Error(`Column filter: filter type "${ftype}" is not found`);
+};
 </script>

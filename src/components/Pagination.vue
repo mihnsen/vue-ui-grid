@@ -3,7 +3,7 @@ nav.vgrid-pagination(v-if="totalPage > 1")
   ul
     li(
       v-for="(item, index) in pages",
-      :class="{ active: item.page === currentPage, disabled: item.disable }",
+      :class="{ active: item.page === localValue, disabled: item.disable }",
       :key="index"
     )
       a(
@@ -13,105 +13,100 @@ nav.vgrid-pagination(v-if="totalPage > 1")
       )
 </template>
 
-<script lang="ts">
-import { Component, Prop, PropSync, Emit, Vue } from 'vue-property-decorator'
-import Page from '../interfaces/page'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useLocalValue } from '@/utilities/hooks';
+import { type Page } from '../interfaces/page'
 
-@Component({
-  model: {
-    prop: 'value',
-    event: 'update:value'
+interface Props {
+  modelValue?: string;
+  limit?: number;
+  total?: number
+}
+
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  limit: 10,
+  total: 0,
+});
+const emits = defineEmits<Emits>();
+const localValue = useLocalValue(props, emits, null);
+
+const totalPage = computed(() => {
+  if (!(props.total % props.limit)) {
+    return props.total / props.limit
   }
+
+  return Math.floor(props.total / props.limit) + 1
 })
-export default class Pagination extends Vue {
-  @PropSync('value', { type: Number })
-  currentPage!: number
 
-  @Prop({
-    default: 10,
-    type: Number
-  })
-  limit!: number
-
-  @Prop({
-    default: 0,
-    type: Number
-  })
-  total!: number
-
-  @Emit()
-  onPageChange(page: number) {
-    this.currentPage = page
-  }
-
-  get totalPage() {
-    if (!(this.total % this.limit)) {
-      return this.total / this.limit
+const pages = computed(() => {
+  const step = [-2, -1, 0, 1, 2].map((i) => i + localValue.value)
+  // prev button.
+  const result: Page[] = [
+    {
+      label: '&laquo;',
+      page: localValue.value - 1,
+      disable: localValue.value === 0
     }
+  ]
 
-    return Math.floor(this.total / this.limit) + 1
-  }
-
-  get pages() {
-    const step = [-2, -1, 0, 1, 2].map((i) => i + this.currentPage)
-    // prev button.
-    const result: Page[] = [
-      {
-        label: '&laquo;',
-        page: this.currentPage - 1,
-        disable: this.currentPage === 0
-      }
-    ]
-
-    // 5 pages in the middle.
-    // eslint-disable-next-line no-restricted-syntax
-    for (const i of step) {
-      if (i >= 0 && i < this.totalPage) {
-        if (i === 0) {
-          result.push({
-            label: '1',
-            page: 0
-          })
-        } else if (i === this.currentPage) {
-          result.push({
-            label: i + 1,
-            page: i
-          })
-        } else {
-          result.push({
-            label: i + 1,
-            page: i
-          })
-        }
-      }
-    }
-
-    // next button.
-    result.push({
-      label: '&raquo;',
-      page: this.currentPage + 1,
-      disable: this.currentPage === this.totalPage - 1
-    })
-
-    if (this.totalPage > 5) {
-      // first button.
-      if (this.currentPage > 2) {
-        result.splice(1, 0, {
-          label: '1..',
+  // 5 pages in the middle.
+  // eslint-disable-next-line no-restricted-syntax
+  for (const i of step) {
+    if (i >= 0 && i < totalPage.value) {
+      if (i === 0) {
+        result.push({
+          label: '1',
           page: 0
         })
-      }
-
-      // last button.
-      if (this.currentPage < this.totalPage - 3) {
-        result.splice(result.length - 1, 0, {
-          label: `..${this.totalPage}`,
-          page: this.totalPage - 1
+      } else if (i === localValue.value) {
+        result.push({
+          label: i + 1,
+          page: i
+        })
+      } else {
+        result.push({
+          label: i + 1,
+          page: i
         })
       }
     }
-
-    return result
   }
+
+  // next button.
+  result.push({
+    label: '&raquo;',
+    page: localValue.value + 1,
+    disable: localValue.value === totalPage.value - 1
+  })
+
+  if (totalPage.value > 5) {
+    // first button.
+    if (localValue.value > 2) {
+      result.splice(1, 0, {
+        label: '1..',
+        page: 0
+      })
+    }
+
+    // last button.
+    if (localValue.value < totalPage.value - 3) {
+      result.splice(result.length - 1, 0, {
+        label: `..${totalPage.value}`,
+        page: totalPage.value - 1
+      })
+    }
+  }
+
+  return result
+})
+
+// Methods
+const onPageChange = (page: number) => {
+  localValue.value = page
 }
 </script>

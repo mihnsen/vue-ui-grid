@@ -27,14 +27,14 @@ export default class GraphGrid extends Grid {
   @Prop({ default: '' })
   refFilter!: string
 
-  dataType: string = 'graphql'
+  dataType = 'graphql'
   offsetKey: string = this.$vgrid.offsetKey
   limitKey: string = this.$vgrid.limitKey
   filterKey: string = this.$vgrid.filterKey
   aggregateQuery: string = this.$vgrid.aggregateQuery
-  graphqlFilter: Function = this.$vgrid.graphqlFilter
-  graphqlOrder: Function = this.$vgrid.graphqlOrder
-  graphqlDataCounter: Function = this.$vgrid.graphqlDataCounter
+  graphqlFilter: any = this.$vgrid.graphqlFilter
+  graphqlOrder: any = this.$vgrid.graphqlOrder
+  graphqlDataCounter: any = this.$vgrid.graphqlDataCounter
 
   @Watch('refFilter')
   onRefFilterChanged() {

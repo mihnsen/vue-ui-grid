@@ -1,87 +1,32 @@
 <template lang="pug">
 extends Basic.pug
 </template>
-<script lang="ts">
-import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useLocalValue } from '@/utilities/hooks'
 import TextInput from '../TextInput.vue'
+import useFilter from './useFilter'
 
-// TODO checkboxes
-// TODO select
-// TODO radio
-// TODO date-range
-@Component({
-  model: {
-    prop: 'value',
-    event: 'update:value'
-  },
-  components: {
-    TextInput
-  }
-})
-export default class Basic extends Vue {
-  @Prop({
-    type: Object,
-    required: true
-  })
-  column: any
-
-  @PropSync('value') localValue: any
-
-  isEditor: boolean = false
-
-  get valueInString() {
-    return this.localValue ? this.localValue : `${this.column.label}: Any`
-  }
-
-  get classes() {
-    const type = this.column.type || 'text'
-    const { field } = this.column
-    const classes = [`column-type-${type}`, `column-data-${field}`]
-
-    if (this.localValue) {
-      classes.push('active')
-    }
-
-    return classes
-  }
-
-  get placeholder() {
-    return `Find ${this.column.label}`
-  }
-
-  mounted(): void {
-    document.body.addEventListener('click', this.handleBodyClick)
-    document.addEventListener('vgrid-filter-editor', this.handleBodyClick)
-  }
-
-  beforeDestroy(): void {
-    document.body.removeEventListener('click', () => {}, false)
-    document.removeEventListener('vgrid-filter-editor', this.handleBodyClick)
-  }
-
-  handleBodyClick() {
-    this.isEditor = false
-  }
-
-  showEditor() {
-    // Dispatch event to hide other filter editor
-    document.dispatchEvent(new Event('vgrid-filter-editor'))
-
-    // Then open current editor
-    this.isEditor = true
-
-    const textInput = this.$refs.input as HTMLElement
-    if (textInput) {
-      setTimeout(() => {
-        textInput.focus()
-      }, 100)
-    }
-  }
-
-  stopClick() {}
-
-  onEnter() {
-    this.isEditor = false
-  }
+interface Props {
+  column: Record<string, any>,
 }
+
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = defineProps<Props>();
+const emits = defineEmits<Emits>();
+const localValue = useLocalValue(props, emits, null);
+const input = ref<TextInput>();
+const {
+  isEditor,
+  stopClick,
+  classes,
+  placeholder,
+  showEditor,
+  onEnter,
+} = useFilter(props, localValue, input);
+
+const valueInString = computed(() =>  localValue.value || `${props.column.label}: Any`)
 </script>

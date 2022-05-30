@@ -23,7 +23,7 @@
   user-select: none;
   @include transition($btn-transition);
 
-  @include hover {
+  &:hover {
     color: $body-color;
     text-decoration: none;
   }
@@ -128,7 +128,7 @@
     display: block;
     width: 0;
     height: 0;
-    border-bottom: ($vgrid-order-size * 3 / 2) solid darken($vgrid-visibility-bg, 20%);
+    border-bottom: math.div($vgrid-order-size * 3, 2) solid darken($vgrid-visibility-bg, 20%);
     border-right: $vgrid-order-size solid transparent;
     border-left: $vgrid-order-size solid transparent;
   }
@@ -153,7 +153,7 @@
     display: block;
     width: 0;
     height: 0;
-    border-top: ($vgrid-order-size * 3 / 2) solid darken($vgrid-visibility-bg, 20%);
+    border-top: math.div($vgrid-order-size * 3, 2) solid darken($vgrid-visibility-bg, 20%);
     border-right: $vgrid-order-size solid transparent;
     border-left: $vgrid-order-size solid transparent;
   }

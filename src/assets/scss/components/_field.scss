@@ -13,7 +13,7 @@
 .vgrid-field-header {
   @for $i from 1 through $grid-columns {
     &.vgrid-field-#{$i} {
-      width: percentage($i / $grid-columns);
+      width: math.div($i, $grid-columns);
     }
   }
 }

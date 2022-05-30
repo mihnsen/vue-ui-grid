@@ -4,13 +4,16 @@ block body
   include partials/list.pug
 </template>
 <script lang="ts">
-import { Component } from 'vue-property-decorator'
-import Grid from './BasicGrid.vue'
+import Grid from './BasicGrid.vue';
+import { ref } from 'vue'
 
-@Component({
-  name: 'VList'
-})
-export default class VList extends Grid {
-  displayType: string = 'list'
+export default {
+  extends: Grid,
+  name: 'VList',
+  setup(props, context) {
+    const displayType = ref('list')
+    // TODO: Please remove unused return variable
+    return { displayType }
+  },
 }
 </script>

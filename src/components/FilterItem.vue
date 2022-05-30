@@ -1,56 +1,42 @@
-<script lang="ts">
-import Vue from 'vue'
-
+<template lang="pug">
+component(
+  :is="generateFieldByType(column.filter_type)"
+  :column="column",
+)
+</template>
+<script setup lang="ts">
 import Basic from './filters/Basic.vue'
-import DateTime from './filters/DateTime.vue'
 import Dropdown from './filters/Dropdown.vue'
 import Checkbox from './filters/Checkbox.vue'
 import Radio from './filters/Radio.vue'
 
-export default Vue.extend({
-  name: 'GridFilterItem',
-  functional: true,
-  props: {
-    column: {
-      type: Object,
-      required: true
-    }
-  },
-  render: (createElement, context) => {
-    const appropriateTypeComponent = () => {
-      const { column } = context.props
+interface Props {
+  column: Record<string, any>,
+}
 
-      let filterLayout = null
+const props = defineProps<Props>();
+const generateFieldByType = (ftype: string) => {
+  let filterLayout = Basic
 
-      switch (column.filter_type) {
-        case 'datetime':
-          filterLayout = DateTime
-          break
-        case 'dropdown':
-          filterLayout = Dropdown
-          break
-        case 'checkbox':
-          filterLayout = Checkbox
-          break
-        case 'radio':
-          filterLayout = Radio
-          break
-        default:
-          filterLayout = Basic
-          break
-      }
-
-      return filterLayout
-    }
-
-    return createElement(
-      appropriateTypeComponent(),
-      {
-        ...context.data,
-        props: context.props
-      },
-      context.children
-    )
+  switch (ftype) {
+    case 'dropdown':
+      filterLayout = Dropdown
+      break
+    case 'checkbox':
+      filterLayout = Checkbox
+      break
+    case 'radio':
+      filterLayout = Radio
+      break
+    default:
+      filterLayout = Basic
+      break
   }
-})
+
+  if (filterLayout) {
+    return filterLayout;
+  }
+
+  throw new Error(`Filter type: type "${ftype}" is not found`)
+}
 </script>

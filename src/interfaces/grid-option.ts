@@ -1,3 +1,4 @@
+import DataResponse from './data-response';
 import ColumnOption from './column-option'
 
 export default interface GridOption {
@@ -23,9 +24,9 @@ export default interface GridOption {
   limit: number;
   sortKey?: string;
   sortTypeKey?: string;
-  getPageIndex?: Function;
-  extractData?: Function;
-  fetchData?: Function;
+  getPageIndex?: (page: number) => number;
+  extractData?: (responseData: any) => DataResponse;
+  fetchData?: (resource: string, options: any) => any;
   cancelToken?: any;
 
   filterKey?: string;
@@ -33,9 +34,9 @@ export default interface GridOption {
   limitKey?: string;
   resourceMeta?: string;
   refFilter?: string;
-  graphqlFilter?: Function;
-  graphqlOrder?: Function;
-  aggregateQuery?: Function;
-  graphqlDataCounter?: Function;
+  graphqlFilter?: (field: string, fieldType: string | any, value: any, filterType: string | any) => string;
+  graphqlOrder?: (by: string, type: string) => string;
+  aggregateQuery?: string;
+  graphqlDataCounter?: (data) => number;
 }
 

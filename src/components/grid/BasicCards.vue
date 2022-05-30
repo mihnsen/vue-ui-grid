@@ -4,13 +4,16 @@ block body
   include partials/cards.pug
 </template>
 <script lang="ts">
-import { Component, Prop } from 'vue-property-decorator'
 import Grid from './BasicGrid.vue'
+import { ref } from 'vue'
 
-@Component({
-  name: 'VCards'
-})
-export default class VCards extends Grid {
-  displayType: string = 'cards'
+export default {
+  extends: Grid,
+  name: 'VCards',
+  setup(props, context) {
+    const displayType = ref('cards')
+    // TODO: Please remove unused return variable
+    return { displayType }
+  },
 }
 </script>

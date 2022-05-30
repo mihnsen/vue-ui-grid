@@ -30,7 +30,7 @@
       ExportButton.vgrid-ml-auto(
         v-if="exportable"
         :columns="visibleCols",
-        :data="dataCollections",
+        :data="dataCollections.records",
         :file-name="exportFileName"
       )
     slot(name="header-end")

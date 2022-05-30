@@ -1,5 +1,5 @@
 <template>
-<div>
+  <h1> Hello </h1>
   <p>
     <!-- use router-link component for navigation. -->
     <!-- specify the link by passing the `to` prop. -->
@@ -8,14 +8,8 @@
     <router-link to="/ajax">Go to Ajax</router-link>
     <router-link to="/graph">Go to Graph</router-link>
   </p>
-  <router-view></router-view>
-</div>
+  <RouterView></RouterView>
 </template>
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
-
-@Component
-export default class MainApp extends Vue {
-
-}
+<script setup lang="ts">
+import { RouterView } from 'vue-router';
 </script>

@@ -9,6 +9,6 @@ export default interface ColumnOption {
   order?: boolean;
   hidden?: boolean;
   width?: number;
-  format?: Function;
+  format?: any;
   class?: string;
 }

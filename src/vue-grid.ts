@@ -1,21 +1,23 @@
+import type { App, Component } from 'vue';
+
 import Grid from './components/grid/BasicGrid.vue'
 import Cards from './components/grid/BasicCards.vue'
 import List from './components/grid/BasicList.vue'
 
-import AjaxGrid from './components/grid/AjaxGrid.vue'
-import AjaxList from './components/grid/AjaxList.vue'
-import AjaxCards from './components/grid/AjaxCards.vue'
+// import AjaxGrid from './components/grid/AjaxGrid.vue'
+// import AjaxList from './components/grid/AjaxList.vue'
+// import AjaxCards from './components/grid/AjaxCards.vue'
 
-import GraphGrid from './components/grid/GraphGrid.vue'
-import GraphList from './components/grid/GraphList.vue'
-import GraphCards from './components/grid/GraphCards.vue'
+// import GraphGrid from './components/grid/GraphGrid.vue'
+// import GraphList from './components/grid/GraphList.vue'
+// import GraphCards from './components/grid/GraphCards.vue'
 
 import Pagination from './components/Pagination.vue'
 
 import './assets/scss/_index.scss'
 
-const Plugin = {
-  install(Vue: any, options: any = {}) {
+const VueGridPlugin = {
+  install(Vue: App, options: any = {}) {
     Vue.component('VGrid', Grid)
     Vue.component('VList', List)
     Vue.component('VCards', Cards)
@@ -31,9 +33,9 @@ const Plugin = {
     let ajaxOption = {}
 
     if (options.graphql) {
-      Vue.component('VGraphGrid', GraphGrid)
-      Vue.component('VGraphList', GraphList)
-      Vue.component('VGraphCards', GraphCards)
+      // Vue.component('VGraphGrid', GraphGrid)
+      // Vue.component('VGraphList', GraphList)
+      // Vue.component('VGraphCards', GraphCards)
 
       graphqlOption = {
         filterKey: options.filterKey || 'where',
@@ -47,9 +49,9 @@ const Plugin = {
     }
 
     if (options.ajax) {
-      Vue.component('VAjaxGrid', AjaxGrid)
-      Vue.component('VAjaxList', AjaxList)
-      Vue.component('VAjaxCards', AjaxCards)
+      // Vue.component('VAjaxGrid', AjaxGrid)
+      // Vue.component('VAjaxList', AjaxList)
+      // Vue.component('VAjaxCards', AjaxCards)
 
       ajaxOption = {
         extractData: options.extractData,
@@ -66,19 +68,30 @@ const Plugin = {
       }
     }
 
-    Vue.prototype.$vgrid = {
+    const vueGridOptions = {
       ...gridOption,
       ...ajaxOption,
       ...graphqlOption
     }
+
+
+    Vue.provide('$vgrid', vueGridOptions);
   }
 }
 
+// Export VField
 export {
   Grid,
   Cards,
   List,
+  // AjaxGrid,
+  // AjaxCards,
+  // AjaxList,
+  // GraphGrid,
+  // GraphCards,
+  // GraphList,
   Pagination
-}
+};
 
-export default Plugin
+// Export all
+export default VueGridPlugin;

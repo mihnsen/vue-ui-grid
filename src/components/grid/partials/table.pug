@@ -20,7 +20,7 @@ slot(
             th.vgrid-field-header(
               v-for="col in visibleCols",
               @click="setOrder(col.field)",
-              :class="headerColumnClasses(col)"
+              :class="col.headerClasses"
               :key="col.id"
             )
               .vgrid-field-header-content
@@ -28,9 +28,9 @@ slot(
                   :name="'column-header-' + col.field",
                   :col="col"
                 )
-                  span {{ (col.label || col.field) | vgrid_header }}
+                  span {{ col.showedLabel }}
                   b(
-                    :class="orderableColumnClasses(col)"
+                    :class="col.orderClasses"
                   )
       slot(
         name="table-body",
@@ -63,11 +63,10 @@ slot(
                 ColumnType(
                   :column="col",
                   :data="entry",
-                  :key="col.id",
-                  :class="columnClasses[col.field]",
+                  :class="col.columnClasses",
                 )
                   slot(
-                    :name="'column-' + col.field", 
-                    :entry="entry", 
+                    :name="'column-' + col.field",
+                    :entry="entry",
                     :index="entryIndex"
                   )

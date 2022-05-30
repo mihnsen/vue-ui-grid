@@ -7,25 +7,23 @@
     v-model="localValue[col.field]",
   )
 </template>
-<script lang="ts">
-import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
+<script setup lang="ts">
 import FilterItem from './FilterItem.vue'
+import { useLocalValue } from '@/utilities/hooks'
 
-@Component({
-  name: 'GridFilter',
-  model: {
-    prop: 'value',
-    event: 'update:value'
-  },
-  components: {
-    FilterItem
-  }
-})
-export default class Filter extends Vue {
-  @PropSync('value', { type: Object, default: () => ({}) })
-  localValue!: object
-
-  @Prop({ type: Array, default: () => ([]) })
-  columns!: Array<any>
+interface Props {
+  modelValue?: any;
+  columns?: any;
 }
+
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: {},
+  columns: [],
+});
+const emits = defineEmits<Emits>();
+const localValue = useLocalValue(props, emits, null);
 </script>

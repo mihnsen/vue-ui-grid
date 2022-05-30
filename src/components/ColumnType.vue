@@ -1,55 +1,45 @@
-<script lang="ts">
-import Vue from 'vue'
-
+<template lang="pug">
+component(
+  :is="generateFieldByType(column.type)"
+  :column="column",
+  :data="data",
+  :resize="resize",
+)
+</template>
+<script setup lang="ts">
 import Basic from './column-types/Basic.vue'
-import DateTime from './column-types/DateTime.vue'
-import Timestamp from './column-types/Timestamp.vue'
-import Custom from './column-types/Custom.vue'
+// import DateTime from './column-types/DateTime.vue'
+// import Timestamp from './column-types/Timestamp.vue'
+// import Custom from './column-types/Custom.vue'
 
-export default Vue.extend({
-  name: 'GridColumn',
-  functional: true,
-  props: {
-    column: {
-      type: Object,
-      required: true
-    },
-    data: {
-      type: Object,
-      required: true
-    }
-  },
-  render: (createElement, context) => {
-    const appropriateTypeComponent = () => {
-      const { column } = context.props
-      let { type } = column
-      let columnLayout = Basic
+interface Props {
+  column: Record<string, any>,
+  data: any;
+  resize?: boolean;
+}
 
-      switch (type) {
-        case 'datetime':
-          columnLayout = DateTime
-          break
-        case 'timestamp':
-          columnLayout = Timestamp
-          break
-        case 'custom':
-          columnLayout = Custom
-          break
-        default:
-          break
-      }
+const props = defineProps<Props>()
+const generateFieldByType = (ctype: string) => {
+  let columnLayout = Basic
 
-      return columnLayout
-    }
-
-    return createElement(
-      appropriateTypeComponent(),
-      {
-        ...context.data,
-        props: context.props
-      },
-      context.children
-    )
+  switch (ctype) {
+    // case 'datetime':
+    //   columnLayout = DateTime
+    //   break
+    // case 'timestamp':
+    //   columnLayout = Timestamp
+    //   break
+    // case 'custom':
+    //   columnLayout = Custom
+    //   break
+    default:
+      break
   }
-})
+
+  if (columnLayout) {
+    return columnLayout
+  }
+
+  throw new Error(`Column type: type "${ftype}" is not found`)
+}
 </script>

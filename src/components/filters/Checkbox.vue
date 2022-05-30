@@ -1,54 +1,65 @@
 <template lang="pug">
 extends Basic.pug
 block input
-  .custom-control.custom-checkbox(
+  .form-check(
     v-for="value in column.filter_value",
   )
-    input.custom-control-input(
-      v-model="checkboxValues",
+    input.form-check-input(
+      v-model="localValue",
       :value="value.id + ''",
       :id="column.field + '-' + value.id",
       type="checkbox",
     )
-    label.custom-control-label(:for="column.field + '-' + value.id")
+    label.form-check-label(:for="column.field + '-' + value.id")
       | {{ value.label }}
 </template>
-<script lang="ts">
-import { Component, PropSync } from 'vue-property-decorator'
-import BasicFilter from './Basic.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { useLocalValue } from '@/utilities/hooks'
+import { uniqueId } from '@/use/UniqueId'
+import useFilter from './useFilter'
 
-@Component({})
-export default class CheckboxFilter extends BasicFilter {
-  get checkboxValues() {
-    return this.getInitialData()
-  }
-
-  set checkboxValues(newVal) {
-    this.$emit('input', newVal)
-  }
-
-  get valueInString() {
-    if (this.checkboxValues && this.checkboxValues.length) {
-      const data = this.column.filter_value
-        .filter((f: any) => this.checkboxValues.indexOf(f.id.toString()) !== -1)
-        .map((f: any) => f.label)
-        .join(', ')
-
-      return data
-    }
-
-    return `${this.column.label}: Any`
-  }
-
-  getInitialData() : any {
-    if (typeof this.localValue === 'string') {
-      return [this.localValue]
-    } else if (typeof this.localValue === 'object') {
-      return this.localValue
-    }
-
-    return []
-  }
+interface Props {
+  column: Record<string, any>,
 }
-/* eslint-enable */
+
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = defineProps<Props>();
+const emits = defineEmits<Emits>();
+const localValue = useLocalValue(props, emits, null);
+const elName = computed(() => uniqueId('vgrid-checkbox-'))
+const {
+  isEditor,
+  stopClick,
+  classes,
+  placeholder,
+  showEditor,
+  onEnter,
+} = useFilter(props, localValue);
+
+// const checkboxValues = computed(() => {
+//   if (typeof localValue.value === 'string') {
+//     return [localValue.value]
+//   } else if (typeof localValue.value === 'object') {
+//     return localValue.value
+//   }
+//
+//   return []
+// })
+
+const valueInString = computed(() => {
+  if (localValue.value && localValue.value.length) {
+    const data = props.column.filter_value
+      .filter((f: any) => localValue.value.indexOf(f.id.toString()) !== -1)
+      .map((f: any) => f.label)
+      .join(', ')
+
+    return data
+  }
+
+  return `${props.column.label}: Any`
+})
 </script>

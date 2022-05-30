@@ -43,9 +43,5 @@ export default class AjaxGrid extends Grid {
       cancelToken: this.cancelToken
     }
   }
-
-  get showedData() {
-    return this.dataCollections
-  }
 }
 </script>

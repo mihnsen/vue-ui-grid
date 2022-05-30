@@ -11,21 +11,40 @@ block input
       :value="value.id + ''",
     ) {{ value.label }}
 </template>
-<script lang="ts">
-import { Component } from 'vue-property-decorator'
-import BasicFilter from './Basic.vue'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useLocalValue } from '@/utilities/hooks'
+import useFilter from './useFilter'
 
-@Component({})
-export default class DropdownFilter extends BasicFilter {
-  get valueInString() {
-    if (this.localValue) {
-      const v = this.column.filter_value
-        .find((f: any) => f.id == this.localValue) // eslint-disable-line
-
-      return v ? v.label : this.localValue
-    }
-
-    return `${this.column.label}: Any`
-  }
+interface Props {
+  column: Record<string, any>,
 }
+
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = defineProps<Props>();
+const emits = defineEmits<Emits>();
+const localValue = useLocalValue(props, emits, null);
+const input = ref<HTMLSelectElement>(null);
+const {
+  isEditor,
+  stopClick,
+  classes,
+  placeholder,
+  showEditor,
+  onEnter,
+} = useFilter(props, localValue, input);
+
+const valueInString = computed(() => {
+  if (localValue.value) {
+    const v = props.column.filter_value
+      .find((f: any) => f.id == localValue.value) // eslint-disable-line
+
+    return v ? v.label : localValue.value
+  }
+
+  return `${props.column.label}: Any`
+})
 </script>

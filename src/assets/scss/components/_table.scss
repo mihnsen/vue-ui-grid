@@ -42,7 +42,7 @@
       display: block;
       width: 0;
       height: 0;
-      border-bottom: ($vgrid-order-size * 3 / 2) solid $vgrid-order-color;
+      border-bottom: math.div($vgrid-order-size * 3, 2) solid $vgrid-order-color;
       border-right: $vgrid-order-size solid transparent;
       border-left: $vgrid-order-size solid transparent;
     }
@@ -55,7 +55,7 @@
       display: block;
       width: 0;
       height: 0;
-      border-top: ($vgrid-order-size * 3 / 2) solid $vgrid-order-color;
+      border-top: math.div($vgrid-order-size * 3, 2) solid $vgrid-order-color;
       border-right: $vgrid-order-size solid transparent;
       border-left: $vgrid-order-size solid transparent;
     }
@@ -137,7 +137,7 @@
 
 .vgrid-hover {
   tbody tr {
-    @include hover {
+    &:hover {
       color: $vgrid-hover-color;
       background-color: $vgrid-hover-bg;
     }
@@ -150,11 +150,11 @@
 // Exact selectors below required to override `.vgrid-striped` and prevent
 // inheritance to nested vgrids.
 
-@each $color, $value in $theme-colors {
-  @include vgrid-row-variant($color, theme-color-level($color, $vgrid-bg-level), theme-color-level($color, $vgrid-border-level));
-}
-
-@include vgrid-row-variant(active, $vgrid-active-bg);
+// @each $color, $value in $theme-colors {
+//   @include vgrid-row-variant($color, theme-color-level($color, $vgrid-bg-level), theme-color-level($color, $vgrid-border-level));
+// }
+// 
+// @include vgrid-row-variant(active, $vgrid-active-bg);
 
 
 // Dark styles
@@ -202,7 +202,7 @@
 
   &.vgrid-hover {
     tbody tr {
-      @include hover {
+      &:hover {
         color: $vgrid-dark-hover-color;
         background-color: $vgrid-dark-hover-bg;
       }

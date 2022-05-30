@@ -1,16 +1,17 @@
 <template lang="pug">
 extends Basic.pug
 block input
-  .custom-control.custom-radio(
+  .form-check(
     v-for="value in column.filter_value",
   )
-    input.custom-control-input(
+    input.form-check-input(
+      :name="elName",
       v-model="localValue",
       :value="value.id + ''",
       :id="column.field + '-' + value.id",
       type="radio",
     )
-    label.custom-control-label(:for="column.field + '-' + value.id")
+    label.form-check-label(:for="column.field + '-' + value.id")
       | {{ value.label }}
   .text-center.mt-2
     button.btn.btn-sm(
@@ -18,25 +19,46 @@ block input
       @click="clearFilter",
     ) Clear
 </template>
-<script lang="ts">
-import { Component, PropSync } from 'vue-property-decorator'
-import BasicFilter from './Basic.vue'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useLocalValue } from '@/utilities/hooks'
+import { uniqueId } from '@/use/UniqueId'
+import useFilter from './useFilter'
 
-@Component({})
-export default class RadioFilter extends BasicFilter {
-  get valueInString() {
-    if (this.localValue) {
-      const v = this.column.filter_value
-        .find((f: any) => f.id == this.localValue) // eslint-disable-line
+interface Props {
+  column: Record<string, any>,
+}
 
-      return v ? v.label : this.localValue
-    }
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
 
-    return `${this.column.label}: Any`
+const props = defineProps<Props>()
+const emits = defineEmits<Emits>()
+const localValue = useLocalValue(props, emits, null)
+const input = ref<HTMLSelectElement>(null)
+const elName = computed(() => uniqueId('vgrid-radio-'))
+const {
+  isEditor,
+  stopClick,
+  classes,
+  placeholder,
+  showEditor,
+  onEnter,
+} = useFilter(props, localValue, input);
+
+const valueInString = computed(() => {
+  if (localValue.value) {
+    const v = props.column.filter_value
+      .find((f: any) => f.id == localValue.value) // eslint-disable-line
+
+    return v ? v.label : localValue.value
   }
 
-  clearFilter() {
-    this.localValue = ''
-  }
+  return `${props.column.label}: Any`
+})
+
+const clearFilter = () => {
+  localValue.value = ''
 }
 </script>
