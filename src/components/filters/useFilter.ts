@@ -8,7 +8,7 @@ export default function(props, localValue, el) {
   const classes = computed(() => {
     const type = props.column.type || 'text'
     const { field } = props.column
-    const classes = [`column-type-${type}`, `column-data-${field}`]
+    const classes = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
     if (localValue.value) {
       classes.push('active')
     }

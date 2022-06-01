@@ -24,51 +24,48 @@
         button(
           type="button",
         ) Export
-  // div(style="width: 1000px; margin: 20px auto")
-  //   Cards(
-  //     :columns="gridColumns",
-  //     :data="gridData",
-  //     :per-page="10",
-  //     :column-visible="true",
-  //     :col-md="4"
-  //     :col-xl="4"
-  //     :col-lg="4"
-  //     ref="list"
-  //     :exportable="true"
-  //   )
-  //     template(#column-action="{ entry }")
-  //       button(
-  //         type="button",
-  //         @click="remove(entry)"
-  //       ) remove
-  //       a(
-  //         href="javascript:;"
-  //       ) Edit
-  // div(style="width: 1000px; margin: 20px auto")
-  //   List(
-  //     :columns="listColumns",
-  //     :data="listData",
-  //     :per-page="10",
-  //     :column-visible="true",
-  //     :orderable="true",
-  //     :pagination="false",
-  //     ref="list"
-  //   )
-  //     template(
-  //       slot="column-action"
-  //       slot-scope="{ entry }"
-  //     )
-  //       button(
-  //         type="button",
-  //       ) ADD
-  //       a(
-  //         href="javascript:;"
-  //       ) Edit
+  div(style="width: 1000px; margin: 20px auto")
+    Cards(
+      :columns="gridColumns",
+      :data="gridData",
+      :per-page="10",
+      :column-visible="true",
+      :col-md="4"
+      :col-xl="4"
+      :col-lg="4"
+      ref="list"
+      :exportable="true"
+    )
+      template(#column-action="{ entry }")
+        button(
+          type="button",
+          @click="remove(entry)"
+        ) remove
+        a(
+          href="javascript:;"
+        ) Edit
+  div(style="width: 1000px; margin: 20px auto")
+    List(
+      :columns="listColumns",
+      :data="listData",
+      :per-page="10",
+      :column-visible="true",
+      :orderable="true",
+      :pagination="false",
+      ref="list"
+    )
+      template(#column-action="{ entry }")
+        button(
+          type="button",
+        ) ADD
+        a(
+          href="javascript:;"
+        ) Edit
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Grid/*, List, Cards*/ } from './vue-grid';
+import { Grid, List/*, Cards*/ } from './vue-grid';
 import sample from './sample';
 
 const gridColumns = ref([

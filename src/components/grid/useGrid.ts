@@ -6,7 +6,7 @@ import GridState from '../../interfaces/grid-state'
 import ColumnOption from '../../interfaces/column-option'
 import DataResponse from '../../interfaces/data-response'
 
-export default function(props, emits, dataProvider) {
+export default function(props, emits, dataProvider, gridOption) {
   const vGridOptions = inject('$vgrid', {})
   const routeGridState = computed(() => {
     if (props.routeState) {
@@ -44,15 +44,13 @@ export default function(props, emits, dataProvider) {
   let columnVisibility = ref([])
   const hasSortType = reactive(vGridOptions.hasSortType || true)
   const pageSizes = reactive(vGridOptions.pageSizes || [5, 10, 20, 50, 100])
-  const displayType = ref('grid')
-  const dataType = ref('js')
   const dataQuery = ref('')
   const getHeaderColumnClasses = (column: any) => {
     const type = column.type || 'text'
     const { field } = column
-    const classes = [`column-type-${type}`, `column-data-${field}`]
+    const classes = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
     if (column.width) {
-      classes.push(`vgrid-field-${column.width}`)
+      classes.push(`vgrid-field--${column.width}`)
     }
     if (column.class) {
       classes.push(column.class)
@@ -117,7 +115,7 @@ export default function(props, emits, dataProvider) {
       }))
   })
   const gridClasses = computed(() => {
-    return [`vgrid-${displayType.value}`, `vgrid-${dataType.value}`]
+    return [`vgrid-${gridOption.displayType}`, `vgrid-${gridOption.dataType}`]
   })
   const setColumnVisibility = () => {
     columnVisibility.value = props.columns
@@ -314,8 +312,6 @@ export default function(props, emits, dataProvider) {
     columnVisibility,
     hasSortType,
     pageSizes,
-    displayType,
-    dataType,
     dataQuery,
     isEmptyData,
     visibleCols,

@@ -1,7 +1,7 @@
 import { watch, reactive } from 'vue'
 import { JsonDataProvider } from '../../data-providers'
 
-export default function(props, dataCallback) {
+export default function(props, option, dataCallback) {
   const gridOption = reactive({
     searchable: props.searchable,
     orderable: props.orderable,
@@ -13,6 +13,7 @@ export default function(props, dataCallback) {
     exportable: props.exportable,
     columns: props.columns,
     // limit: limit.value,
+    ...option,
   })
   const dataProvider = new JsonDataProvider(props.data, gridOption)
   const setDataCollections = () => {

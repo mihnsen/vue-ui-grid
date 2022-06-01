@@ -76,7 +76,7 @@ const {
   gridOption,
   dataProvider,
   setDataCollections,
-} = useJsonGrid(props, () => {
+} = useJsonGrid(props, { displayType: 'list', dataType: 'json' }, () => {
   getData()
 })
 
@@ -92,8 +92,6 @@ const {
   columnVisibility,
   hasSortType,
   pageSizes,
-  displayType,
-  dataType,
   dataQuery,
   isEmptyData,
   visibleCols,
@@ -115,7 +113,7 @@ const {
   resetGrid,
   updateRouteIfNeeded,
   init,
-} = useGrid(props, emits, dataProvider)
+} = useGrid(props, emits, dataProvider, gridOption)
 
 // Kick it off
 setColumnVisibility()

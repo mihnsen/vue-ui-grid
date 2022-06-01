@@ -5,7 +5,7 @@ export default function(props) {
     const type = props.column.type || 'text'
     const { field } = props.column
 
-    return [`column-type-${type}`, `column-data-${field}`]
+    return [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
   })
 
   return {
