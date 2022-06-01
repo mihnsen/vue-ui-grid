@@ -1,7 +1,7 @@
 <template lang="pug">
 .vgrid-order
   .vgrid-select
-    select.vgrid-input(v-model="localValue.by")
+    select.vgrid-input(v-model="order.by")
       option(
         v-for="col in orderableColumn",
         :value="col.field"
@@ -12,43 +12,38 @@
   button.vgrid-order-type(
     v-if="hasSortType",
     @click="toggleType"
-  ) {{ localValue.type }}
+  ) {{ order.type }}
 </template>
+<script setup lang="ts">
+import { computed, reactive, ref } from 'vue'
+import { type Order } from '../interfaces/order'
 
-<script lang="ts">
-import { Component, PropSync, Prop, Vue } from 'vue-property-decorator'
-import Order from '../interfaces/order'
+interface Props {
+  modelValue?: Order;
+  columns?: any[];
+  hasSortType?: boolean;
+}
 
-@Component({
-  name: 'GridOrder',
-  model: {
-    prop: 'value',
-    event: 'update:value'
-  }
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: {
+    by: '',
+    type: 'desc',
+  },
+  columns: [],
+  hasSortType: true,
+});
+const emits = defineEmits<Emits>();
+let order = reactive<Order>(props.modelValue);
+const orderedColumn = computed(() => {
+  return props.columns.find((c) => c.field === order.by) || {}
 })
-export default class GridOrder extends Vue {
-  @PropSync('value', { type: Object, default: () => ({}) })
-  localValue!: Order
-
-  @Prop({ type: Array, default: () => ([]) })
-  columns!: Array<any>
-
-  @Prop({ type: Boolean, default: true })
-  hasSortType!: boolean
-
-  get orderedColumn() {
-    return this.columns.find((c) => c.field === this.localValue.by) || {}
-  }
-
-  get orderableColumn() {
-    return this.columns.filter((c) => c.order)
-  }
-
-  toggleType() {
-    this.localValue = {
-      ...this.localValue,
-      type: this.localValue.type === 'desc' ? 'asc' : 'desc'
-    }
-  }
+const orderableColumn = computed(() => props.columns.filter((c) => c.order))
+const toggleType = () => {
+  order.type = order.type === 'desc' ? 'asc' : 'desc'
+  emits('update:modelValue', order)
 }
 </script>
