@@ -10,14 +10,14 @@
       v-if="statusable",
       :limit="limit",
       :current-page="currentPage",
-      :showed="showedData.length",
-      :total="total"
+      :showed="dataState.records.length",
+      :total="dataState.total"
     )
     Pagination(
       v-if="pagination",
       v-model="currentPage",
       :limit="limit",
-      :total="total",
+      :total="dataState.total",
     )
     slot(name="footer-end")
 

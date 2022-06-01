@@ -1,18 +1,18 @@
 .vgrid-nodata(
-  v-if="!total",
+  v-if="!hasRecord",
 )
   span(v-if="!isFiltered") {{ strEmptyData }}
   span(v-else) {{ strEmptyFilteredData }}
 slot(
   name="body",
   v-if="!isEmptyData",
-  :entries="showedData",
+  :entries="dataState.records",
   :visible-cols="visibleCols"
 )
   .vgrid-row
     .vgrid-col(
       :class="cardColumnClasses",
-      v-for="(entry, entryIndex) in showedData"
+      v-for="(entry, entryIndex) in dataState.records",
     )
       slot(
         :entry="entry",

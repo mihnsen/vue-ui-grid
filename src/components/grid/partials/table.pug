@@ -1,6 +1,6 @@
 slot(
   name="body",
-  :entries="showedData",
+  :entries="dataState.records",
   :visible-cols="visibleCols"
 )
   .vgrid-responsive
@@ -28,7 +28,7 @@ slot(
                   )
       slot(
         name="table-body",
-        :entries="showedData",
+        :entries="dataState.records",
       )
         tbody
           tr.vgrid-table-filter(
@@ -44,14 +44,14 @@ slot(
                 v-model="where[col.field]",
               )
           tr(
-            v-if="!total",
+            v-if="!hasRecord",
           )
             td(:colspan="visibleCols.length")
               span(v-if="!isFiltered") {{ strEmptyData }}
               span(v-else) {{ strEmptyFilteredData }}
           template(v-else)
             tr(
-              v-for="(entry, entryIndex) in showedData",
+              v-for="(entry, entryIndex) in dataState.records",
             )
               slot(
                 :entry="entry",
