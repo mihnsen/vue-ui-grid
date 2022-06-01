@@ -1,27 +1,20 @@
 <template lang="pug">
 .vgrid-status {{ paginationInfo }}
 </template>
-<script lang="ts">
-import { Component, Vue, Prop } from 'vue-property-decorator'
+<script setup lang="ts">
+import { computed } from 'vue'
 
-@Component
-export default class GridInfo extends Vue {
-  @Prop()
-  limit!: number
-
-  @Prop()
-  currentPage!: number
-
-  @Prop()
-  total!: number
-
-  @Prop()
-  showed!: number
-
-  get paginationInfo() {
-    const from = this.limit * this.currentPage
-    const to = from + this.showed
-    return `Showing ${from + 1} to ${to} of ${this.total} entries`
-  }
+interface Props {
+  limit?: number;
+  currentPage?: number;
+  total?: number;
+  showed?: number;
 }
+
+const props = withDefaults(defineProps<Props>(), { });
+const paginationInfo = computed(() => {
+  const from = props.limit * props.currentPage
+  const to = from + props.showed
+  return `Showing ${from + 1} to ${to} of ${props.total} entries`
+})
 </script>

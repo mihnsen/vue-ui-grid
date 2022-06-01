@@ -61,7 +61,7 @@ export default defineComponent({
     PageSize,
     // ColumnsVisibility,
     GridSearch,
-    // GridStatus,
+    GridStatus,
     // ExportButton,
   },
   setup(props, context) {

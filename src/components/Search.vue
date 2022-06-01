@@ -6,7 +6,6 @@ form.vgrid-search(@submit.prevent="stop")
   )
 </template>
 <script setup lang="ts">
-import { computed, ref } from 'vue'
 import { useLocalValue } from '@/utilities/hooks'
 import TextInput from './TextInput.vue'
 
