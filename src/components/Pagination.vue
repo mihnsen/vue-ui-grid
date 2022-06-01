@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
   total: 0,
 });
 const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
+const localValue = useLocalValue(props, emits);
 
 const totalPage = computed(() => {
   if (!(props.total % props.limit)) {

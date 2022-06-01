@@ -1,11 +1,14 @@
 <template lang="pug">
 .vgrid-filter
-  FilterItem(
-    v-for="col in columns",
-    :column="col",
+  template(
+    v-for="col in columns"
     :key="col.id",
-    v-model="localValue[col.field]",
   )
+    FilterItem(
+      v-if="col.filter",
+      :column="col",
+      v-model="localValue[col.field]",
+    )
 </template>
 <script setup lang="ts">
 import FilterItem from './FilterItem.vue'
@@ -25,5 +28,5 @@ const props = withDefaults(defineProps<Props>(), {
   columns: [],
 });
 const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
+const localValue = useLocalValue(props, emits);
 </script>

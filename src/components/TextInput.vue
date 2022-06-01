@@ -9,7 +9,7 @@
     @input="onChange",
   )
   a.vgrid-input-clear(
-    v-if="value",
+    v-if="hasClearable",
     href="javascript:;",
     @click="clearFilter"
   ) &times;
@@ -34,10 +34,11 @@ const props = withDefaults(defineProps<Props>(), {
   clearable: true,
 });
 const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
+const localValue = useLocalValue(props, emits);
 const input = ref<HTMLInputElement>(null);
 const typing = ref(false);
 const timeout = ref(null);
+const hasClearable = computed(() => props.clearable && props.modelValue);
 
 const clearFilter = () => {
   localValue.value = '';

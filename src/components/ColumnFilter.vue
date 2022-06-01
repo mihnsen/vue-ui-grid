@@ -2,7 +2,6 @@
 component(
   :is="generateFieldByType(column.filter_type)"
   :column="column",
-  v-bind="column"
 )
 </template>
 <script setup lang="ts">
@@ -30,6 +29,6 @@ const generateFieldByType = (ftype: string) => {
     return filterLayout
   }
 
-  throw new Error(`Column filter: filter type "${ftype}" is not found`);
+  throw new Error(`Column filter: type "${ftype}" is not found`);
 };
 </script>

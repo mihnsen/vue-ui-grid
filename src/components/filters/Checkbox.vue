@@ -20,6 +20,7 @@ import { uniqueId } from '@/use/UniqueId'
 import useFilter from './useFilter'
 
 interface Props {
+  modelValue?: string[],
   column: Record<string, any>,
 }
 
@@ -29,7 +30,7 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
-const localValue = useLocalValue(props, emits, null)
+const localValue = useLocalValue(props, emits)
 const elName = computed(() => uniqueId('vgrid-checkbox-'))
 const {
   isEditor,
@@ -50,6 +51,6 @@ const valueInString = computed(() => {
     return data
   }
 
-  return `${props.column.label}: Any`
+  return 'Any'
 })
 </script>

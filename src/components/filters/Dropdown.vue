@@ -17,6 +17,7 @@ import { useLocalValue } from '@/utilities/hooks'
 import useFilter from './useFilter'
 
 interface Props {
+  modelValue?: string;
   column: Record<string, any>,
 }
 
@@ -26,7 +27,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
+const localValue = useLocalValue(props, emits);
 const input = ref<HTMLSelectElement>(null);
 const {
   isEditor,
@@ -45,6 +46,6 @@ const valueInString = computed(() => {
     return v ? v.label : localValue.value
   }
 
-  return `${props.column.label}: Any`
+  return 'Any'
 })
 </script>

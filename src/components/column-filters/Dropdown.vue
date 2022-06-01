@@ -28,6 +28,6 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
-const localValue = useLocalValue(props, emits, null)
+const localValue = useLocalValue(props, emits)
 const { classes } = useColumnFilter(props)
 </script>

@@ -1,5 +1,4 @@
 .vgrid-filter-item(
-  v-if="column.filter",
   :class="classes",
   @click.stop="stopClick"
 )
@@ -8,7 +7,9 @@
       @click="showEditor",
       :class="{ active: isEditor, 'vgrid-input--active' : localValue }"
     )
-      span.vgrid-filter-value {{ valueInString }}
+      span.vgrid-filter-value
+        small {{ column.label }}:&nbsp;
+        strong {{ valueInString }}
   block content
     .vgrid-filter-editor(v-show="isEditor")
       span.vgrid-filter-label {{ column.label }}:

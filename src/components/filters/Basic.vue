@@ -8,6 +8,7 @@ import TextInput from '../TextInput.vue'
 import useFilter from './useFilter'
 
 interface Props {
+  modelValue?: string;
   column: Record<string, any>,
 }
 
@@ -17,7 +18,7 @@ interface Emits {
 
 const props = defineProps<Props>();
 const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
+const localValue = useLocalValue(props, emits);
 const input = ref<TextInput>();
 const {
   isEditor,
@@ -28,5 +29,5 @@ const {
   onEnter,
 } = useFilter(props, localValue, input);
 
-const valueInString = computed(() =>  localValue.value || `${props.column.label}: Any`)
+const valueInString = computed(() => localValue.value || 'Any')
 </script>
