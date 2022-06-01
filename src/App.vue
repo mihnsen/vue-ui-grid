@@ -94,7 +94,7 @@ const gridColumns = ref([
     order: true
   },
   {
-    type: 'number',
+    type: 'datetime',
     field: 'start_date',
     label: 'Start date',
     filter: true,
@@ -105,7 +105,7 @@ const gridColumns = ref([
     field: 'office',
     label: 'Office',
     filter: true,
-    filter_type: 'datetime',
+    filter_type: 'dropdown',
     filter_value: [
       {
         id: 'Edinburgh',

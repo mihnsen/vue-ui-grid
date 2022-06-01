@@ -1,14 +1,13 @@
 <template lang="pug">
 component(
-  :is="generateFieldByType(column.type)"
+  :is="generateFieldByType(column.filter_type)"
   :column="column",
   v-bind="column"
 )
 </template>
 <script setup lang="ts">
 import Basic from './column-filters/Basic.vue'
-// import DateTime from './column-filters/DateTime.vue'
-// import Dropdown from './column-filters/Dropdown.vue'
+import Dropdown from './column-filters/Dropdown.vue'
 
 interface Props {
   column: Record<string, any>,
@@ -19,9 +18,9 @@ const generateFieldByType = (ftype: string) => {
   let filterLayout = null
 
   switch (ftype) {
-    // case 'datetime':
-    //   filterLayout = DateTime
-    //   break
+    case 'dropdown':
+      filterLayout = Dropdown
+      break
     default:
       filterLayout = Basic
       break

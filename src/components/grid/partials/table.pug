@@ -1,10 +1,4 @@
-.vgrid-nodata(
-  v-if="!total",
-)
-  span(v-if="!isFiltered") {{ strEmptyData }}
-  span(v-else) {{ strEmptyFilteredData }}
 slot(
-  v-if="!isEmptyData",
   name="body",
   :entries="showedData",
   :visible-cols="visibleCols"
@@ -45,28 +39,36 @@ slot(
               :key="col.field",
             )
               ColumnFilter(
+                v-if="col.filter",
                 :column="col",
                 v-model="where[col.field]",
               )
           tr(
-            v-for="(entry, entryIndex) in showedData",
+            v-if="!total",
           )
-            slot(
-              :entry="entry",
-              :index="entryIndex",
-              :visible-cols="visibleCols"
+            td(:colspan="visibleCols.length")
+              span(v-if="!isFiltered") {{ strEmptyData }}
+              span(v-else) {{ strEmptyFilteredData }}
+          template(v-else)
+            tr(
+              v-for="(entry, entryIndex) in showedData",
             )
-              td(
-                v-for="col in visibleCols",
-                :key="col.field"
+              slot(
+                :entry="entry",
+                :index="entryIndex",
+                :visible-cols="visibleCols"
               )
-                ColumnType(
-                  :column="col",
-                  :data="entry",
-                  :class="col.columnClasses",
+                td(
+                  v-for="col in visibleCols",
+                  :key="col.field"
                 )
-                  slot(
-                    :name="'column-' + col.field",
-                    :entry="entry",
-                    :index="entryIndex"
+                  ColumnType(
+                    :column="col",
+                    :data="entry",
+                    :class="col.columnClasses",
                   )
+                    slot(
+                      :name="'column-' + col.field",
+                      :entry="entry",
+                      :index="entryIndex"
+                    )

@@ -3,7 +3,8 @@ extends Basic.pug
 </template>
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLocalValue } from '@/utilities/hooks';
+import { useLocalValue } from '@/utilities/hooks'
+import useColumnFilter from './useColumnFilter'
 import TextInput from '../TextInput.vue'
 
 interface Props {
@@ -15,13 +16,8 @@ interface Emits {
   (event: 'update:modelValue', value: string): void
 }
 
-const props = defineProps<Props>();
-const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
-const classes = computed(() => {
-  const type = this.column.type || 'text'
-  const { field } = this.column
-
-  return [`column-type-${type}`, `column-data-${field}`]
-})
+const props = defineProps<Props>()
+const emits = defineEmits<Emits>()
+const localValue = useLocalValue(props, emits, null)
+const { classes } = useColumnFilter(props)
 </script>

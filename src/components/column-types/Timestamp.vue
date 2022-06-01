@@ -3,15 +3,20 @@ extends Basic.pug
 block content
   span {{ timestamp }}
 </template>
-<script lang="ts">
-import { Component } from 'vue-property-decorator'
-import Basic from './Basic.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import useColumnType from './useColumnType'
 
-@Component
-export default class Timestamp extends Basic {
-  get timestamp(): string | number {
-    // TODO timestamp
-    return this.text
-  }
+interface Props {
+  column: Record<string, any>;
+  data: any;
+  resize?: boolean;
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  resize: false,
+})
+const { text, classes } = useColumnType(props)
+// TODO timestamp + format
+const timestamp = computed(() => text.value)
 </script>

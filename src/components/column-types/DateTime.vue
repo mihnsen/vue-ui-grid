@@ -3,15 +3,20 @@ extends Basic.pug
 block content
   span {{ date }}
 </template>
-<script lang="ts">
-import { Component } from 'vue-property-decorator'
-import Basic from './Basic.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import useColumnType from './useColumnType'
 
-@Component
-export default class DateTimeType extends Basic {
-  get date(): string {
-    // TODO date + format
-    return this.text
-  }
+interface Props {
+  column: Record<string, any>;
+  data: any;
+  resize?: boolean;
 }
+
+const props = withDefaults(defineProps<Props>(), {
+  resize: false,
+})
+const { text, classes } = useColumnType(props)
+// TODO date + format
+const date = computed(() => text.value)
 </script>

@@ -1,10 +1,18 @@
 <template lang="pug">
 extends Basic.pug
 </template>
-<script lang="ts">
-import { Component } from 'vue-property-decorator'
-import Basic from './Basic.vue'
+<script setup lang="ts">
+import { computed } from 'vue'
+import useColumnType from './useColumnType'
 
-@Component
-export default class Custom extends Basic {}
+interface Props {
+  column: Record<string, any>;
+  data: any;
+  resize?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  resize: false,
+})
+const { classes } = useColumnType(props)
 </script>

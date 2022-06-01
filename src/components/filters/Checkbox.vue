@@ -27,9 +27,9 @@ interface Emits {
   (event: 'update:modelValue', value: string): void
 }
 
-const props = defineProps<Props>();
-const emits = defineEmits<Emits>();
-const localValue = useLocalValue(props, emits, null);
+const props = defineProps<Props>()
+const emits = defineEmits<Emits>()
+const localValue = useLocalValue(props, emits, null)
 const elName = computed(() => uniqueId('vgrid-checkbox-'))
 const {
   isEditor,
@@ -39,16 +39,6 @@ const {
   showEditor,
   onEnter,
 } = useFilter(props, localValue);
-
-// const checkboxValues = computed(() => {
-//   if (typeof localValue.value === 'string') {
-//     return [localValue.value]
-//   } else if (typeof localValue.value === 'object') {
-//     return localValue.value
-//   }
-//
-//   return []
-// })
 
 const valueInString = computed(() => {
   if (localValue.value && localValue.value.length) {

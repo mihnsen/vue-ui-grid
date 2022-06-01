@@ -1,4 +1,4 @@
-.vgrid-column-filter(v-if="column.filter")
+.vgrid-column-filter(:class="classes")
   block content
     TextInput(
       v-model="localValue"
