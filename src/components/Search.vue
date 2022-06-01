@@ -5,26 +5,25 @@ form.vgrid-search(@submit.prevent="stop")
     v-model="localValue",
   )
 </template>
-<script lang="ts">
-import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import { useLocalValue } from '@/utilities/hooks'
 import TextInput from './TextInput.vue'
 
-@Component({
-  model: {
-    prop: 'value',
-    event: 'update:value'
-  },
-  components: {
-    TextInput
-  }
-})
-export default class ColumnsVisibility extends Vue {
-  @PropSync('value', { type: String, default: '' })
-  localValue!: string
-
-  @Prop({ default: 'Search..' })
-  placeholder!: string
-
-  stop() {}
+interface Props {
+  modelValue?: string;
+  placeholder?: string;
 }
+
+interface Emits {
+  (event: 'update:modelValue', value: string): void
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: '',
+  placeholder: 'Search',
+});
+const emits = defineEmits<Emits>();
+const localValue = useLocalValue(props, emits);
+const stop = () => {}
 </script>

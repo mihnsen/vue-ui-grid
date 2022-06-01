@@ -60,7 +60,7 @@ export default defineComponent({
     // GridOrder,
     // PageSize,
     // ColumnsVisibility,
-    // GridSearch,
+    GridSearch,
     // GridStatus,
     // ExportButton,
   },
@@ -135,7 +135,7 @@ export default defineComponent({
           state.searchKeyword = query.s
         }
         if (query.page) {
-          state.currentPage.value = parseInt(query.page, 10)
+          state.currentPage = parseInt(query.page, 10)
         }
         if (query.limit) {
           state.limit = parseInt(query.limit, 10)
@@ -198,9 +198,9 @@ export default defineComponent({
     })
     const currentState = computed(() => {
       let state: any = {
-        s: searchKeyword,
+        s: searchKeyword.value,
         page: currentPage.value,
-        limit: limit,
+        limit: limit.value,
       }
       if (order && order.by) {
         state.order = order.by
@@ -228,7 +228,7 @@ export default defineComponent({
         pagination: props.pagination,
         exportable: props.exportable,
         columns: props.columns,
-        limit: limit,
+        limit: limit.value,
         ...extraGridOption.value,
       }
     })
@@ -254,7 +254,7 @@ export default defineComponent({
       }
     }
     const currentPage = ref(initialState.currentPage || 0)
-    const searchKeyword = reactive(initialState.searchKeyword || '')
+    const searchKeyword = ref(initialState.searchKeyword || '')
     const order = reactive(
       initialState.order
         ? initialState.order
@@ -268,7 +268,7 @@ export default defineComponent({
       // @ts-ignore
     )
     // @ts-ignore
-    const limit = reactive(
+    const limit = ref(
       initialState.limit
         ? initialState.limit
         : props.perPage
@@ -309,7 +309,7 @@ export default defineComponent({
     }
     const getData = () => {
       if (debug) {
-        console.log('vgrid - start get data ', searchKeyword) // eslint-disable-line
+        console.log('vgrid - start get data ', searchKeyword.value) // eslint-disable-line
       }
       if (!dataProvider.value) {
         console.log('vgrid - Your grid is not config any data provider') // eslint-disable-line
@@ -317,7 +317,7 @@ export default defineComponent({
       }
       isLoading.value = true
       dataProvider.value
-        .getData(currentPage.value, limit, searchKeyword, where, order)
+        .getData(currentPage.value, limit.value, searchKeyword.value, where, order)
         .then(({ items, total: totalRecord, query }: DataResponse) => {
           dataCollections.records = items
           total.value = totalRecord
@@ -368,7 +368,7 @@ export default defineComponent({
         gridstate: new Date().getTime(),
       };
       currentPage.value = 0
-      searchKeyword = ''
+      searchKeyword.value = ''
       order = {
         by: props.sortBy,
         type: props.sortType,
