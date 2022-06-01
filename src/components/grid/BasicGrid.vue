@@ -58,7 +58,7 @@ export default defineComponent({
     ColumnFilter,
     GridFilter,
     // GridOrder,
-    // PageSize,
+    PageSize,
     // ColumnsVisibility,
     GridSearch,
     // GridStatus,
