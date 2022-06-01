@@ -16,7 +16,7 @@ import { useLocalValue } from '@/utilities/hooks'
 
 interface Props {
   modelValue?: any;
-  columns?: any;
+  columns?: any[];
 }
 
 interface Emits {

@@ -59,10 +59,10 @@ export default defineComponent({
     GridFilter,
     // GridOrder,
     PageSize,
-    // ColumnsVisibility,
+    ColumnsVisibility,
     GridSearch,
     GridStatus,
-    // ExportButton,
+    ExportButton,
   },
   setup(props, context) {
     const vGridOptions = inject('$vgrid', {})
@@ -102,7 +102,7 @@ export default defineComponent({
     })
     let total = ref(0)
     let isLoading = ref(false)
-    let columnVisibility = reactive([])
+    let columnVisibility = ref([])
     const hasSortType = reactive(vGridOptions.hasSortType || true)
     // @ts-ignore
     const pageSizes = reactive(vGridOptions.pageSizes || [5, 10, 20, 50, 100])
@@ -167,12 +167,12 @@ export default defineComponent({
       return !dataCollections.records.length
     })
     const visibleCols = computed(() => {
-      return /* TODO: Check this convert result, it can work well in 80% case.*/ props.columns
-        .filter((c) => columnVisibility.includes(c.field))
+      return props.columns
+        .filter((c) => columnVisibility.value.includes(c.field))
         .sort(
           (a, b) =>
-            columnVisibility.indexOf(a.field) -
-            columnVisibility.indexOf(b.field)
+            columnVisibility.value.indexOf(a.field) -
+            columnVisibility.value.indexOf(b.field)
         )
         .map((c) => ({
           ...c,
@@ -186,7 +186,7 @@ export default defineComponent({
       return [`vgrid-${displayType.value}`, `vgrid-${dataType.value}`]
     })
     const setColumnVisibility = () => {
-      columnVisibility = props.columns
+      columnVisibility.value = props.columns
         .filter((c) => c.type !== 'hidden') // Hidden type
         .filter((c) => !c.hidden) // Hidden by default
         .map((c) => c.field)

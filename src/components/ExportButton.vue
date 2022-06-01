@@ -4,49 +4,41 @@
     @click="exportData"
   ) Export
 </template>
-<script lang="ts">
-import { mixins } from 'vue-class-component'
-import { Component, Prop, Vue } from 'vue-property-decorator'
-import DataMixin from '../mixins/DataMixin'
+<script setup lang="ts">
+import { computed } from 'vue'
+import { getData } from '../use/GetData'
 
-@Component({
-  name: 'ExportButton'
+interface Props {
+  data?: any[];
+  columns?: any[];
+  fileName?: string;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  data: [],
+  fileName: (new Date()).toISOString(),
 })
-export default class ExportButton extends mixins(DataMixin) {
-  @Prop({ type: Array, default: () => ([]) })
-  data!: Array<any>
+const filteredColumn = computed(() => {
+  return props.columns.filter(c => c.type !== 'custom')
+})
 
-  @Prop({ type: Array, default: () => ([]) })
-  columns!: Array<any>
+const exportData = () => {
+  const header = filteredColumn.value.map(c => c.label).join(',')
 
-  @Prop({
-    type: String,
-    default: () => ((new Date()).toISOString())
-  })
-  fileName!: String
+  const body = props.data.map(d => {
+    return filteredColumn.value.map(c => getData(c.field, d)) // Get data
+      .map(v => `"${v}"`) // Cast string
+      .join(',') // Split row
+  }).join('\n')
 
-  get filteredColumn() {
-    return this.columns.filter(c => c.type !== 'custom')
-  }
+  const csvContent = `data:text/csv;charset=utf-8,${header}\n${body}`
 
-  exportData() {
-    const header = this.filteredColumn.map(c => c.label).join(',')
+  const encodedUri = encodeURI(csvContent)
+  const link = document.createElement('a')
+  link.setAttribute('href', encodedUri)
+  link.setAttribute('download', `${props.fileName}.csv`)
+  document.body.appendChild(link) // Required for FF
 
-    const body = this.data.map(d => {
-      return this.filteredColumn.map(c => this.getData(c.field, d)) // Get data
-        .map(v => `"${v}"`) // Cast string
-        .join(',') // Split row
-    }).join('\n')
-
-    const csvContent = `data:text/csv;charset=utf-8,${header}\n${body}`
-
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement('a')
-    link.setAttribute('href', encodedUri)
-    link.setAttribute('download', `${this.fileName}.csv`)
-    document.body.appendChild(link) // Required for FF
-
-    link.click()
-  }
+  link.click()
 }
 </script>

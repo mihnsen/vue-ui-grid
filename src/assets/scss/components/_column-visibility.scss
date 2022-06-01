@@ -90,9 +90,11 @@
 
 .vgrid-visibility-column {
   position: relative;
-  background: $vgrid-visibility-bg;
+  display: flex;
+  align-items: center;
   padding: .35rem .5rem;
   border-radius: $border-radius;
+  background: $vgrid-visibility-bg;
 
   &:hover {
     background: darken($vgrid-visibility-bg, 5%);
@@ -122,6 +124,7 @@
   background: transparent;
   border: 0;
   outline: none;
+  font-size: 0 !important;
 
   &:before {
     content: '';
