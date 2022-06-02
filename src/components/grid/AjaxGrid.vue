@@ -1,47 +1,120 @@
 <template lang="pug">
 extends BasicGrid.pug
 </template>
-<script lang="ts">
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import Grid from './BasicGrid.vue'
-import { AjaxDataProvider } from '../../data-providers'
+<script setup lang="ts">
+import { computed, ref, reactive, inject } from 'vue'
+import useGrid from './useGrid'
+import useAjaxGrid from './useAjaxGrid'
+import Pagination from '../Pagination.vue'
+import ColumnType from '../ColumnType.vue'
+import ColumnFilter from '../ColumnFilter.vue'
+import GridFilter from '../Filter.vue'
+import GridOrder from '../Order.vue'
+import PageSize from '../PageSize.vue'
+import ColumnsVisibility from '../ColumnsVisibility.vue'
+import GridSearch from '../Search.vue'
+import GridStatus from '../Status.vue'
+import ExportButton from '../ExportButton.vue'
 
-@Component({
-  name: 'VAjaxGrid'
-})
-export default class AjaxGrid extends Grid {
-  @Prop({ required: true })
-  resource!: string
-
-  @Prop()
-  searchField!: string
-
-  dataType: string = 'ajax'
-  pageKey: string = this.$vgrid.pageKey
-  perPageKey: string = this.$vgrid.perPageKey
-  sortKey: string = this.$vgrid.sortKey
-  sortTypeKey: string = this.$vgrid.sortTypeKey
-  getPageIndex: Function = this.$vgrid.getPageIndex
-  extractData: Function = this.$vgrid.extractData
-  fetchData: Function = this.$vgrid.fetchData
-  cancelToken: any = this.$vgrid.cancelToken
-
-  initProvider() {
-    this.dataProvider = new AjaxDataProvider(this.resource, this.gridOption)
-  }
-
-  get extraGridOption() {
-    return {
-      searchField: this.searchField,
-      pageKey: this.pageKey,
-      perPageKey: this.perPageKey,
-      sortKey: this.sortKey,
-      sortTypeKey: this.sortTypeKey,
-      getPageIndex: this.getPageIndex,
-      extractData: this.extractData,
-      fetchData: this.fetchData,
-      cancelToken: this.cancelToken
-    }
-  }
+interface Props {
+  resource?: string;
+  searchField?: string;
+  columns?: Array<ColumnOption>;
+  perPage?: number;
+  filterable?: boolean;
+  columnFilterable?: boolean;
+  columnVisible?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  orderable?: boolean;
+  sortBy?: string;
+  sortType?: string;
+  statusable?: boolean;
+  pagable?: boolean;
+  pagination?: boolean;
+  strEmptyFilteredData?: string;
+  strEmptyData?: string;
+  exportable?: boolean;
+  exportFileName?: string;
+  colMd?: number;
+  colLg?: number;
+  colXl?: number;
+  routeState?: boolean;
+  searchField?: string; // Prepare for GraphGrid + AjaxGrid
 }
+
+interface Emits {
+  (event: 'data-changed', value: any[]): void
+}
+
+const emits = defineEmits<Emits>();
+const props = withDefaults(defineProps<Props>(), {
+  resource: '',
+  searchField: '',
+  columns: [],
+
+  filterable: true,
+  columnFilterable: false,
+  columnVisible: false,
+  searchable: true,
+
+  orderable: false,
+
+  sortType: 'desc',
+  statusable: true,
+  pagable: true,
+  pagination: true,
+  strEmptyFilteredData: 'No data matched',
+  strEmptyData: 'Empty data',
+  exportable: false,
+
+  colMd: 6,
+  colLg: 4,
+  colXl: 3,
+  routeState: false,
+})
+
+const {
+  gridOption,
+  dataProvider,
+  setDataCollections,
+} = useAjaxGrid(props, { displayType: 'grid', dataType: 'ajax' })
+
+const {
+  routeGridState,
+  hasColumnFilter,
+  hasColumnOrder,
+  cardColumnClasses,
+  debug,
+  dataState,
+  hasRecord,
+  isLoading,
+  columnVisibility,
+  hasSortType,
+  pageSizes,
+  dataQuery,
+  isEmptyData,
+  visibleCols,
+  gridClasses,
+  setColumnVisibility,
+  initialState,
+  gridstate,
+  currentState,
+  isFiltered,
+  onRouteGridStateChanged,
+  currentPage,
+  searchKeyword,
+  order,
+  where,
+  limit,
+  getData,
+  setOrder,
+  resetState,
+  resetGrid,
+  updateRouteIfNeeded,
+} = useGrid(props, emits, dataProvider, gridOption)
+
+// Kick it off
+setColumnVisibility()
+getData()
 </script>

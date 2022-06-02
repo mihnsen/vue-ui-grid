@@ -6,7 +6,7 @@
   )
   div(style="width: 1000px; margin: 20px auto 50px")
     VAjaxGrid(
-      ref="ajaxCards",
+      ref="ajaxGrid",
       search-field="name",
       resource="users",
       :columns="gridColumns",
@@ -38,78 +38,76 @@
     //   :per-page="5"
     // )
 </template>
-<script lang="ts">
+<script setup lang="ts">
 import axios from 'axios'
-import { Component, Vue } from 'vue-property-decorator'
+import { ref } from 'vue'
+import { VAjaxGrid/*, VAjaxList, VAjaxCards*/ } from './vue-grid';
 
-@Component
-export default class GraphqlApp extends Vue {
-  $refs: any
-  gridColumns = [
-    {
-      field: 'index',
-      type: 'custom'
-    },
-    {
-      field: 'avatar',
-      label: 'Avatar',
-      format: '<img src="{avatar}" class="vgrid-img-fluid" />',
-      width: 2
-    },
-    {
-      field: 'id',
-      label: 'ID',
-      width: 1
-    },
-    {
-      field: 'fulfillment.id',
-      // type: 'hidden',
-      field_type: 'id',
-      label: 'Fulfillment',
-      filter: true,
-      filter_type: 'radio',
-      filter_value: [
-        {
-          id: 1,
-          label: 'CustomCat'
-        },
-        {
-          id: 2,
-          label: 'Printful'
-        },
-        {
-          id: 6,
-          label: 'Dreamship'
-        }
-      ]
-    },
-    {
-      field: 'first_name',
-      label: 'First name',
-      format: '{first_name} {last_name}',
-      order: true,
-      width: 3
-    },
-    {
-      field: 'email',
-      label: 'Email',
-      order: true,
-      width: 9
-    },
-    {
-      field: 'action',
-      label: 'Action',
-      width: 3
-    }
-  ]
-
-  remove(entry: any) {
-    axios.delete(`/users/${entry.id}`)
-      .then((res) => {
-        // TODO
-        this.$refs.ajaxCards.getData()
-      })
+const ajaxGrid = ref()
+const gridColumns = ref([
+  {
+    field: 'index',
+    type: 'custom'
+  },
+  {
+    field: 'avatar',
+    label: 'Avatar',
+    format: '<img src="{avatar}" class="vgrid-img-fluid" />',
+    width: 2
+  },
+  {
+    field: 'id',
+    label: 'ID',
+    width: 1
+  },
+  {
+    field: 'fulfillment.id',
+    // type: 'hidden',
+    field_type: 'id',
+    label: 'Fulfillment',
+    filter: true,
+    filter_type: 'radio',
+    filter_value: [
+      {
+        id: 1,
+        label: 'CustomCat'
+      },
+      {
+        id: 2,
+        label: 'Printful'
+      },
+      {
+        id: 6,
+        label: 'Dreamship'
+      }
+    ]
+  },
+  {
+    field: 'first_name',
+    label: 'First name',
+    format: '{first_name} {last_name}',
+    order: true,
+    width: 3
+  },
+  {
+    field: 'email',
+    label: 'Email',
+    order: true,
+    width: 9
+  },
+  {
+    field: 'action',
+    label: 'Action',
+    width: 3
   }
+])
+
+const remove = (entry: any) => {
+  axios.delete(`/users/${entry.id}`)
+    .then((res) => {
+      // TODO
+      ajaxGrid.value.getData()
+    })
 }
 </script>
 

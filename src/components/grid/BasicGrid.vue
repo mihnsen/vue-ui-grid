@@ -76,7 +76,7 @@ const {
   gridOption,
   dataProvider,
   setDataCollections,
-} = useJsonGrid(props, { displayType: 'list', dataType: 'json' }, () => {
+} = useJsonGrid(props, { displayType: 'grid', dataType: 'json' }, () => {
   getData()
 })
 
@@ -112,7 +112,6 @@ const {
   resetState,
   resetGrid,
   updateRouteIfNeeded,
-  init,
 } = useGrid(props, emits, dataProvider, gridOption)
 
 // Kick it off

@@ -5,7 +5,7 @@
     src="./assets/logo.png"
   )
   div(style="width: 1000px; margin: 20px auto 50px")
-    Grid(
+    VGrid(
       :columns="gridColumns",
       :data="gridData",
       :per-page="6",
@@ -25,7 +25,7 @@
           type="button",
         ) Export
   div(style="width: 1000px; margin: 20px auto")
-    Cards(
+    VCards(
       :columns="gridColumns",
       :data="gridData",
       :per-page="10",
@@ -45,7 +45,7 @@
           href="javascript:;"
         ) Edit
   div(style="width: 1000px; margin: 20px auto")
-    List(
+    VList(
       :columns="listColumns",
       :data="listData",
       :per-page="10",
@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { Grid, List/*, Cards*/ } from './vue-grid';
+import { VGrid, VList/*, VCards*/ } from './vue-grid';
 import sample from './sample';
 
 const gridColumns = ref([
