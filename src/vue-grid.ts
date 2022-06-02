@@ -9,8 +9,8 @@ import VAjaxList from './components/grid/AjaxList.vue'
 import VAjaxCards from './components/grid/AjaxCards.vue'
 
 import VGraphGrid from './components/grid/GraphGrid.vue'
-// import VGraphList from './components/grid/GraphList.vue'
-// import VGraphCards from './components/grid/GraphCards.vue'
+import VGraphList from './components/grid/GraphList.vue'
+import VGraphCards from './components/grid/GraphCards.vue'
 
 import Pagination from './components/Pagination.vue'
 
@@ -54,8 +54,8 @@ const VueGridPlugin = {
 
     if (options.graphql) {
       Vue.component('VGraphGrid', VGraphGrid)
-      // Vue.component('VGraphList', VGraphList)
-      // Vue.component('VGraphCards', VGraphCards)
+      Vue.component('VGraphList', VGraphList)
+      Vue.component('VGraphCards', VGraphCards)
 
       graphqlOption = {
         filterKey: options.filterKey || 'where',
@@ -87,8 +87,8 @@ export {
   VAjaxCards,
   VAjaxList,
   VGraphGrid,
-  // VGraphCards,
-  // VGraphList,
+  VGraphCards,
+  VGraphList,
   Pagination
 };
 
