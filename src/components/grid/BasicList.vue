@@ -20,6 +20,7 @@ import ExportButton from '../ExportButton.vue'
 
 interface Props {
   data?: Array<any>;
+
   columns?: Array<ColumnOption>;
   perPage?: number;
   filterable?: boolean;
@@ -51,8 +52,8 @@ interface Emits {
 const emits = defineEmits<Emits>();
 const props = withDefaults(defineProps<Props>(), {
   data: [],
-  columns: [],
 
+  columns: [],
   filterable: true,
   columnFilterable: false,
   columnVisible: false,
@@ -118,5 +119,5 @@ const {
 
 // Kick it off
 setColumnVisibility()
-setDataCollections()
+getData()
 </script>

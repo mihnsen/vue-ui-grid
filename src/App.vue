@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { VGrid, VList/*, VCards*/ } from './vue-grid';
+import { VGrid, VList, VCards } from './vue-grid';
 import sample from './sample';
 
 const gridColumns = ref([
