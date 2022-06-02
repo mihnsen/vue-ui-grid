@@ -13,7 +13,6 @@
       sort-by="id",
       sort-type="asc"
       :exportable="true"
-      :route-state="true"
     )
     VGraphCards(
       resource="catalogs",

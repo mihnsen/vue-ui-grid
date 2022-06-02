@@ -6,20 +6,22 @@ import GridState from '../../interfaces/grid-state'
 import DataState from '../../interfaces/data-state'
 import ColumnOption from '../../interfaces/column-option'
 import DataResponse from '../../interfaces/data-response'
+import useRouteState from './useRouteState'
 
 export default function(props, emits, dataProvider, gridOption) {
   const vGridOptions = inject('$vgrid', {})
   const router = inject(vGridOptions.routerKey)
+  let routeGridParams = {}
+  let updateRouteIfNeeded = () => {}
+  let queryGridState = {}
 
-  const routeGridState = computed(() => {
-    if (props.routeState) {
-      const query = this.$route.query
-      if (query.gridstate) {
-        return query.gridstate
-      }
-    }
-    return null
-  })
+  if (props.routeState) {
+    const useRouteStateInstance = useRouteState(router, props)
+    routeGridParams = useRouteStateInstance.routeGridParams
+    updateRouteIfNeeded = useRouteStateInstance.updateRouteIfNeeded
+    queryGridState = useRouteStateInstance.queryGridState
+  }
+
   const hasColumnFilter = computed(() => {
     return props.columns.some(
       (c) => c.filter
@@ -45,46 +47,6 @@ export default function(props, emits, dataProvider, gridOption) {
   }
   const dataState = reactive(DefaultDataState)
 
-  // Define grid state
-  const getStateFromRouteIfNeeded = () => {
-    let state: any = {}
-    if (props.routeState) {
-      const query: any = /*this.$route.query ||*/ {}
-      if (query.gridstate) {
-        state.gridstate = query.gridstate
-      } else {
-        state.gridstate = new Date().getTime()
-      }
-      if (query.s) {
-        state.searchKeyword = query.s
-      }
-      if (query.page) {
-        state.currentPage = parseInt(query.page, 10)
-      }
-      if (query.limit) {
-        state.limit = parseInt(query.limit, 10)
-      }
-      if (query.order) {
-        state.order = {
-          by: query.order,
-          type: query.order_type || 'desc',
-        }
-      }
-      let filter: any = {}
-      if (props.searchField && query[props.searchField]) {
-        filter[props.searchField] = query[props.searchField ]
-      }
-      Object.keys(query).forEach((key) => {
-        const column = props.columns.find((c) => c.field === key)
-        if (column && column.filter) {
-          filter[key] = query[key]
-        }
-      })
-      state.where = filter
-    }
-    return state
-  }
-
   // Attributes
   const gridState = reactive({
     searchKeyword: '',
@@ -98,7 +60,7 @@ export default function(props, emits, dataProvider, gridOption) {
     where: {},
     hasSortType: vGridOptions.hasSortType,
     gridstate: new Date().getTime(),
-    ...getStateFromRouteIfNeeded(),
+    ...routeGridParams,
   })
 
   // Param state on Url
@@ -189,30 +151,6 @@ export default function(props, emits, dataProvider, gridOption) {
     return flag
   })
 
-  watch(
-    () => props.columns,
-    () => {
-      columnVisibility.value = props.columns
-        .filter((c) => c.type !== 'hidden') // Hidden type
-        .filter((c) => !c.hidden) // Hidden by default
-        .map(c => c.field)
-    }
-  )
-  watch(
-    () => gridState.where,
-    () => {
-      resetState()
-    },
-    { deep: true }
-  )
-  watch(
-    () => paramsState.value,
-    () => {
-      getData()
-      updateRouteIfNeeded()
-    },
-    { deep: true }
-  )
   const getData = () => {
     if (vGridOptions.debug) {
       console.log('vgrid - start get data ', gridState.searchKeyword) // eslint-disable-line
@@ -265,11 +203,12 @@ export default function(props, emits, dataProvider, gridOption) {
     }
     return classes
   }
-  const resetState = () => {
+  const resetPageIndex = () => {
     gridState.currentPage = 0
   }
   const resetGrid = () => {
     gridState.currentPage = 0
+    gridState.limit = props.perPage ? props.perPage : vGridOptions.perPage
     gridState.searchKeyword = ''
     gridState.order = {
       by: props.sortBy,
@@ -278,23 +217,48 @@ export default function(props, emits, dataProvider, gridOption) {
     gridState.gridstate = new Date().getTime();
     gridState.where = {}
   }
-  const updateRouteIfNeeded = () => {
-    const route = router.currentRoute
 
-    if (!props.routeState) {
-      return
+  watch(
+    () => props.columns,
+    () => {
+      columnVisibility.value = props.columns
+        .filter((c) => c.type !== 'hidden') // Hidden type
+        .filter((c) => !c.hidden) // Hidden by default
+        .map(c => c.field)
     }
-
-    const newQuery = {
-      ...route.query,
-      ...paramsState.value,
+  )
+  watch(
+    [
+      () => gridState.where,
+      () => gridState.searchKeyword,
+      () => gridState.limit,
+    ],
+    () => {
+      console.log('reset page index')
+      resetPageIndex()
+    },
+    { deep: true }
+  )
+  // TODO Check
+  // watch(
+  //   () => paramsState.value,
+  //   (newVal) => {
+  //     console.log('reset page index')
+  //     getData()
+  //     updateRouteIfNeeded(newVal)
+  //   },
+  //   { deep: true }
+  // )
+  watch(
+    () => queryGridState.value,
+    (newVal: any, oldVal: any) => {
+      if (oldVal && !newVal) {
+        resetGrid()
+      }
     }
-
-    router.replace({ query: newQuery })
-  }
+  )
 
   return {
-    routeGridState,
     hasColumnFilter,
     hasColumnOrder,
     cardColumnClasses,
@@ -311,8 +275,6 @@ export default function(props, emits, dataProvider, gridOption) {
     isFiltered,
     getData,
     setOrder,
-    resetState,
     resetGrid,
-    updateRouteIfNeeded,
   }
 }

@@ -81,7 +81,6 @@ const {
 } = useAjaxData(props, { displayType: 'grid', dataType: 'ajax' })
 
 const {
-  routeGridState,
   hasColumnFilter,
   hasColumnOrder,
   cardColumnClasses,
@@ -98,9 +97,7 @@ const {
   isFiltered,
   getData,
   setOrder,
-  resetState,
   resetGrid,
-  updateRouteIfNeeded,
 } = useGrid(props, emits, dataProvider, gridOption)
 
 // Kick it off

@@ -82,7 +82,6 @@ const {
 })
 
 const {
-  routeGridState,
   hasColumnFilter,
   hasColumnOrder,
   cardColumnClasses,
@@ -99,9 +98,7 @@ const {
   isFiltered,
   getData,
   setOrder,
-  resetState,
   resetGrid,
-  updateRouteIfNeeded,
 } = useGrid(props, emits, dataProvider, gridOption)
 
 // Kick it off

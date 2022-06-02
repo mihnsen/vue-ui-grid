@@ -4,6 +4,7 @@
     :class="{ 'vgrid-input--active' : localValue }"
     ref="input",
     type="text",
+    :value="localValue",
     :placeholder="placeholder",
     @input="onChange",
   )

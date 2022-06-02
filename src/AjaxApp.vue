@@ -9,7 +9,6 @@
       :orderable="true",
       :per-page="6",
       :exportable="true",
-      :route-state="true",
     )
       template(#column-action="{ entry }")
         button(
