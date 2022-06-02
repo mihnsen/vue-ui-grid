@@ -24,8 +24,8 @@ const VueGridPlugin = {
 
     const gridOption = {
       debug: options.debug,
-      perPage: options.perPage,
-      pageSizes: options.pageSizes,
+      perPage: options.perPage || 10,
+      pageSizes: options.pageSizes || [5, 10, 20, 50, 100],
       routeState: options.routeState
     }
 
@@ -40,7 +40,7 @@ const VueGridPlugin = {
       ajaxOption = {
         extractData: options.extractData,
         pageKey: options.pageKey || 'page',
-        hasSortType: options.hasSortType,
+        hasSortType: options.hasSortType || true,
         sortKey: options.sortKey || 'sort',
         sortTypeKey: options.sortTypeKey || 'sort_type',
         perPageKey: options.perPageKey || 'limit',

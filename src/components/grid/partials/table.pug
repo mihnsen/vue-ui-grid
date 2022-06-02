@@ -41,7 +41,7 @@ slot(
               ColumnFilter(
                 v-if="col.filter",
                 :column="col",
-                v-model="where[col.field]",
+                v-model="gridState.where[col.field]",
               )
           tr(
             v-if="!hasRecord",

@@ -2,7 +2,7 @@
 extends BasicGrid.pug
 block search
   GridSearch(
-    v-model="where[searchField]",
+    v-model="gridState.where[searchField]",
     :placeholder="searchPlaceholder",
     v-if="searchable"
   )
@@ -99,23 +99,14 @@ const {
   hasRecord,
   isLoading,
   columnVisibility,
-  hasSortType,
-  pageSizes,
   dataQuery,
   isEmptyData,
   visibleCols,
   gridClasses,
   setColumnVisibility,
-  initialState,
-  gridstate,
-  currentState,
+  gridState,
   isFiltered,
   onRouteGridStateChanged,
-  currentPage,
-  searchKeyword,
-  order,
-  where,
-  limit,
   getData,
   setOrder,
   resetState,

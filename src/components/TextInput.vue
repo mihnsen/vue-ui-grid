@@ -5,7 +5,6 @@
     ref="input",
     type="text",
     :placeholder="placeholder",
-    v-model="localValue",
     @input="onChange",
   )
   a.vgrid-input-clear(
@@ -52,6 +51,8 @@ const onChange = (event: Event) => {
 
   timeout.value = setTimeout(() => {
     const value = (event.target as HTMLInputElement).value
+    localValue.value = value
+
     typing.value = null
     clearTimeout(timeout.value)
   }, 500)

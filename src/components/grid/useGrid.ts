@@ -3,6 +3,7 @@ import { useGridHeader } from '@/utilities/filters';
 import Order from '../../interfaces/order'
 import GridOption from '../../interfaces/grid-option'
 import GridState from '../../interfaces/grid-state'
+import DataState from '../../interfaces/data-state'
 import ColumnOption from '../../interfaces/column-option'
 import DataResponse from '../../interfaces/data-response'
 
@@ -34,28 +35,15 @@ export default function(props, emits, dataProvider, gridOption) {
       `vgrid-col-xl-${ props.colXl }`,
     ]
   })
-  const dataState = reactive({
+
+  // Define data state
+  const DefaultDataState: DataState = {
     records: [],
     total: 0,
-  })
-  const hasRecord = computed(() => dataState.records.length > 0)
-  let isLoading = ref(false)
-  let columnVisibility = ref([])
-  const hasSortType = reactive(vGridOptions.hasSortType || true)
-  const pageSizes = reactive(vGridOptions.pageSizes || [5, 10, 20, 50, 100])
-  const dataQuery = ref('')
-  const getHeaderColumnClasses = (column: any) => {
-    const type = column.type || 'text'
-    const { field } = column
-    const classes = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
-    if (column.width) {
-      classes.push(`vgrid-field--${column.width}`)
-    }
-    if (column.class) {
-      classes.push(column.class)
-    }
-    return classes
   }
+  const dataState = reactive(DefaultDataState)
+
+  // Define grid state
   const getStateFromRouteIfNeeded = () => {
     let state: any = {}
     if (props.routeState) {
@@ -94,6 +82,39 @@ export default function(props, emits, dataProvider, gridOption) {
     }
     return state
   }
+
+  // Attributes
+  const gridState = reactive({
+    searchKeyword: '',
+    currentPage: 0,
+    limit: props.perPage ? props.perPage : vGridOptions.perPage,
+    pageSizes: vGridOptions.pageSizes ,
+    order: {
+      by: props.sortBy,
+      type: props.sortType,
+    },
+    where: {},
+    hasSortType: vGridOptions.hasSortType,
+    gridstate: new Date().getTime(),
+    ...getStateFromRouteIfNeeded(),
+  })
+
+  const hasRecord = computed(() => dataState.records.length > 0)
+  let isLoading = ref(false)
+  let columnVisibility = ref([])
+  const dataQuery = ref('')
+  const getHeaderColumnClasses = (column: any) => {
+    const type = column.type || 'text'
+    const { field } = column
+    const classes = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
+    if (column.width) {
+      classes.push(`vgrid-field--${column.width}`)
+    }
+    if (column.class) {
+      classes.push(column.class)
+    }
+    return classes
+  }
   const isEmptyData = computed(() => {
     return !dataState.records.length
   })
@@ -122,35 +143,9 @@ export default function(props, emits, dataProvider, gridOption) {
       .filter((c) => !c.hidden) // Hidden by default
       .map((c) => c.field)
   }
-  // Attributes
-  const initialState = reactive(getStateFromRouteIfNeeded())
-  const gridstate = computed(() => {
-    return initialState.gridstate
-  })
-  const currentState = computed(() => {
-    let state: any = {
-      s: searchKeyword.value,
-      page: currentPage.value,
-      limit: limit.value,
-    }
-    if (order && order.by) {
-      state.order = order.by
-      state.order_type = order.type
-    }
-    state = Object.keys(where).reduce(
-      (acc, curr) => ({
-        ...acc,
-        [curr]: where[curr],
-      }),
-      state
-    )
-    // Put a state to it
-    state.gridstate = gridstate.value
-    return state
-  })
   const getColumnClasses = (column) => {
     if (column.order !== false && column.type !== 'custom') {
-      if (column.field === order.by) {
+      if (column.field === gridState.order.by) {
         return 'ordering'
       }
     }
@@ -159,8 +154,8 @@ export default function(props, emits, dataProvider, gridOption) {
   }
   const isFiltered = computed(() => {
     let flag = false
-    Object.keys(where).forEach((key) => {
-      flag = flag || !!where[key]
+    Object.keys(gridState.where).forEach((key) => {
+      flag = flag || !!gridState.where[key]
     })
     return flag
   })
@@ -169,29 +164,6 @@ export default function(props, emits, dataProvider, gridOption) {
       resetGrid()
     }
   }
-  const currentPage = ref(initialState.currentPage || 0)
-  const searchKeyword = ref(initialState.searchKeyword || '')
-  const order = reactive(
-    initialState.order
-      ? initialState.order
-      : {
-          by: props.sortBy,
-          type: props.sortType,
-        }
-  )
-  const where = reactive(
-    initialState.where ? initialState.where : {}
-    // @ts-ignore
-  )
-  // @ts-ignore
-  const limit = ref(
-    initialState.limit
-      ? initialState.limit
-      : props.perPage
-      ? props.perPage
-      : vGridOptions.perPage || 10
-    // @ts-ignore
-  )
 
   watch(
     () => props.columns,
@@ -203,14 +175,14 @@ export default function(props, emits, dataProvider, gridOption) {
     }
   )
   watch(
-    () => where,
+    () => gridState.where,
     () => {
       resetState()
     },
     { deep: true }
   )
   watch(
-    () => currentState.value,
+    () => gridState,
     () => {
       getData()
       updateRouteIfNeeded()
@@ -219,7 +191,7 @@ export default function(props, emits, dataProvider, gridOption) {
   )
   const getData = () => {
     if (vGridOptions.debug) {
-      console.log('vgrid - start get data ', searchKeyword.value) // eslint-disable-line
+      console.log('vgrid - start get data ', gridState.searchKeyword) // eslint-disable-line
     }
     if (!dataProvider) {
       console.log('vgrid - Your grid is not config any data provider') // eslint-disable-line
@@ -227,7 +199,7 @@ export default function(props, emits, dataProvider, gridOption) {
     }
     isLoading.value = true
     dataProvider
-      .getData(currentPage.value, limit.value, searchKeyword.value, where, order)
+      .getData(gridState.currentPage, gridState.limit, gridState.searchKeyword, gridState.where, gridState.order)
       .then(({ items, total: totalRecord, query }: DataResponse) => {
         dataState.records = items
         dataState.total = totalRecord
@@ -249,13 +221,13 @@ export default function(props, emits, dataProvider, gridOption) {
   const setOrder = (field: string) => {
     const column: ColumnOption = props.columns.find( (c) => c.field === field)
     if (column && column.order && column.type !== 'custom') {
-      if (order.by === field) {
-        if (hasSortType) {
-          order.type = order.type === 'desc' ? 'asc' : 'desc'
+      if (gridState.order.by === field) {
+        if (gridState.hasSortType) {
+          gridState.order.type = gridState.order.type === 'desc' ? 'asc' : 'desc'
         }
       } else {
-        order.by = field
-        order.type = 'desc'
+        gridState.order.by = field
+        gridState.order.type = 'desc'
       }
     }
   }
@@ -263,27 +235,24 @@ export default function(props, emits, dataProvider, gridOption) {
     const classes = []
     if (column.order && column.type !== 'custom') {
       classes.push('orderable')
-      if (column.field === order.by) {
-        classes.push(`${order.type}`)
+      if (column.field === gridState.order.by) {
+        classes.push(`${gridState.order.type}`)
       }
     }
     return classes
   }
   const resetState = () => {
-    currentPage.value = 0
+    gridState.currentPage = 0
   }
   const resetGrid = () => {
-    initialState = {
-      ...initialState,
-      gridstate: new Date().getTime(),
-    };
-    currentPage.value = 0
-    searchKeyword.value = ''
-    order = {
+    gridState.currentPage = 0
+    gridState.searchKeyword = ''
+    gridState.order = {
       by: props.sortBy,
       type: props.sortType,
     }
-    where = {}
+    gridState.gridstate = new Date().getTime();
+    gridState.where = {}
   }
   const updateRouteIfNeeded = () => {
     if (!(props.routeState)) {
@@ -292,7 +261,7 @@ export default function(props, emits, dataProvider, gridOption) {
 
     // const newQuery = {
     //   ...this.$route.query,
-    //   ...currentState.value,
+    //   ...gridState.value,
     // }
     // this.$router.replace(
     //   { query: newQuery }
@@ -308,23 +277,14 @@ export default function(props, emits, dataProvider, gridOption) {
     hasRecord,
     isLoading,
     columnVisibility,
-    hasSortType,
-    pageSizes,
     dataQuery,
     isEmptyData,
     visibleCols,
     gridClasses,
     setColumnVisibility,
-    initialState,
-    gridstate,
-    currentState,
+    gridState,
     isFiltered,
     onRouteGridStateChanged,
-    currentPage,
-    searchKeyword,
-    order,
-    where,
-    limit,
     getData,
     setOrder,
     resetState,

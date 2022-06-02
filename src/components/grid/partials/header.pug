@@ -3,21 +3,21 @@
     slot(name="header-start")
     block search
       GridSearch(
-        v-model="searchKeyword",
+        v-model="gridState.searchKeyword",
         :placeholder="searchPlaceholder",
         v-if="searchable"
       )
     block filter
       GridFilter(
         v-if="filterable && hasColumnFilter",
-        v-model="where",
+        v-model="gridState.where",
         :columns="columns"
       )
     block order
       GridOrder.vgrid-ml-auto(
         v-if="orderable && hasColumnOrder",
-        v-model="order",
-        :has-sort-type="hasSortType",
+        v-model="gridState.order",
+        :has-sort-type="gridState.hasSortType",
         :columns="columns"
       )
     block visibility
