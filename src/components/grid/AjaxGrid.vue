@@ -18,8 +18,8 @@ import ExportButton from '../ExportButton.vue'
 
 interface Props {
   resource?: string;
-
   searchField?: string;
+
   columns?: Array<ColumnOption>;
   perPage?: number;
   filterable?: boolean;
@@ -41,7 +41,6 @@ interface Props {
   colLg?: number;
   colXl?: number;
   routeState?: boolean;
-  searchField?: string; // Prepare for GraphGrid + AjaxGrid
 }
 
 interface Emits {

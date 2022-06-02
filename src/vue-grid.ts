@@ -5,8 +5,8 @@ import VCards from './components/grid/BasicCards.vue'
 import VList from './components/grid/BasicList.vue'
 
 import VAjaxGrid from './components/grid/AjaxGrid.vue'
-// import VAjaxList from './components/grid/AjaxList.vue'
-// import VAjaxCards from './components/grid/AjaxCards.vue'
+import VAjaxList from './components/grid/AjaxList.vue'
+import VAjaxCards from './components/grid/AjaxCards.vue'
 
 import VGraphGrid from './components/grid/GraphGrid.vue'
 // import VGraphList from './components/grid/GraphList.vue'
@@ -34,8 +34,8 @@ const VueGridPlugin = {
 
     if (options.ajax) {
       Vue.component('VAjaxGrid', VAjaxGrid)
-      // Vue.component('VAjaxList', VAjaxList)
-      // Vue.component('VAjaxCards', VAjaxCards)
+      Vue.component('VAjaxList', VAjaxList)
+      Vue.component('VAjaxCards', VAjaxCards)
 
       ajaxOption = {
         extractData: options.extractData,
