@@ -16,8 +16,6 @@ export default interface GridOption {
   pageSizes?: Array<number>;
   columns: Array<ColumnOption>;
 
-  routeState?: boolean;
-
   perPageKey?: string; // Ajax & Graphql
   pageKey?: string; // Ajax & Graphql
   searchField?: string;
@@ -38,5 +36,7 @@ export default interface GridOption {
   graphqlOrder?: (by: string, type: string) => string;
   aggregateQuery?: string;
   graphqlDataCounter?: (data) => number;
+
+  routerKey?: any,
 }
 

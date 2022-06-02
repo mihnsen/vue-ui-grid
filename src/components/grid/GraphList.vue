@@ -108,7 +108,6 @@ const {
   setColumnVisibility,
   gridState,
   isFiltered,
-  onRouteGridStateChanged,
   getData,
   setOrder,
   resetState,

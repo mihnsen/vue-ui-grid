@@ -26,7 +26,7 @@ const VueGridPlugin = {
       debug: options.debug,
       perPage: options.perPage || 10,
       pageSizes: options.pageSizes || [5, 10, 20, 50, 100],
-      routeState: options.routeState
+      routerKey: options.routerKey,
     }
 
     let graphqlOption = {}

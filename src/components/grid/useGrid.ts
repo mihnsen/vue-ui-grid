@@ -9,6 +9,8 @@ import DataResponse from '../../interfaces/data-response'
 
 export default function(props, emits, dataProvider, gridOption) {
   const vGridOptions = inject('$vgrid', {})
+  const router = inject(vGridOptions.routerKey)
+
   const routeGridState = computed(() => {
     if (props.routeState) {
       const query = this.$route.query
@@ -99,6 +101,33 @@ export default function(props, emits, dataProvider, gridOption) {
     ...getStateFromRouteIfNeeded(),
   })
 
+  // Param state on Url
+  const paramsState = computed(() => {
+    let params = {
+      s: gridState.searchKeyword,
+      page: gridState.currentPage,
+      limit: gridState.limit,
+    }
+
+    if (props.orderable) {
+      params.order = gridState.order.by
+      params.order_type = gridState.order.type
+    }
+
+    const whereParams = Object.keys(gridState.where).reduce((acc, curr) => ({
+      ...acc,
+      [curr]: gridState.where[curr]
+    }), {})
+
+    params = {
+      ...params,
+      ...whereParams,
+      gridstate: gridState.gridstate,
+    }
+
+    return params
+  })
+
   const hasRecord = computed(() => dataState.records.length > 0)
   let isLoading = ref(false)
   let columnVisibility = ref([])
@@ -159,11 +188,6 @@ export default function(props, emits, dataProvider, gridOption) {
     })
     return flag
   })
-  const onRouteGridStateChanged = (newVal: any, oldVal: any) => {
-    if (oldVal && !newVal) {
-      resetGrid()
-    }
-  }
 
   watch(
     () => props.columns,
@@ -182,7 +206,7 @@ export default function(props, emits, dataProvider, gridOption) {
     { deep: true }
   )
   watch(
-    () => gridState,
+    () => paramsState.value,
     () => {
       getData()
       updateRouteIfNeeded()
@@ -255,17 +279,18 @@ export default function(props, emits, dataProvider, gridOption) {
     gridState.where = {}
   }
   const updateRouteIfNeeded = () => {
-    if (!(props.routeState)) {
+    const route = router.currentRoute
+
+    if (!props.routeState) {
       return
     }
 
-    // const newQuery = {
-    //   ...this.$route.query,
-    //   ...gridState.value,
-    // }
-    // this.$router.replace(
-    //   { query: newQuery }
-    // )
+    const newQuery = {
+      ...route.query,
+      ...paramsState.value,
+    }
+
+    router.replace({ query: newQuery })
   }
 
   return {
@@ -284,7 +309,6 @@ export default function(props, emits, dataProvider, gridOption) {
     setColumnVisibility,
     gridState,
     isFiltered,
-    onRouteGridStateChanged,
     getData,
     setOrder,
     resetState,

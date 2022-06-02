@@ -2,6 +2,7 @@ import axios from 'axios'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { DefaultApolloClient } from '@vue/apollo-composable'
+import { useRouter, routerKey } from 'vue-router'
 
 import VueGrid from './vue-grid'
 
@@ -67,6 +68,9 @@ app.use(VueGrid, {
     }
   },
   getPageIndex: (index: number) => (index + 1),
+
+  useRouter,
+  routerKey,
 
   graphql: true,
   // filterKey: 'filter',
