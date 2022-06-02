@@ -8,8 +8,10 @@ export default function(props, option, dataCallback) {
 
   const graphOptions = {
     resource: props.resource,
+    resourceMeta: props.resourceMeta,
     searchField: props.searchField,
     refFilter: props.refFilter,
+
     offsetKey: vGridOptions.offsetKey,
     limitKey: vGridOptions.limitKey,
     filterKey: vGridOptions.filterKey,

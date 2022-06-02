@@ -14,5 +14,5 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   resize: false,
 })
-const { classes } = useColumnType(props)
+const { text, classes } = useColumnType(props)
 </script>

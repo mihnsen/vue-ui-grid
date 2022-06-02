@@ -19,7 +19,7 @@ import { useLocalValue } from '@/utilities/hooks';
 import { type Page } from '../interfaces/page'
 
 interface Props {
-  modelValue?: string;
+  modelValue?: number;
   limit?: number;
   total?: number
 }

@@ -23,9 +23,9 @@ import ExportButton from '../ExportButton.vue'
 
 interface Props {
   resource?: string;
+  resourceMeta?: string;
   searchField?: string;
   refFilter?: string;
-  resourceMeta?: string;
 
   columns?: Array<ColumnOption>;
   perPage?: number;
@@ -58,9 +58,9 @@ interface Emits {
 const emits = defineEmits<Emits>();
 const props = withDefaults(defineProps<Props>(), {
   // resource: '',
+  // resourceMeta: '';
   // searchField: '';
   refFilter: '',
-  // resourceMeta: '';
 
   columns: [],
 
