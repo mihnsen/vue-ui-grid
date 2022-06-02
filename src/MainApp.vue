@@ -1,6 +1,6 @@
 <template>
-  <h1> Hello </h1>
-  <p>
+  <h1> Vue Grid </h1>
+  <p class="toplink">
     <!-- use router-link component for navigation. -->
     <!-- specify the link by passing the `to` prop. -->
     <!-- `<router-link>` will be rendered as an `<a>` tag by default -->
@@ -13,3 +13,10 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router';
 </script>
+
+<style scoped>
+
+.toplink a + a {
+  margin-left: 1em;
+}
+</style>

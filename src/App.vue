@@ -1,9 +1,5 @@
 <template lang="pug">
 #app
-  img(
-    alt="Vue logo"
-    src="./assets/logo.png"
-  )
   div(style="width: 1000px; margin: 20px auto 50px")
     VGrid(
       :columns="gridColumns",
