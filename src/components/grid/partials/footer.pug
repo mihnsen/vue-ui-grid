@@ -21,7 +21,7 @@
     )
     slot(name="footer-end")
 
-  .vgrid-devbar(v-if="debug")
+  .vgrid-devbar(v-if="gridOption.debug")
     .vgrid-col-9
       pre {{ dataQuery }}
     .vgrid-col-3.vgrid-align-right

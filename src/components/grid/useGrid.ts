@@ -34,7 +34,6 @@ export default function(props, emits, dataProvider, gridOption) {
       `vgrid-col-xl-${ props.colXl }`,
     ]
   })
-  const debug = reactive(vGridOptions.debug || false)
   const dataState = reactive({
     records: [],
     total: 0,
@@ -219,7 +218,7 @@ export default function(props, emits, dataProvider, gridOption) {
     { deep: true }
   )
   const getData = () => {
-    if (debug) {
+    if (vGridOptions.debug) {
       console.log('vgrid - start get data ', searchKeyword.value) // eslint-disable-line
     }
     if (!dataProvider) {
@@ -305,7 +304,6 @@ export default function(props, emits, dataProvider, gridOption) {
     hasColumnFilter,
     hasColumnOrder,
     cardColumnClasses,
-    debug,
     dataState,
     hasRecord,
     isLoading,

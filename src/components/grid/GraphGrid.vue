@@ -95,7 +95,6 @@ const {
   hasColumnFilter,
   hasColumnOrder,
   cardColumnClasses,
-  debug,
   dataState,
   hasRecord,
   isLoading,
