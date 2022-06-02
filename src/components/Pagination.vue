@@ -43,6 +43,9 @@ const totalPage = computed(() => {
   return Math.floor(props.total / props.limit) + 1
 })
 
+// FIXME
+// Copied from @cedrus axisflow
+// Should be revised
 const pages = computed(() => {
   const step = [-2, -1, 0, 1, 2].map((i) => i + localValue.value)
   // prev button.

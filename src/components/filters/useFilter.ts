@@ -25,7 +25,7 @@ export default function(props, localValue, el) {
     // Then open current editor
     isEditor.value = true
 
-    if (el) {
+    if (el.value) {
       setTimeout(() => {
         el.value.focus()
       }, 100)

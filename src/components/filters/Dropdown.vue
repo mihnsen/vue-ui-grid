@@ -2,7 +2,6 @@
 extends Basic.pug
 block input
   select.vgrid-input(
-    ref="input",
     v-model="localValue"
   )
     option(value="") Select a value
