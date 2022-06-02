@@ -7,58 +7,124 @@ block search
     v-if="searchable"
   )
 </template>
-<script lang="ts">
-import gql from 'graphql-tag'
-import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
-import Grid from './BasicGrid.vue'
-import { GraphDataProvider } from '../../data-providers'
+<script setup lang="ts">
+import useGrid from './useGrid'
+import useGraphGrid from './useGraphGrid'
+import Pagination from '../Pagination.vue'
+import ColumnType from '../ColumnType.vue'
+import ColumnFilter from '../ColumnFilter.vue'
+import GridFilter from '../Filter.vue'
+import GridOrder from '../Order.vue'
+import PageSize from '../PageSize.vue'
+import ColumnsVisibility from '../ColumnsVisibility.vue'
+import GridSearch from '../Search.vue'
+import GridStatus from '../Status.vue'
+import ExportButton from '../ExportButton.vue'
 
-@Component
-export default class GraphGrid extends Grid {
-  @Prop({ required: true })
-  resource!: string
+interface Props {
+  resource?: string;
+  searchField?: string;
+  refFilter?: string;
+  resourceMeta?: string;
 
-  @Prop({ required: true })
-  resourceMeta!: string
-
-  @Prop()
-  searchField!: string
-
-  @Prop({ default: '' })
-  refFilter!: string
-
-  dataType = 'graphql'
-  offsetKey: string = this.$vgrid.offsetKey
-  limitKey: string = this.$vgrid.limitKey
-  filterKey: string = this.$vgrid.filterKey
-  aggregateQuery: string = this.$vgrid.aggregateQuery
-  graphqlFilter: any = this.$vgrid.graphqlFilter
-  graphqlOrder: any = this.$vgrid.graphqlOrder
-  graphqlDataCounter: any = this.$vgrid.graphqlDataCounter
-
-  @Watch('refFilter')
-  onRefFilterChanged() {
-    this.initProvider()
-    this.resetGrid()
-  }
-
-  initProvider() {
-    this.dataProvider = new GraphDataProvider(this.$apollo, this.resource, this.gridOption)
-  }
-
-  get extraGridOption() {
-    return {
-      searchField: this.searchField,
-      resourceMeta: this.resourceMeta,
-      refFilter: this.refFilter,
-      offsetKey: this.offsetKey,
-      limitKey: this.limitKey,
-      filterKey: this.filterKey,
-      aggregateQuery: this.aggregateQuery,
-      graphqlFilter: this.graphqlFilter,
-      graphqlOrder: this.graphqlOrder,
-      graphqlDataCounter: this.graphqlDataCounter
-    }
-  }
+  columns?: Array<ColumnOption>;
+  perPage?: number;
+  filterable?: boolean;
+  columnFilterable?: boolean;
+  columnVisible?: boolean;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  orderable?: boolean;
+  sortBy?: string;
+  sortType?: string;
+  statusable?: boolean;
+  pagable?: boolean;
+  pagination?: boolean;
+  strEmptyFilteredData?: string;
+  strEmptyData?: string;
+  exportable?: boolean;
+  exportFileName?: string;
+  colMd?: number;
+  colLg?: number;
+  colXl?: number;
+  routeState?: boolean;
+  searchField?: string; // Prepare for GraphGrid + AjaxGrid
 }
+
+interface Emits {
+  (event: 'data-changed', value: any[]): void
+}
+
+const emits = defineEmits<Emits>();
+const props = withDefaults(defineProps<Props>(), {
+  // resource: '',
+  // searchField: '';
+  refFilter: '',
+  // resourceMeta: '';
+
+  columns: [],
+
+  filterable: true,
+  columnFilterable: false,
+  columnVisible: false,
+  searchable: true,
+
+  orderable: false,
+
+  sortType: 'desc',
+  statusable: true,
+  pagable: true,
+  pagination: true,
+  strEmptyFilteredData: 'No data matched',
+  strEmptyData: 'Empty data',
+  exportable: false,
+
+  colMd: 6,
+  colLg: 4,
+  colXl: 3,
+  routeState: false,
+})
+
+const {
+  gridOption,
+  dataProvider,
+} = useGraphGrid(props, { displayType: 'grid', dataType: 'graph' })
+
+const {
+  routeGridState,
+  hasColumnFilter,
+  hasColumnOrder,
+  cardColumnClasses,
+  debug,
+  dataState,
+  hasRecord,
+  isLoading,
+  columnVisibility,
+  hasSortType,
+  pageSizes,
+  dataQuery,
+  isEmptyData,
+  visibleCols,
+  gridClasses,
+  setColumnVisibility,
+  initialState,
+  gridstate,
+  currentState,
+  isFiltered,
+  onRouteGridStateChanged,
+  currentPage,
+  searchKeyword,
+  order,
+  where,
+  limit,
+  getData,
+  setOrder,
+  resetState,
+  resetGrid,
+  updateRouteIfNeeded,
+} = useGrid(props, emits, dataProvider, gridOption)
+
+// Kick it off
+setColumnVisibility()
+getData()
 </script>

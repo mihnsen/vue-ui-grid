@@ -1,17 +1,21 @@
 import axios from 'axios'
 import { createApp } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import App from './App.vue'
+import { DefaultApolloClient } from '@vue/apollo-composable'
+
 import VueGrid from './vue-grid'
 
 // import TestVue from './TestVue.vue'
 
-// import GraphqlApp from './GraphqlApp.vue'
-import AjaxApp from './AjaxApp.vue'
 import MainApp from './MainApp.vue'
+import GraphqlApp from './GraphqlApp.vue'
+import AjaxApp from './AjaxApp.vue'
+import App from './App.vue'
 
-// import apolloProvider from './apollo-provider'
+// Graph
+import apolloClient from './apollo-provider'
 
+// Ajax
 axios.defaults.baseURL = 'https://reqres.in/api'
 axios.interceptors.response.use((response) => {
   return response
@@ -37,19 +41,17 @@ const router = createRouter({
       name: 'ajax',
       component: AjaxApp
     },
-    // {
-    //   path: '/graph',
-    //   name: 'graph',
-    //   component: GraphqlApp
-    // }
+    {
+      path: '/graph',
+      name: 'graph',
+      component: GraphqlApp
+    }
   ]
 });
 
-const app = createApp(MainApp);
-
-app.use(router);
-// app.use(apoolloProvider);
-
+const app = createApp(MainApp)
+app.use(router)
+app.provide(DefaultApolloClient, apolloClient)
 app.use(VueGrid, {
   debug: true,
   ajax: true,

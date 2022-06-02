@@ -8,7 +8,7 @@ import VAjaxGrid from './components/grid/AjaxGrid.vue'
 // import VAjaxList from './components/grid/AjaxList.vue'
 // import VAjaxCards from './components/grid/AjaxCards.vue'
 
-// import VGraphGrid from './components/grid/GraphGrid.vue'
+import VGraphGrid from './components/grid/GraphGrid.vue'
 // import VGraphList from './components/grid/GraphList.vue'
 // import VGraphCards from './components/grid/GraphCards.vue'
 
@@ -53,7 +53,7 @@ const VueGridPlugin = {
     }
 
     if (options.graphql) {
-      // Vue.component('VGraphGrid', VGraphGrid)
+      Vue.component('VGraphGrid', VGraphGrid)
       // Vue.component('VGraphList', VGraphList)
       // Vue.component('VGraphCards', VGraphCards)
 
@@ -86,7 +86,7 @@ export {
   VAjaxGrid,
   VAjaxCards,
   VAjaxList,
-  // VGraphGrid,
+  VGraphGrid,
   // VGraphCards,
   // VGraphList,
   Pagination

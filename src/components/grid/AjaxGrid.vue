@@ -18,6 +18,7 @@ import ExportButton from '../ExportButton.vue'
 
 interface Props {
   resource?: string;
+
   searchField?: string;
   columns?: Array<ColumnOption>;
   perPage?: number;

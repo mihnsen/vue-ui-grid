@@ -36,65 +36,62 @@
     //   filter-key="filter",
     // )
 </template>
-<script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
+<script setup lang="ts">
+import { ref } from 'vue'
 
-@Component
-export default class GraphqlApp extends Vue {
-  columns = [
-    {
-      field: 'id'
-    },
-    {
-      field: 'updated_at',
-      label: 'Last edit',
-      catalog: true
-    },
-    {
-      field: 'title',
-      label: 'Title',
-      // filter: true,
-      order: true
-    },
-    {
-      field: 'fulfillment.id',
-      // type: 'hidden',
-      field_type: 'id',
-      label: 'Fulfillment',
-      filter: true,
-      filter_type: 'radio',
-      filter_value: [
-        {
-          id: 1,
-          label: 'CustomCat'
-        },
-        {
-          id: 2,
-          label: 'Printful'
-        },
-        {
-          id: 6,
-          label: 'Dreamship'
-        }
-      ]
-    },
-    {
-      field: 'fulfillment.display_name',
-      label: 'Fulfillment name'
-    },
-    // {
-    //   field: 'catalogs.count',
-    //   label: 'Number of catalogs',
-    //   width: 3
-    // },
-    {
-      field: 'action',
-      type: 'custom',
-      label: 'Action',
-      width: 2
-    }
-  ]
-}
+const columns = ref([
+  {
+    field: 'id'
+  },
+  {
+    field: 'updated_at',
+    label: 'Last edit',
+    catalog: true
+  },
+  {
+    field: 'title',
+    label: 'Title',
+    // filter: true,
+    order: true
+  },
+  {
+    field: 'fulfillment.id',
+    // type: 'hidden',
+    field_type: 'id',
+    label: 'Fulfillment',
+    filter: true,
+    filter_type: 'radio',
+    filter_value: [
+      {
+        id: 1,
+        label: 'CustomCat'
+      },
+      {
+        id: 2,
+        label: 'Printful'
+      },
+      {
+        id: 6,
+        label: 'Dreamship'
+      }
+    ]
+  },
+  {
+    field: 'fulfillment.display_name',
+    label: 'Fulfillment name'
+  },
+  // {
+  //   field: 'catalogs.count',
+  //   label: 'Number of catalogs',
+  //   width: 3
+  // },
+  {
+    field: 'action',
+    type: 'custom',
+    label: 'Action',
+    width: 2
+  }
+])
 </script>
 
 <style lang="scss">

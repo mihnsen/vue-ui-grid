@@ -6,12 +6,12 @@ import DataResponse, { ErrorResponse } from '../interfaces/data-response'
 import gql from 'graphql-tag'
 
 export default class GraphDataProvider extends ADataProvider {
-  protected apolloProvider: any;
+  protected apolloClient: any;
   protected resource: string;
 
   constructor(apollo: any, resource: string, options: GridOption) {
     super(options)
-    this.apolloProvider = apollo
+    this.apolloClient = apollo
     this.resource = resource
   }
 
@@ -28,7 +28,7 @@ export default class GraphDataProvider extends ADataProvider {
       }
       const graphqlQuery = gql`${query}`
 
-      this.apolloProvider.query({
+      this.apolloClient.query({
         fetchPolicy: 'no-cache',
         query: graphqlQuery,
         variables

@@ -2,7 +2,6 @@
 include BasicGrid.pug
 </template>
 <script setup lang="ts">
-import { computed, ref, reactive } from 'vue'
 import useGrid from './useGrid'
 import useJsonGrid from './useJsonGrid'
 import Pagination from '../Pagination.vue'
