@@ -3,7 +3,7 @@ include BasicGrid.pug
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
-import useJsonGrid from './useJsonGrid'
+import useJsonData from './useJsonData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
 import ColumnFilter from '../ColumnFilter.vue'
@@ -75,7 +75,7 @@ const {
   gridOption,
   dataProvider,
   setDataCollections,
-} = useJsonGrid(props, { displayType: 'grid', dataType: 'json' }, () => {
+} = useJsonData(props, { displayType: 'grid', dataType: 'json' }, () => {
   getData()
 })
 

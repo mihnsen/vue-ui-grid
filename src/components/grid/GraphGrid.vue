@@ -9,7 +9,7 @@ block search
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
-import useGraphGrid from './useGraphGrid'
+import useGraphData from './useGraphData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
 import ColumnFilter from '../ColumnFilter.vue'
@@ -88,7 +88,7 @@ const props = withDefaults(defineProps<Props>(), {
 const {
   gridOption,
   dataProvider,
-} = useGraphGrid(props, { displayType: 'grid', dataType: 'graph' })
+} = useGraphData(props, { displayType: 'grid', dataType: 'graph' })
 
 const {
   routeGridState,

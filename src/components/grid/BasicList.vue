@@ -6,7 +6,7 @@ block body
 <script setup lang="ts">
 import { computed, ref, reactive } from 'vue'
 import useGrid from './useGrid'
-import useJsonGrid from './useJsonGrid'
+import useJsonData from './useJsonData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
 import ColumnFilter from '../ColumnFilter.vue'
@@ -78,7 +78,7 @@ const {
   gridOption,
   dataProvider,
   setDataCollections,
-} = useJsonGrid(props, { displayType: 'list', dataType: 'json' }, () => {
+} = useJsonData(props, { displayType: 'list', dataType: 'json' }, () => {
   getData()
 })
 

@@ -6,7 +6,7 @@ block body
 <script setup lang="ts">
 import { computed, ref, reactive, inject } from 'vue'
 import useGrid from './useGrid'
-import useAjaxGrid from './useAjaxGrid'
+import useAjaxData from './useAjaxData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
 import ColumnFilter from '../ColumnFilter.vue'
@@ -81,7 +81,7 @@ const {
   gridOption,
   dataProvider,
   setDataCollections,
-} = useAjaxGrid(props, { displayType: 'list', dataType: 'ajax' })
+} = useAjaxData(props, { displayType: 'list', dataType: 'ajax' })
 
 const {
   routeGridState,
