@@ -89,7 +89,6 @@ const {
   hasRecord,
   isLoading,
   columnVisibility,
-  dataQuery,
   isEmptyData,
   visibleCols,
   gridClasses,

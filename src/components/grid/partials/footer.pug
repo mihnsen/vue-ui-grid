@@ -23,6 +23,6 @@
 
   .vgrid-devbar(v-if="gridOption.debug")
     .vgrid-col-9
-      pre {{ dataQuery }}
+      pre {{ dataState.query }}
     .vgrid-col-3.vgrid-align-right
       span(v-if="isLoading") Loading..

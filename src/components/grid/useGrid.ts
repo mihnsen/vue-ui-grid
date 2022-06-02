@@ -9,11 +9,14 @@ import DataResponse from '../../interfaces/data-response'
 import useRouteState from './useRouteState'
 
 export default function(props, emits, dataProvider, gridOption) {
-  const vGridOptions = inject('$vgrid', {})
+  const vGridOptions = inject('$vgrid', {
+    routerKey: null,
+    perPage: 10,
+  })
   const router = inject(vGridOptions.routerKey)
   let routeGridParams = {}
-  let updateRouteIfNeeded = () => {}
-  let queryGridState = {}
+  let updateRouteIfNeeded = () => ({}) // eslint-disable-line
+  let queryGridState = computed({})
 
   if (props.routeState) {
     const useRouteStateInstance = useRouteState(router, props)
@@ -91,9 +94,8 @@ export default function(props, emits, dataProvider, gridOption) {
   })
 
   const hasRecord = computed(() => dataState.records.length > 0)
-  let isLoading = ref(false)
-  let columnVisibility = ref([])
-  const dataQuery = ref('')
+  const isLoading = ref(false)
+  const columnVisibility = ref([])
   const getHeaderColumnClasses = (column: any) => {
     const type = column.type || 'text'
     const { field } = column
@@ -165,11 +167,11 @@ export default function(props, emits, dataProvider, gridOption) {
       .then(({ items, total: totalRecord, query }: DataResponse) => {
         dataState.records = items
         dataState.total = totalRecord
-        dataQuery.value = query
+        dataState.query = query
       })
       .catch((error: any) => {
         if (error) {
-          dataQuery.value = error.query
+          dataState.query = error.query
         }
         console.log('vgrid error', error) // eslint-disable-line
       })
@@ -240,15 +242,15 @@ export default function(props, emits, dataProvider, gridOption) {
     { deep: true }
   )
   // TODO Check
-  // watch(
-  //   () => paramsState.value,
-  //   (newVal) => {
-  //     console.log('reset page index')
-  //     getData()
-  //     updateRouteIfNeeded(newVal)
-  //   },
-  //   { deep: true }
-  // )
+  watch(
+    () => paramsState.value,
+    (newVal) => {
+      console.log('reset page index')
+      getData()
+      updateRouteIfNeeded(newVal)
+    },
+    { deep: true }
+  )
   watch(
     () => queryGridState.value,
     (newVal: any, oldVal: any) => {
@@ -266,7 +268,6 @@ export default function(props, emits, dataProvider, gridOption) {
     hasRecord,
     isLoading,
     columnVisibility,
-    dataQuery,
     isEmptyData,
     visibleCols,
     gridClasses,

@@ -19,7 +19,7 @@ export default interface GridOption {
   perPageKey?: string; // Ajax & Graphql
   pageKey?: string; // Ajax & Graphql
   searchField?: string;
-  limit: number;
+  limit?: number;
   sortKey?: string;
   sortTypeKey?: string;
   getPageIndex?: (page: number) => number;
