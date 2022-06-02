@@ -52,6 +52,7 @@ export default function(props, emits, dataProvider, gridOption) {
 
   // Attributes
   const gridState = reactive({
+    isLoading: false,
     searchKeyword: '',
     currentPage: 0,
     limit: props.perPage ? props.perPage : vGridOptions.perPage,
@@ -94,7 +95,6 @@ export default function(props, emits, dataProvider, gridOption) {
   })
 
   const hasRecord = computed(() => dataState.records.length > 0)
-  const isLoading = ref(false)
   const columnVisibility = ref([])
   const getHeaderColumnClasses = (column: any) => {
     const type = column.type || 'text'
@@ -161,7 +161,7 @@ export default function(props, emits, dataProvider, gridOption) {
       console.log('vgrid - Your grid is not config any data provider') // eslint-disable-line
       return
     }
-    isLoading.value = true
+    gridState.isLoading = true;
     dataProvider
       .getData(gridState.currentPage, gridState.limit, gridState.searchKeyword, gridState.where, gridState.order)
       .then(({ items, total: totalRecord, query }: DataResponse) => {
@@ -177,7 +177,7 @@ export default function(props, emits, dataProvider, gridOption) {
       })
       .then(() => {
         setTimeout(() => {
-          isLoading.value = false
+          gridState.isLoading = false
           emits('data-changed', dataState.records)
         }, 250) // Delay 250ms
       })
@@ -266,7 +266,6 @@ export default function(props, emits, dataProvider, gridOption) {
     cardColumnClasses,
     dataState,
     hasRecord,
-    isLoading,
     columnVisibility,
     isEmptyData,
     visibleCols,

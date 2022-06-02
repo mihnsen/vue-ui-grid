@@ -85,7 +85,6 @@ const {
   cardColumnClasses,
   dataState,
   hasRecord,
-  isLoading,
   columnVisibility,
   isEmptyData,
   visibleCols,

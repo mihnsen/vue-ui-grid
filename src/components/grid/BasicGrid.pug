@@ -4,7 +4,7 @@
   .vgrid-body
     block body
       include partials/table.pug
-    .vgrid-loader(v-if="isLoading")
+    .vgrid-loader(v-if="gridState.isLoading")
       span.vgrid-sr-only Loading..
   block footer
     include partials/footer.pug
