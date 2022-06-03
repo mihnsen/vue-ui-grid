@@ -5,7 +5,6 @@ import { defineConfig } from 'vite';
 import svgLoader from 'vite-svg-loader';
 import checker from 'vite-plugin-checker';
 import dts from 'vite-plugin-dts';
-// import vueTyeImports from 'vite-plugin-vue-type-imports';
 // import eslintPlugin from '@nabla/vite-plugin-eslint';
 
 // https://vitejs.dev/config/
@@ -15,21 +14,20 @@ export default defineConfig({
   },
   plugins: [
     vue(),
-    // vueTyeImports(),
     svgLoader(),
-    // checker({
-    //   overlay: false,
-    //   vueTsc: true,
-    //   typescript: true,
-    //   eslint: {
-    //     lintCommand: 'eslint . --ext .vue,.js,.cjs,.ts,.tsx --ignore-path .eslintignore --quiet .',
-    //   },
-    // }),
-    // dts({
-    //   staticImport: true,
-    //   outputDir: 'dist/types',
-    //   exclude: ['dist', 'build'],
-    // }),
+    checker({
+      overlay: false,
+      vueTsc: true,
+      typescript: true,
+      eslint: {
+        lintCommand: 'eslint . --ext .vue,.js,.cjs,.ts,.tsx --ignore-path .eslintignore --quiet .',
+      },
+    }),
+    dts({
+      staticImport: true,
+      outputDir: 'dist/types',
+      exclude: ['dist', 'build'],
+    }),
   ],
   resolve: {
     alias: {
