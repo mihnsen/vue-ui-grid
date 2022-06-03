@@ -22,11 +22,11 @@ export default defineConfig({
         lintCommand: 'eslint . --ext .vue,.js,.cjs,.ts,.tsx --ignore-path .eslintignore --quiet .',
       },
     }),
-    dts({
-      staticImport: true,
-      outputDir: 'dist/types',
-      exclude: ['dist', 'build'],
-    }),
+    // dts({
+    //   staticImport: true,
+    //   outputDir: 'dist/types',
+    //   exclude: ['dist', 'build'],
+    // }),
   ],
   resolve: {
     alias: {
