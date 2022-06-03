@@ -92,9 +92,9 @@ export default class GraphDataProvider extends ADataProvider {
       const refKeys = Object.keys(where).filter(key => key.match(/\./))
 
       const normalSearch = normalKeys.map((key) => {
-        const filter = this.getFilter(key, where[key])
+        const cfilter = this.getFilter(key, where[key])
         return where[key]
-          ? `${filter}`
+          ? `${cfilter}`
           : ''
       })
         .filter(s => s)
@@ -190,7 +190,7 @@ export default class GraphDataProvider extends ADataProvider {
     return this.getRefQueryByNode(tree, true)
   }
 
-  getRefQueryByNode(node: any, isRoot: boolean = false): string {
+  getRefQueryByNode(node: any, isRoot = false): string {
     const keys = Object.keys(node)
     if (keys.length) {
       const q = keys.map(key => {
@@ -238,7 +238,7 @@ export default class GraphDataProvider extends ADataProvider {
     return this.getRefFilterByNode(tree, true)
   }
 
-  getRefFilterByNode(node: any, isRoot: boolean = false): string {
+  getRefFilterByNode(node: any, isRoot = false): string {
     if (typeof node === 'object') {
       const keys = Object.keys(node)
 

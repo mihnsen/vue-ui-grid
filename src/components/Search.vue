@@ -24,5 +24,5 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
-const stop = () => {}
+const stop = () => ({})
 </script>

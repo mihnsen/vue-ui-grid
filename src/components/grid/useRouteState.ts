@@ -1,17 +1,17 @@
 import { computed } from 'vue'
 
-export default function(router, props, paramsState) {
+export default function(router, props) {
   // Define grid state
   const route = router.currentRoute
   const routeName = route.value.name
 
   const getStateFromRoute = () => {
-    let state: any = {}
+    const state: any = {}
     const query: any = route.value.query || {}
-    if (query.gridstate) {
-      state.gridstate = query.gridstate
+    if (query.time) {
+      state.time = query.time
     } else {
-      state.gridstate = new Date().getTime()
+      state.time = new Date().getTime()
     }
     if (query.s) {
       state.searchKeyword = query.s
@@ -28,7 +28,7 @@ export default function(router, props, paramsState) {
         type: query.order_type || 'desc',
       }
     }
-    let filter: any = {}
+    const filter: any = {}
     if (props.searchField && query[props.searchField]) {
       filter[props.searchField] = query[props.searchField]
     }
@@ -62,8 +62,8 @@ export default function(router, props, paramsState) {
   const queryGridState = computed(() => {
     const { currentRoute } = router
     const { query } = currentRoute.value
-    if (query && query.gridstate) {
-      return query.gridstate
+    if (query && query.time) {
+      return query.time
     }
     return null
   })

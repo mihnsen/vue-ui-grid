@@ -4,7 +4,15 @@ import { GraphDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
 export default function(props, option, dataCallback) {
-  const vGridOptions = inject('$vgrid', {})
+  const vGridOptions = inject('$vgrid', {
+    filterKey: 'where',
+    limitKey: 'limit',
+    offsetKey: 'offset',
+    aggregateQuery: 'aggregate { count }',
+    graphqlFilter: null,
+    graphqlOrder: null,
+    graphqlDataCounter: null
+  })
   const apolloClient = inject(DefaultApolloClient)
 
   const graphOptions = {

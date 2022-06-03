@@ -19,18 +19,18 @@ const generateFieldByType = (ftype: string) => {
   let filterLayout = Basic
 
   switch (ftype) {
-    case 'dropdown':
-      filterLayout = Dropdown
-      break
-    case 'checkbox':
-      filterLayout = Checkbox
-      break
-    case 'radio':
-      filterLayout = Radio
-      break
-    default:
-      filterLayout = Basic
-      break
+  case 'dropdown':
+    filterLayout = Dropdown
+    break
+  case 'checkbox':
+    filterLayout = Checkbox
+    break
+  case 'radio':
+    filterLayout = Radio
+    break
+  default:
+    filterLayout = Basic
+    break
   }
 
   if (filterLayout) {

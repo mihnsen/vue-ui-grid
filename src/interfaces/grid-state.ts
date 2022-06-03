@@ -5,6 +5,6 @@ export default interface GridState {
   pageSizes?: number[];
   order?: any;
   where?: any;
-  gridstate?: number;
+  time?: number;
   hasSortType?: boolean;
 }

@@ -20,20 +20,20 @@ export default function(props) {
     const type = props.column.type || 'text'
     const { field } = props.column
 
-    const classes = [
+    const result = [
       `vgrid-column-type--${type}`,
       `vgrid-column-data--${field}`
     ]
 
     if (props.resize && props.column.width) {
-      classes.push(`vgrid-field--${props.column.width}`)
+      result.push(`vgrid-field--${props.column.width}`)
     }
 
     if (props.column.class) {
-      classes.push(props.column.class)
+      result.push(props.column.class)
     }
 
-    return classes
+    return result
   })
 
   return {

@@ -3,16 +3,16 @@ import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 export default function(props, localValue, el) {
   const isEditor = ref(false)
 
-  const stopClick = () => {}
+  const stopClick = () => ({})
 
   const classes = computed(() => {
     const type = props.column.type || 'text'
     const { field } = props.column
-    const classes = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
+    const result = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
     if (localValue.value) {
-      classes.push('active')
+      result.push('active')
     }
-    return classes
+    return result
   })
 
   const placeholder = computed(() => {
@@ -46,7 +46,7 @@ export default function(props, localValue, el) {
   })
 
   onBeforeUnmount(() => {
-    document.body.removeEventListener('click', () => {}, false)
+    document.body.removeEventListener('click', handleBodyClick)
     document.removeEventListener('vgrid-filter-editor', handleBodyClick)
   })
 

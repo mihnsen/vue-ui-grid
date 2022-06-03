@@ -5,6 +5,7 @@ block body
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
+import { type ColumnOption } from '../../interfaces/column-option'
 import useJsonData from './useJsonData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
@@ -18,9 +19,9 @@ import GridStatus from '../Status.vue'
 import ExportButton from '../ExportButton.vue'
 
 interface Props {
-  data?: Array<any>;
+  data?: any[];
 
-  columns?: Array<ColumnOption>;
+  columns?: ColumnOption[];
   perPage?: number;
   filterable?: boolean;
   columnFilterable?: boolean;
@@ -49,9 +50,9 @@ interface Emits {
 
 const emits = defineEmits<Emits>();
 const props = withDefaults(defineProps<Props>(), {
-  data: [],
+  data: () => ([]),
 
-  columns: [],
+  columns: () => ([]),
   filterable: true,
   columnFilterable: false,
   columnVisible: false,

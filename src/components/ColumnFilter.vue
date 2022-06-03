@@ -17,12 +17,12 @@ const generateFieldByType = (ftype: string) => {
   let filterLayout = null
 
   switch (ftype) {
-    case 'dropdown':
-      filterLayout = Dropdown
-      break
-    default:
-      filterLayout = Basic
-      break
+  case 'dropdown':
+    filterLayout = Dropdown
+    break
+  default:
+    filterLayout = Basic
+    break
   }
 
   if (filterLayout) {

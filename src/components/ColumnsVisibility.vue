@@ -46,8 +46,8 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: {},
-  columns: [],
+  modelValue: () => ({}),
+  columns: () => ([]),
 });
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
@@ -71,7 +71,7 @@ const updateValue = () => {
   localValue.value = calculateValue()
 }
 
-const stopClick = () => {}
+const stopClick = () => ({})
 
 const initialize = () => {
   columnData.value = [...props.columns]
@@ -111,6 +111,6 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
-  document.body.removeEventListener('click', () => {}, false)
+  document.body.removeEventListener('click', handleBodyClick)
 })
 </script>

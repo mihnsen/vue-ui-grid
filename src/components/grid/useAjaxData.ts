@@ -3,7 +3,17 @@ import { AjaxDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
 export default function(props, option, dataCallback) {
-  const vGridOptions = inject('$vgrid', {})
+  const vGridOptions = inject('$vgrid', {
+    pageKey: 'page',
+    hasSortType: true,
+    sortKey: 'sort',
+    sortTypeKey: 'sort_type',
+    perPageKey: 'limit',
+    fetchData: null,
+    cancelToken: null,
+    getPageIndex: null,
+    extractData: null,
+  })
 
   const ajaxOptions = {
     resource: props.resource,

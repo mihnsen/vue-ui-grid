@@ -9,6 +9,7 @@ block search
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
+import { type ColumnOption } from '../../interfaces/column-option'
 import useGraphData from './useGraphData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
@@ -27,7 +28,7 @@ interface Props {
   searchField?: string;
   refFilter?: string;
 
-  columns?: Array<ColumnOption>;
+  columns?: ColumnOption[];
   perPage?: number;
   filterable?: boolean;
   columnFilterable?: boolean;
@@ -62,7 +63,7 @@ const props = withDefaults(defineProps<Props>(), {
   // searchField: '';
   refFilter: '',
 
-  columns: [],
+  columns: () => ([]),
 
   filterable: true,
   columnFilterable: false,

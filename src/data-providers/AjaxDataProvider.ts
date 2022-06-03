@@ -62,7 +62,7 @@ export default class AjaxDataProvider extends ADataProvider {
       }
 
       const CancelToken = this.options.cancelToken
-      cancelToken = new CancelToken((executor: Function) => {
+      cancelToken = new CancelToken((executor: any) => {
         this.cancelRequest = executor
       })
     }

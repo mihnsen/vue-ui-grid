@@ -25,7 +25,7 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: {},
-  columns: [],
+  columns: () => ([]),
 });
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);

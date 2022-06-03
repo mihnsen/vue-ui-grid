@@ -2,8 +2,8 @@
 extends BasicGrid.pug
 </template>
 <script setup lang="ts">
-import { computed, ref, reactive, inject } from 'vue'
 import useGrid from './useGrid'
+import { type ColumnOption } from '../../interfaces/column-option'
 import useAjaxData from './useAjaxData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'
@@ -20,7 +20,7 @@ interface Props {
   resource?: string;
   searchField?: string;
 
-  columns?: Array<ColumnOption>;
+  columns?: ColumnOption[];
   perPage?: number;
   filterable?: boolean;
   columnFilterable?: boolean;
@@ -51,8 +51,8 @@ const emits = defineEmits<Emits>();
 const props = withDefaults(defineProps<Props>(), {
   resource: '',
   searchField: '',
-  columns: [],
 
+  columns: () => ([]),
   filterable: true,
   columnFilterable: false,
   columnVisible: false,

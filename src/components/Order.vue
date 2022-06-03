@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
     by: '',
     type: 'desc',
   },
-  columns: [],
+  columns: () => ([]),
   hasSortType: true,
 });
 const emits = defineEmits<Emits>();

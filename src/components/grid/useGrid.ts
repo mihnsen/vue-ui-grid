@@ -10,15 +10,18 @@ import useRouteState from './useRouteState'
 
 export default function(props, emits, dataProvider, gridOption) {
   const vGridOptions = inject('$vgrid', {
+    debug: false,
     routerKey: null,
     perPage: 10,
+    pageSizes: [5, 10, 20, 50, 100],
+    hasSortType: true,
   })
-  const router = inject(vGridOptions.routerKey)
   let routeGridParams = {}
-  let updateRouteIfNeeded = () => ({}) // eslint-disable-line
-  let queryGridState = computed({})
+  let updateRouteIfNeeded = (query): any => ({}) // eslint-disable-line
+  let queryGridState = computed(() => ({}))
 
-  if (props.routeState) {
+  if (props.routeState && vGridOptions.routerKey) {
+    const router = inject(vGridOptions.routerKey)
     const useRouteStateInstance = useRouteState(router, props)
     routeGridParams = useRouteStateInstance.routeGridParams
     updateRouteIfNeeded = useRouteStateInstance.updateRouteIfNeeded
@@ -26,20 +29,16 @@ export default function(props, emits, dataProvider, gridOption) {
   }
 
   const hasColumnFilter = computed(() => {
-    return props.columns.some(
-      (c) => c.filter
-    )
+    return props.columns.some(c => c.filter)
   })
   const hasColumnOrder = computed(() => {
-    return props.columns.some(
-      (c) => c.order
-    )
+    return props.columns.some(c => c.order)
   })
   const cardColumnClasses = computed(() => {
     return [
       `vgrid-col-md-${ props.colMd }`,
       `vgrid-col-lg-${ props.colLg }`,
-      `vgrid-col-xl-${ props.colXl }`,
+      `vgrid-col-xl-${ props.colXl }`
     ]
   })
 
@@ -51,6 +50,7 @@ export default function(props, emits, dataProvider, gridOption) {
   const dataState = reactive(DefaultDataState)
 
   // Attributes
+  const defaultDataQuery: any = ''
   const gridState = reactive({
     isLoading: false,
     searchKeyword: '',
@@ -59,20 +59,21 @@ export default function(props, emits, dataProvider, gridOption) {
     pageSizes: vGridOptions.pageSizes ,
     order: {
       by: props.sortBy,
-      type: props.sortType,
+      type: props.sortType
     },
     where: {},
     hasSortType: vGridOptions.hasSortType,
-    gridstate: new Date().getTime(),
-    ...routeGridParams,
+    time: new Date().getTime(),
+    query: defaultDataQuery, // Current query to get data
+    ...routeGridParams
   })
 
   // Param state on Url
   const paramsState = computed(() => {
-    let params = {
+    let params: any = {
       s: gridState.searchKeyword,
       page: gridState.currentPage,
-      limit: gridState.limit,
+      limit: gridState.limit
     }
 
     if (props.orderable) {
@@ -82,20 +83,20 @@ export default function(props, emits, dataProvider, gridOption) {
 
     const whereParams = Object.keys(gridState.where).reduce((acc, curr) => ({
       ...acc,
-      [curr]: gridState.where[curr]
+      [curr]: gridState.where[curr],
     }), {})
 
     params = {
       ...params,
       ...whereParams,
-      gridstate: gridState.gridstate,
+      time: gridState.time
     }
 
     return params
   })
 
   const hasRecord = computed(() => dataState.records.length > 0)
-  const columnVisibility = ref([])
+  const columnVisibility = ref<any>([])
   const getHeaderColumnClasses = (column: any) => {
     const type = column.type || 'text'
     const { field } = column
@@ -113,18 +114,17 @@ export default function(props, emits, dataProvider, gridOption) {
   })
   const visibleCols = computed(() => {
     return props.columns
-      .filter((c) => columnVisibility.value.includes(c.field))
-      .sort(
-        (a, b) =>
-          columnVisibility.value.indexOf(a.field) -
-          columnVisibility.value.indexOf(b.field)
+      .filter((c: ColumnOption) => columnVisibility.value.includes(c.field))
+      .sort((a: ColumnOption, b: ColumnOption) =>
+        columnVisibility.value.indexOf(a.field) -
+        columnVisibility.value.indexOf(b.field)
       )
       .map((c) => ({
         ...c,
         headerClasses: getHeaderColumnClasses(c),
         orderClasses: getOrderableColumnClasses(c),
         columnClasses: getColumnClasses(c),
-        showedLabel: useGridHeader(c.label || c.field),
+        showedLabel: useGridHeader(c.label || c.field)
       }))
   })
   const gridClasses = computed(() => {
@@ -167,11 +167,11 @@ export default function(props, emits, dataProvider, gridOption) {
       .then(({ items, total: totalRecord, query }: DataResponse) => {
         dataState.records = items
         dataState.total = totalRecord
-        dataState.query = query
+        gridState.query = query
       })
       .catch((error: any) => {
         if (error) {
-          dataState.query = error.query
+          gridState.query = error.query
         }
         console.log('vgrid error', error) // eslint-disable-line
       })
@@ -196,7 +196,7 @@ export default function(props, emits, dataProvider, gridOption) {
     }
   }
   const getOrderableColumnClasses = (column: any) => {
-    const classes = []
+    const classes: string[] = []
     if (column.order && column.type !== 'custom') {
       classes.push('orderable')
       if (column.field === gridState.order.by) {
@@ -214,9 +214,9 @@ export default function(props, emits, dataProvider, gridOption) {
     gridState.searchKeyword = ''
     gridState.order = {
       by: props.sortBy,
-      type: props.sortType,
+      type: props.sortType
     }
-    gridState.gridstate = new Date().getTime();
+    gridState.time = new Date().getTime();
     gridState.where = {}
   }
 
@@ -233,7 +233,7 @@ export default function(props, emits, dataProvider, gridOption) {
     [
       () => gridState.where,
       () => gridState.searchKeyword,
-      () => gridState.limit,
+      () => gridState.limit
     ],
     () => {
       console.log('reset page index')
@@ -275,6 +275,6 @@ export default function(props, emits, dataProvider, gridOption) {
     isFiltered,
     getData,
     setOrder,
-    resetGrid,
+    resetGrid
   }
 }

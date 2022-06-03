@@ -31,6 +31,6 @@
         v-if="exportable"
         :columns="visibleCols",
         :data="dataState.records",
-        :file-name="exportFileName"
+        :file-name="exportFileName ? exportFileName : ''"
       )
     slot(name="header-end")

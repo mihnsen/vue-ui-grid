@@ -15,7 +15,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  data: [],
+  data: () => ([]),
+  columns: () => ([]),
   fileName: (new Date()).toISOString(),
 })
 const filteredColumn = computed(() => {
