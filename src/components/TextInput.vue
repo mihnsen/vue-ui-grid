@@ -55,7 +55,6 @@ const onChange = (event: Event) => {
     localValue.value = value
 
     typing.value = null
-    clearTimeout(timeout.value)
   }, 500)
 }
 

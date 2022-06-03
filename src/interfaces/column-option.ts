@@ -1,4 +1,4 @@
-export default interface ColumnOption {
+export interface ColumnOption {
   type?: string;
   field: string;
   field_type?: string;
@@ -12,3 +12,5 @@ export default interface ColumnOption {
   format?: any;
   class?: string;
 }
+
+export default ColumnOption

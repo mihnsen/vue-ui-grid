@@ -79,7 +79,6 @@ const props = withDefaults(defineProps<Props>(), {
 const {
   gridOption,
   dataProvider,
-  setDataCollections,
 } = useAjaxData(props, { displayType: 'cards', dataType: 'ajax' })
 
 const {

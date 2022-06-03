@@ -1,5 +1,5 @@
-import GridOption from '../../interfaces/grid-option'
-import DataResponse from '../../interfaces/data-response'
+import type GridOption from '../../interfaces/grid-option'
+import type DataResponse from '../../interfaces/data-response'
 
 export interface IDataProvider {
   applySearch(search?: string): IDataProvider;

@@ -1,8 +1,8 @@
-import ADataProvider, { IDataProvider } from './abstract'
-import GridOption from '../interfaces/grid-option'
-import ColumnOption from '../interfaces/column-option'
-import Order from '../interfaces/order'
-import DataResponse, { ErrorResponse } from '../interfaces/data-response'
+import ADataProvider from './abstract'
+import type GridOption from '../interfaces/grid-option'
+import type ColumnOption from '../interfaces/column-option'
+import type Order from '../interfaces/order'
+import type { DataResponse, ErrorResponse } from '../interfaces/data-response'
 import gql from 'graphql-tag'
 
 export default class GraphDataProvider extends ADataProvider {

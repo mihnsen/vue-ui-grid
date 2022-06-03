@@ -1,8 +1,8 @@
-import GridOption from '../interfaces/grid-option'
-import Order from '../interfaces/order'
-import DataResponse from '../interfaces/data-response'
+import type GridOption from '../interfaces/grid-option'
+import type Order from '../interfaces/order'
+import type DataResponse from '../interfaces/data-response'
 
-import ADataProvider, { IDataProvider } from './abstract'
+import ADataProvider from './abstract'
 
 export default class JsonDataProvider extends ADataProvider {
   protected data: Array<object>

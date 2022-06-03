@@ -1,5 +1,5 @@
 import { inject } from 'vue'
-import GridOption from '../../interfaces/grid-option'
+import type GridOption from '../../interfaces/grid-option'
 
 export default function(props): any {
   const vGridOptions = inject('$vgrid', {

@@ -49,7 +49,6 @@ interface Props {
   colLg?: number;
   colXl?: number;
   routeState?: boolean;
-  searchField?: string; // Prepare for GraphGrid + AjaxGrid
 }
 
 interface Emits {

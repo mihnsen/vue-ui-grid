@@ -1,5 +1,5 @@
-import DataResponse from './data-response';
-import ColumnOption from './column-option'
+import type DataResponse from './data-response';
+import type ColumnOption from './column-option'
 
 export default interface GridOption {
   debug?: boolean;

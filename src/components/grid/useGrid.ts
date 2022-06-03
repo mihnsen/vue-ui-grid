@@ -1,11 +1,11 @@
 import { computed, reactive, ref, watch, inject } from 'vue'
 import { useGridHeader } from '@/utilities/filters';
-import Order from '../../interfaces/order'
-import GridOption from '../../interfaces/grid-option'
-import GridState from '../../interfaces/grid-state'
-import DataState from '../../interfaces/data-state'
-import ColumnOption from '../../interfaces/column-option'
-import DataResponse from '../../interfaces/data-response'
+import type Order from '../../interfaces/order'
+import type GridOption from '../../interfaces/grid-option'
+import type GridState from '../../interfaces/grid-state'
+import type DataState from '../../interfaces/data-state'
+import type ColumnOption from '../../interfaces/column-option'
+import type DataResponse from '../../interfaces/data-response'
 import useRouteState from './useRouteState'
 
 export default function(props, emits, dataProvider, gridOption) {

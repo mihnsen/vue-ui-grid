@@ -2,7 +2,7 @@ import { watch, reactive, inject } from 'vue'
 import { AjaxDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
-export default function(props, option, dataCallback) {
+export default function(props, option) {
   const vGridOptions = inject('$vgrid', {
     pageKey: 'page',
     hasSortType: true,

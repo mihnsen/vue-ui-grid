@@ -27,7 +27,7 @@ interface Emits {
 const props = defineProps<Props>();
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
-const input = ref<HTMLSelectElement>(null);
+const input = ref(null);
 const {
   isEditor,
   stopClick,

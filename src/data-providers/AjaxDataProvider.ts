@@ -1,7 +1,7 @@
-import ADataProvider, { IDataProvider } from './abstract'
-import GridOption from '../interfaces/grid-option'
-import Order from '../interfaces/order'
-import DataResponse from '../interfaces/data-response'
+import ADataProvider from './abstract'
+import type GridOption from '../interfaces/grid-option'
+import type Order from '../interfaces/order'
+import type DataResponse from '../interfaces/data-response'
 
 export default class AjaxDataProvider extends ADataProvider {
   protected resource: string;

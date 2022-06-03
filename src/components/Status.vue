@@ -11,7 +11,12 @@ interface Props {
   showed?: number;
 }
 
-const props = withDefaults(defineProps<Props>(), { });
+const props = withDefaults(defineProps<Props>(), {
+  limit: 10,
+  currentPage: 0,
+  total: 0,
+  showed: 10,
+});
 const paginationInfo = computed(() => {
   const from = props.limit * props.currentPage
   const to = from + props.showed
