@@ -8,7 +8,7 @@
       :class="{ active: isEditor, 'vgrid-input--active' : localValue }"
     )
       span.vgrid-filter-value
-        small {{ column.label }}:&nbsp;
+        span.vgrid-label--prefix {{ column.label }}:&nbsp;
         strong {{ valueInString }}
   block content
     .vgrid-filter-editor(v-show="isEditor")

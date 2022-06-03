@@ -7,7 +7,7 @@
         :value="col.field"
       ) {{ col.label }}
     label
-      span Sort:
+      span.vgrid-label--prefix Sort:
       strong {{ orderedColumn.label }}
   button.vgrid-order-type(
     v-if="hasSortType",
