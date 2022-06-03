@@ -5,7 +5,6 @@ import { defineConfig } from 'vite';
 import svgLoader from 'vite-svg-loader';
 import checker from 'vite-plugin-checker';
 import dts from 'vite-plugin-dts';
-// import eslintPlugin from '@nabla/vite-plugin-eslint';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -39,9 +38,9 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'src/vue-fields.ts'),
-      name: 'VueFields',
-      fileName: (format) => `vue-fields.${format}.js`,
+      entry: path.resolve(__dirname, 'src/vue-grid.ts'),
+      name: 'VueGrid',
+      fileName: (format) => `vue-grid.${format}.js`,
     },
     cssCodeSplit: false,
     cssTarget: 'chrome61',
