@@ -37,7 +37,7 @@ const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
 const input = ref<HTMLInputElement>(null);
 const typing = ref(false);
-const timeout = ref(null);
+const timeout = ref<any>(null);
 const hasClearable = computed(() => props.clearable && props.modelValue);
 
 const clearFilter = () => {
@@ -54,7 +54,7 @@ const onChange = (event: Event) => {
     const value = (event.target as HTMLInputElement).value
     localValue.value = value
 
-    typing.value = null
+    typing.value = false
   }, 500)
 }
 

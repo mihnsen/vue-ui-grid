@@ -21,7 +21,7 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  placeholder: [5, 10, 20, 50, 100],
+  placeholder: () => ([5, 10, 20, 50, 100]),
 });
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);

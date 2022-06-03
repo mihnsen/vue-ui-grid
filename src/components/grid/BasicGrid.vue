@@ -3,7 +3,7 @@ include BasicGrid.pug
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
-import { type ColumnOption } from '../../interfaces/column-option'
+import type { ColumnOption } from '../../interfaces/column-option'
 import useJsonData from './useJsonData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'

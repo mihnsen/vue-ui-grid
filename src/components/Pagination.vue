@@ -16,7 +16,7 @@ nav.vgrid-pagination(v-if="totalPage > 1")
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useLocalValue } from '@/utilities/hooks';
-import { type Page } from '../interfaces/page'
+import type Page from '../interfaces/page'
 
 interface Props {
   modelValue?: number;

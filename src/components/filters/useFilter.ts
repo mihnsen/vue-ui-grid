@@ -1,6 +1,6 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
 
-export default function(props, localValue, el) {
+export default function(props, localValue, el:any = {}) {
   const isEditor = ref(false)
 
   const stopClick = () => ({})

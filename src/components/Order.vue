@@ -16,7 +16,7 @@
 </template>
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
-import { type Order } from '../interfaces/order'
+import type Order from '../interfaces/order'
 
 interface Props {
   modelValue?: Order;
@@ -25,7 +25,7 @@ interface Props {
 }
 
 interface Emits {
-  (event: 'update:modelValue', value: string): void
+  (event: 'update:modelValue', value: Order): void
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -39,7 +39,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emits = defineEmits<Emits>();
 let order = reactive<Order>(props.modelValue);
 const orderedColumn = computed(() => {
-  return props.columns.find((c) => c.field === order.by) || {}
+  return props.columns.find((c: Order) => c.field === order.by) || {}
 })
 const orderableColumn = computed(() => props.columns.filter((c) => c.order))
 const toggleType = () => {

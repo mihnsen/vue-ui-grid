@@ -11,7 +11,7 @@ block search
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
-import { type ColumnOption } from '../../interfaces/column-option'
+import type ColumnOption from '../../interfaces/column-option'
 import useGraphData from './useGraphData'
 import Pagination from '../Pagination.vue'
 import ColumnType from '../ColumnType.vue'

@@ -34,7 +34,7 @@
 import { computed, watch, ref, onMounted, onBeforeUnmount } from 'vue'
 import { useLocalValue } from '@/utilities/hooks'
 import { useGridHeader } from '@/utilities/filters';
-import { type ColumnOption } from '../interfaces/column-option'
+import type ColumnOption from '../interfaces/column-option'
 
 interface Props {
   modelValue?: any;
