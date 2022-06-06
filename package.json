@@ -27,7 +27,7 @@
     "LICENSE",
     "README.md"
   ],
-  "types": "./dist/types/vue-grid.d.ts",
+  "types": "index.d.ts",
   "module": "./dist/vue-grid.es.js",
   "dependencies": {
     "vue": "^3.2.25"

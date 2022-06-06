@@ -21,7 +21,7 @@ var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { computed, inject, reactive, ref, watch, defineComponent, unref, openBlock, createElementBlock, createElementVNode, Fragment, renderList, normalizeClass, createCommentVNode, renderSlot, toDisplayString, createBlock, resolveDynamicComponent, withCtx, nextTick, createVNode, isRef, withDirectives, vModelSelect, onMounted, onBeforeUnmount, withModifiers, vShow, vModelCheckbox, vModelRadio, createTextVNode } from "vue";
+import { computed, inject, reactive, ref, watch, defineComponent, unref, openBlock, createElementBlock, createElementVNode, Fragment, renderList, normalizeClass, createCommentVNode, renderSlot, toDisplayString, createBlock, resolveDynamicComponent, withCtx, nextTick, createVNode, isRef, withDirectives, vModelSelect, onMounted, onBeforeUnmount, withModifiers, vShow, vModelCheckbox, vModelRadio } from "vue";
 function useGridHeader(str) {
   if (str) {
     const s = str.charAt(0).toUpperCase() + str.slice(1);
@@ -2537,7 +2537,7 @@ const _hoisted_1$o = {
   class: "vgrid-pagination"
 };
 const _hoisted_2$i = ["onClick", "innerHTML"];
-const _sfc_main$u = /* @__PURE__ */ defineComponent({
+const _sfc_main$t = /* @__PURE__ */ defineComponent({
   name: "Pagination",
   props: {
     modelValue: null,
@@ -2671,7 +2671,7 @@ function useColumnType(props) {
   };
 }
 const _hoisted_1$n = ["innerHTML"];
-const _sfc_main$t = /* @__PURE__ */ defineComponent({
+const _sfc_main$s = /* @__PURE__ */ defineComponent({
   name: "Basic",
   props: {
     column: null,
@@ -2692,7 +2692,7 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$s = /* @__PURE__ */ defineComponent({
+const _sfc_main$r = /* @__PURE__ */ defineComponent({
   name: "DateTime",
   props: {
     column: null,
@@ -2714,7 +2714,7 @@ const _sfc_main$s = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$r = /* @__PURE__ */ defineComponent({
+const _sfc_main$q = /* @__PURE__ */ defineComponent({
   name: "Timestamp",
   props: {
     column: null,
@@ -2737,7 +2737,7 @@ const _sfc_main$r = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$m = ["innerHTML"];
-const _sfc_main$q = /* @__PURE__ */ defineComponent({
+const _sfc_main$p = /* @__PURE__ */ defineComponent({
   name: "Custom",
   props: {
     column: null,
@@ -2758,7 +2758,7 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$p = /* @__PURE__ */ defineComponent({
+const _sfc_main$o = /* @__PURE__ */ defineComponent({
   name: "ColumnType",
   props: {
     column: null,
@@ -2767,22 +2767,19 @@ const _sfc_main$p = /* @__PURE__ */ defineComponent({
   },
   setup(__props) {
     const generateFieldByType = (ctype) => {
-      let columnLayout = _sfc_main$t;
+      let columnLayout = _sfc_main$s;
       switch (ctype) {
         case "datetime":
-          columnLayout = _sfc_main$s;
-          break;
-        case "timestamp":
           columnLayout = _sfc_main$r;
           break;
-        case "custom":
+        case "timestamp":
           columnLayout = _sfc_main$q;
           break;
+        case "custom":
+          columnLayout = _sfc_main$p;
+          break;
       }
-      if (columnLayout) {
-        return columnLayout;
-      }
-      throw new Error(`Column type: type "${ctype}" is not found`);
+      return columnLayout;
     };
     return (_ctx, _cache) => {
       return openBlock(), createBlock(resolveDynamicComponent(generateFieldByType(__props.column.type)), {
@@ -2810,7 +2807,7 @@ function useColumnFilter(props) {
 }
 const _hoisted_1$l = { class: "vgrid-text-input" };
 const _hoisted_2$h = ["value", "placeholder"];
-const _sfc_main$o = /* @__PURE__ */ defineComponent({
+const _sfc_main$n = /* @__PURE__ */ defineComponent({
   name: "TextInput",
   props: {
     modelValue: { default: "" },
@@ -2841,7 +2838,10 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     };
     const focus = async () => {
       await nextTick(() => {
-        input.value.focus();
+        if (input.value) {
+          const el = input.value;
+          el.focus();
+        }
       });
     };
     expose({
@@ -2868,7 +2868,7 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$n = /* @__PURE__ */ defineComponent({
+const _sfc_main$m = /* @__PURE__ */ defineComponent({
   name: "Basic",
   props: {
     modelValue: null,
@@ -2883,7 +2883,7 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid-column-filter", unref(classes)])
       }, [
-        createVNode(_sfc_main$o, {
+        createVNode(_sfc_main$n, {
           modelValue: unref(localValue),
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, null, 8, ["modelValue"])
@@ -2893,7 +2893,7 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
 });
 const _hoisted_1$k = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Clear selected", -1);
 const _hoisted_2$g = ["value"];
-const _sfc_main$m = /* @__PURE__ */ defineComponent({
+const _sfc_main$l = /* @__PURE__ */ defineComponent({
   name: "Dropdown",
   props: {
     modelValue: null,
@@ -2926,26 +2926,20 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$l = /* @__PURE__ */ defineComponent({
+const _sfc_main$k = /* @__PURE__ */ defineComponent({
   name: "ColumnFilter",
   props: {
     column: null
   },
   setup(__props) {
     const generateFieldByType = (ftype) => {
-      let filterLayout = null;
+      let filterLayout = _sfc_main$m;
       switch (ftype) {
         case "dropdown":
-          filterLayout = _sfc_main$m;
-          break;
-        default:
-          filterLayout = _sfc_main$n;
+          filterLayout = _sfc_main$l;
           break;
       }
-      if (filterLayout) {
-        return filterLayout;
-      }
-      throw new Error(`Column filter: type "${ftype}" is not found`);
+      return filterLayout;
     };
     return (_ctx, _cache) => {
       return openBlock(), createBlock(resolveDynamicComponent(generateFieldByType(__props.column.filter_type)), { column: __props.column }, null, 8, ["column"]);
@@ -3003,7 +2997,7 @@ const _hoisted_1$j = { class: "vgrid-filter-value" };
 const _hoisted_2$f = { class: "vgrid-label--prefix" };
 const _hoisted_3$f = { class: "vgrid-filter-editor" };
 const _hoisted_4$f = { class: "vgrid-filter-label" };
-const _sfc_main$k = /* @__PURE__ */ defineComponent({
+const _sfc_main$j = /* @__PURE__ */ defineComponent({
   name: "Basic",
   props: {
     modelValue: null,
@@ -3039,7 +3033,7 @@ const _sfc_main$k = /* @__PURE__ */ defineComponent({
         ], 2),
         withDirectives(createElementVNode("div", _hoisted_3$f, [
           createElementVNode("span", _hoisted_4$f, toDisplayString(__props.column.label) + ":", 1),
-          createVNode(_sfc_main$o, {
+          createVNode(_sfc_main$n, {
             class: "vgrid-input-sm",
             ref_key: "input",
             ref: input,
@@ -3061,7 +3055,7 @@ const _hoisted_3$e = { class: "vgrid-filter-editor" };
 const _hoisted_4$e = { class: "vgrid-filter-label" };
 const _hoisted_5$c = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Select a value", -1);
 const _hoisted_6$c = ["value"];
-const _sfc_main$j = /* @__PURE__ */ defineComponent({
+const _sfc_main$i = /* @__PURE__ */ defineComponent({
   name: "Dropdown",
   props: {
     modelValue: null,
@@ -3135,7 +3129,7 @@ const _hoisted_4$d = { class: "vgrid-filter-label" };
 const _hoisted_5$b = { class: "form-check" };
 const _hoisted_6$b = ["value", "id"];
 const _hoisted_7$b = ["for"];
-const _sfc_main$i = /* @__PURE__ */ defineComponent({
+const _sfc_main$h = /* @__PURE__ */ defineComponent({
   name: "Checkbox",
   props: {
     modelValue: null,
@@ -3208,7 +3202,7 @@ const _hoisted_4$c = { class: "vgrid-filter-label" };
 const _hoisted_5$a = { class: "form-check" };
 const _hoisted_6$a = ["name", "value", "id"];
 const _hoisted_7$a = ["for"];
-const _sfc_main$h = /* @__PURE__ */ defineComponent({
+const _sfc_main$g = /* @__PURE__ */ defineComponent({
   name: "Radio",
   props: {
     modelValue: null,
@@ -3286,38 +3280,6 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$g = /* @__PURE__ */ defineComponent({
-  name: "FilterItem",
-  props: {
-    column: null
-  },
-  setup(__props) {
-    const generateFieldByType = (ftype) => {
-      let filterLayout = _sfc_main$k;
-      switch (ftype) {
-        case "dropdown":
-          filterLayout = _sfc_main$j;
-          break;
-        case "checkbox":
-          filterLayout = _sfc_main$i;
-          break;
-        case "radio":
-          filterLayout = _sfc_main$h;
-          break;
-        default:
-          filterLayout = _sfc_main$k;
-          break;
-      }
-      if (filterLayout) {
-        return filterLayout;
-      }
-      throw new Error(`Filter type: type "${ftype}" is not found`);
-    };
-    return (_ctx, _cache) => {
-      return openBlock(), createBlock(resolveDynamicComponent(generateFieldByType(__props.column.filter_type)), { column: __props.column }, null, 8, ["column"]);
-    };
-  }
-});
 const _hoisted_1$f = { class: "vgrid-filter" };
 const _sfc_main$f = /* @__PURE__ */ defineComponent({
   name: "Filter",
@@ -3329,13 +3291,28 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
   setup(__props, { emit: emits }) {
     const props = __props;
     const localValue = useLocalValue(props, emits);
+    const generateFieldByType = (ftype) => {
+      let filterItem = _sfc_main$j;
+      switch (ftype) {
+        case "dropdown":
+          filterItem = _sfc_main$i;
+          break;
+        case "checkbox":
+          filterItem = _sfc_main$h;
+          break;
+        case "radio":
+          filterItem = _sfc_main$g;
+          break;
+      }
+      return filterItem;
+    };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1$f, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(__props.columns, (col) => {
           return openBlock(), createElementBlock(Fragment, {
             key: col.id
           }, [
-            col.filter ? (openBlock(), createBlock(_sfc_main$g, {
+            col.filter ? (openBlock(), createBlock(resolveDynamicComponent(generateFieldByType(col.filter_type)), {
               key: 0,
               column: col,
               modelValue: unref(localValue)[col.field],
@@ -3364,8 +3341,14 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
   emits: ["update:modelValue"],
   setup(__props, { emit: emits }) {
     const props = __props;
-    let order = reactive(props.modelValue);
+    const order = reactive({
+      by: props.modelValue ? props.modelValue.by : "",
+      type: props.modelValue ? props.modelValue.type : "desc"
+    });
     const orderedColumn = computed(() => {
+      if (!props.columns) {
+        return null;
+      }
       return props.columns.find((c) => c.field === order.by) || {};
     });
     const orderableColumn = computed(() => props.columns.filter((c) => c.order));
@@ -3378,7 +3361,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
         createElementVNode("div", _hoisted_2$b, [
           withDirectives(createElementVNode("select", {
             class: "vgrid-input",
-            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(order).by = $event)
+            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => order.by = $event)
           }, [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(orderableColumn), (col) => {
               return openBlock(), createElementBlock("option", {
@@ -3386,7 +3369,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
               }, toDisplayString(col.label), 9, _hoisted_3$b);
             }), 256))
           ], 512), [
-            [vModelSelect, unref(order).by]
+            [vModelSelect, order.by]
           ]),
           createElementVNode("label", null, [
             _hoisted_4$b,
@@ -3397,7 +3380,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
           key: 0,
           class: "vgrid-order-type",
           onClick: toggleType
-        }, toDisplayString(unref(order).type), 1)) : createCommentVNode("", true)
+        }, toDisplayString(order.type), 1)) : createCommentVNode("", true)
       ]);
     };
   }
@@ -3410,7 +3393,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
   name: "PageSize",
   props: {
     modelValue: null,
-    sizes: null
+    sizes: { default: () => [5, 10, 20, 50, 100] }
   },
   emits: ["update:modelValue"],
   setup(__props, { emit: emits }) {
@@ -3437,10 +3420,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$c = ["onClick"];
-const _hoisted_2$9 = /* @__PURE__ */ createElementVNode("span", null, [
-  /* @__PURE__ */ createTextVNode("Columns visibility"),
-  /* @__PURE__ */ createElementVNode("span")
-], -1);
+const _hoisted_2$9 = /* @__PURE__ */ createElementVNode("span", null, "Columns visibility", -1);
 const _hoisted_3$9 = [
   _hoisted_2$9
 ];
@@ -3519,7 +3499,7 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
           (openBlock(true), createElementBlock(Fragment, null, renderList(columnData.value, (column, index) => {
             return withDirectives((openBlock(), createElementBlock("div", {
               class: "vgrid-visibility-column",
-              key: column.id
+              key: column.field
             }, [
               withDirectives(createElementVNode("input", {
                 type: "checkbox",
@@ -3568,7 +3548,7 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
         class: "vgrid-search",
         onSubmit: withModifiers(stop, ["prevent"])
       }, [
-        createVNode(_sfc_main$o, {
+        createVNode(_sfc_main$n, {
           placeholder: __props.placeholder,
           modelValue: unref(localValue),
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
@@ -3799,7 +3779,7 @@ const _sfc_main$8 = defineComponent({
                         return openBlock(), createElementBlock("td", {
                           key: col.field
                         }, [
-                          col.filter ? (openBlock(), createBlock(_sfc_main$l, {
+                          col.filter ? (openBlock(), createBlock(_sfc_main$k, {
                             key: 0,
                             column: col,
                             modelValue: unref(gridState).where[col.field],
@@ -3825,7 +3805,7 @@ const _sfc_main$8 = defineComponent({
                             return openBlock(), createElementBlock("td", {
                               key: col.field
                             }, [
-                              createVNode(_sfc_main$p, {
+                              createVNode(_sfc_main$o, {
                                 column: col,
                                 data: entry,
                                 class: normalizeClass(col.columnClasses)
@@ -3866,7 +3846,7 @@ const _sfc_main$8 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -4034,7 +4014,7 @@ const _sfc_main$7 = defineComponent({
                   }, () => [
                     createElementVNode("div", _hoisted_7$7, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                        return openBlock(), createBlock(_sfc_main$p, {
+                        return openBlock(), createBlock(_sfc_main$o, {
                           column: col,
                           data: entry,
                           key: col.id,
@@ -4074,7 +4054,7 @@ const _sfc_main$7 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -4237,7 +4217,7 @@ const _sfc_main$6 = defineComponent({
                   visibleCols: unref(visibleCols)
                 }, () => [
                   (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                    return openBlock(), createBlock(_sfc_main$p, {
+                    return openBlock(), createBlock(_sfc_main$o, {
                       column: col,
                       data: entry,
                       key: col.id,
@@ -4275,7 +4255,7 @@ const _sfc_main$6 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -4493,7 +4473,7 @@ const _sfc_main$5 = defineComponent({
                         return openBlock(), createElementBlock("td", {
                           key: col.field
                         }, [
-                          col.filter ? (openBlock(), createBlock(_sfc_main$l, {
+                          col.filter ? (openBlock(), createBlock(_sfc_main$k, {
                             key: 0,
                             column: col,
                             modelValue: unref(gridState).where[col.field],
@@ -4519,7 +4499,7 @@ const _sfc_main$5 = defineComponent({
                             return openBlock(), createElementBlock("td", {
                               key: col.field
                             }, [
-                              createVNode(_sfc_main$p, {
+                              createVNode(_sfc_main$o, {
                                 column: col,
                                 data: entry,
                                 class: normalizeClass(col.columnClasses)
@@ -4560,7 +4540,7 @@ const _sfc_main$5 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -4721,7 +4701,7 @@ const _sfc_main$4 = defineComponent({
                   visibleCols: unref(visibleCols)
                 }, () => [
                   (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                    return openBlock(), createBlock(_sfc_main$p, {
+                    return openBlock(), createBlock(_sfc_main$o, {
                       column: col,
                       data: entry,
                       key: col.id,
@@ -4759,7 +4739,7 @@ const _sfc_main$4 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -4925,7 +4905,7 @@ const _sfc_main$3 = defineComponent({
                   }, () => [
                     createElementVNode("div", _hoisted_7$3, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                        return openBlock(), createBlock(_sfc_main$p, {
+                        return openBlock(), createBlock(_sfc_main$o, {
                           column: col,
                           data: entry,
                           key: col.id,
@@ -4965,7 +4945,7 @@ const _sfc_main$3 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -5188,7 +5168,7 @@ const _sfc_main$2 = defineComponent({
                         return openBlock(), createElementBlock("td", {
                           key: col.field
                         }, [
-                          col.filter ? (openBlock(), createBlock(_sfc_main$l, {
+                          col.filter ? (openBlock(), createBlock(_sfc_main$k, {
                             key: 0,
                             column: col,
                             modelValue: unref(gridState).where[col.field],
@@ -5214,7 +5194,7 @@ const _sfc_main$2 = defineComponent({
                             return openBlock(), createElementBlock("td", {
                               key: col.field
                             }, [
-                              createVNode(_sfc_main$p, {
+                              createVNode(_sfc_main$o, {
                                 column: col,
                                 data: entry,
                                 class: normalizeClass(col.columnClasses)
@@ -5255,7 +5235,7 @@ const _sfc_main$2 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -5418,7 +5398,7 @@ const _sfc_main$1 = defineComponent({
                   visibleCols: unref(visibleCols)
                 }, () => [
                   (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                    return openBlock(), createBlock(_sfc_main$p, {
+                    return openBlock(), createBlock(_sfc_main$o, {
                       column: col,
                       data: entry,
                       key: col.id,
@@ -5456,7 +5436,7 @@ const _sfc_main$1 = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -5624,7 +5604,7 @@ const _sfc_main = defineComponent({
                   }, () => [
                     createElementVNode("div", _hoisted_7, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                        return openBlock(), createBlock(_sfc_main$p, {
+                        return openBlock(), createBlock(_sfc_main$o, {
                           column: col,
                           data: entry,
                           key: col.id,
@@ -5664,7 +5644,7 @@ const _sfc_main = defineComponent({
               showed: unref(dataState).records.length,
               total: unref(dataState).total
             }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true),
-            __props.pagination ? (openBlock(), createBlock(_sfc_main$u, {
+            __props.pagination ? (openBlock(), createBlock(_sfc_main$t, {
               key: 2,
               modelValue: unref(gridState).currentPage,
               "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
@@ -5734,4 +5714,4 @@ const VueGridPlugin = {
     Vue.provide("$vgrid", vueGridOptions);
   }
 };
-export { _sfc_main$u as Pagination, _sfc_main$3 as VAjaxCards, _sfc_main$5 as VAjaxGrid, _sfc_main$4 as VAjaxList, _sfc_main$7 as VCards, _sfc_main as VGraphCards, _sfc_main$2 as VGraphGrid, _sfc_main$1 as VGraphList, _sfc_main$8 as VGrid, _sfc_main$6 as VList, VueGridPlugin as default };
+export { _sfc_main$t as Pagination, _sfc_main$3 as VAjaxCards, _sfc_main$5 as VAjaxGrid, _sfc_main$4 as VAjaxList, _sfc_main$7 as VCards, _sfc_main as VGraphCards, _sfc_main$2 as VGraphGrid, _sfc_main$1 as VGraphList, _sfc_main$8 as VGrid, _sfc_main$6 as VList, VueGridPlugin as default };

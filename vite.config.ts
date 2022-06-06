@@ -4,7 +4,7 @@ import path from 'path';
 import { defineConfig } from 'vite';
 import svgLoader from 'vite-svg-loader';
 import checker from 'vite-plugin-checker';
-import dts from 'vite-plugin-dts';
+// import dts from 'vite-plugin-dts';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,11 +22,11 @@ export default defineConfig({
         lintCommand: 'eslint . --ext .vue,.js,.cjs,.ts,.tsx',
       },
     }),
-    dts({
-      staticImport: true,
-      outputDir: 'dist/types',
-      exclude: ['dist', 'build'],
-    }),
+    // dts({
+    //   staticImport: true,
+    //   outputDir: 'dist/types',
+    //   exclude: ['dist', 'build'],
+    // }),
   ],
   resolve: {
     alias: {
