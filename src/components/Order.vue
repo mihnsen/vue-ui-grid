@@ -19,7 +19,7 @@ import { computed, reactive, ref } from 'vue'
 import type Order from '../interfaces/order'
 
 interface Props {
-  modelValue?: Order;
+  modelValue?: any;
   columns?: any[];
   hasSortType?: boolean;
 }
@@ -37,9 +37,16 @@ const props = withDefaults(defineProps<Props>(), {
   hasSortType: true,
 });
 const emits = defineEmits<Emits>();
-let order = reactive<Order>(props.modelValue);
+const order = reactive({
+  by: props.modelValue ? props.modelValue.by : '',
+  type: props.modelValue ? props.modelValue.type : 'desc',
+});
 const orderedColumn = computed(() => {
-  return props.columns.find((c: Order) => c.field === order.by) || {}
+  if (!props.columns) {
+    return null;
+  }
+
+  return props.columns.find((c: any) => c.field === order.by) || {}
 })
 const orderableColumn = computed(() => props.columns.filter((c) => c.order))
 const toggleType = () => {

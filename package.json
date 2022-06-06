@@ -1,7 +1,7 @@
 {
-  "name": "vue-ui-grid",
+  "name": "vue-grid",
   "version": "1.0.0",
-  "main": "./dist/vue-ui-grid.umd.js",
+  "main": "./dist/vue-grid.umd.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -16,7 +16,7 @@
     "grid",
     "datatable",
     "vue-grid",
-    "vue-ui-grid"
+    "vue-grid"
   ],
   "license": "MIT",
   "author": "mihnsen <minhnt.hut@gmail.com> (https://github.com/mihnsen/)",
@@ -27,8 +27,8 @@
     "LICENSE",
     "README.md"
   ],
-  "types": "./dist/types/vue-ui-grid.d.ts",
-  "module": "./dist/vue-ui-grid.es.js",
+  "types": "./dist/types/vue-grid.d.ts",
+  "module": "./dist/vue-grid.es.js",
   "dependencies": {
     "vue": "^3.2.25"
   },

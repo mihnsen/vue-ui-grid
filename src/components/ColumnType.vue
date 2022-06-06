@@ -24,23 +24,19 @@ const generateFieldByType = (ctype: string) => {
   let columnLayout = Basic
 
   switch (ctype) {
-  case 'datetime':
-    columnLayout = DateTime
-    break
-  case 'timestamp':
-    columnLayout = Timestamp
-    break
-  case 'custom':
-    columnLayout = Custom
-    break
-  default:
-    break
+    case 'datetime':
+      columnLayout = DateTime
+      break
+    case 'timestamp':
+      columnLayout = Timestamp
+      break
+    case 'custom':
+      columnLayout = Custom
+      break
+    default:
+      break
   }
 
-  if (columnLayout) {
-    return columnLayout
-  }
-
-  throw new Error(`Column type: type "${ctype}" is not found`)
+  return columnLayout
 }
 </script>

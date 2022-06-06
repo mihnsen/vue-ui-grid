@@ -4,15 +4,20 @@
     v-for="col in columns"
     :key="col.id",
   )
-    FilterItem(
+    component(
       v-if="col.filter",
+      :is="generateFieldByType(col.filter_type)"
       :column="col",
       v-model="localValue[col.field]",
     )
 </template>
 <script setup lang="ts">
-import FilterItem from './FilterItem.vue'
 import { useLocalValue } from '@/utilities/hooks'
+import Basic from './filters/Basic.vue'
+import Dropdown from './filters/Dropdown.vue'
+import Checkbox from './filters/Checkbox.vue'
+import Radio from './filters/Radio.vue'
+
 
 interface Props {
   modelValue?: any;
@@ -29,4 +34,24 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
+
+const generateFieldByType = (ftype: string) => {
+  let filterItem = Basic
+
+  switch (ftype) {
+    case 'dropdown':
+      filterItem = Dropdown
+      break
+    case 'checkbox':
+      filterItem = Checkbox
+      break
+    case 'radio':
+      filterItem = Radio
+      break
+    default:
+      break
+  }
+
+  return filterItem;
+}
 </script>

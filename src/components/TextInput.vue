@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
-const input = ref<HTMLInputElement>(null);
+const input = ref(null);
 const typing = ref(false);
 const timeout = ref<any>(null);
 const hasClearable = computed(() => props.clearable && props.modelValue);
@@ -60,7 +60,10 @@ const onChange = (event: Event) => {
 
 const focus = async () => {
   await nextTick(() => {
-    input.value.focus()
+    if (input.value) {
+      const el: any = input.value
+      el.focus()
+    }
   })
 }
 

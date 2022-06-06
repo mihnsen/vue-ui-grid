@@ -4,13 +4,11 @@
     type="button",
     @click="toggleVisibility"
   )
-    span
-      | Columns visibility
-      span
+    span Columns visibility
   .vgrid-visibility-body(v-show="showVisibility")
     .vgrid-visibility-column(
       v-for="(column, index) in columnData",
-      :key="column.id",
+      :key="column.field",
       v-show="column.type !== 'hidden'",
     )
       input(

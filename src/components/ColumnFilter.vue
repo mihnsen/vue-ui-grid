@@ -14,21 +14,16 @@ interface Props {
 
 const props = defineProps<Props>();
 const generateFieldByType = (ftype: string) => {
-  let filterLayout = null
+  let filterLayout = Basic
 
   switch (ftype) {
-  case 'dropdown':
-    filterLayout = Dropdown
-    break
-  default:
-    filterLayout = Basic
-    break
+    case 'dropdown':
+      filterLayout = Dropdown
+      break
+    default:
+      break
   }
 
-  if (filterLayout) {
-    return filterLayout
-  }
-
-  throw new Error(`Column filter: type "${ftype}" is not found`);
+  return filterLayout
 };
 </script>

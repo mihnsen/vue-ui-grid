@@ -19,7 +19,7 @@ interface Emits {
 const props = defineProps<Props>();
 const emits = defineEmits<Emits>();
 const localValue = useLocalValue(props, emits);
-const input = ref<TextInput>();
+const input = ref();
 const {
   isEditor,
   stopClick,

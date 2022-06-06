@@ -20,12 +20,12 @@ import { uniqueId } from '@/use/UniqueId'
 import useFilter from './useFilter'
 
 interface Props {
-  modelValue?: string[],
+  modelValue?: any,
   column: Record<string, any>,
 }
 
 interface Emits {
-  (event: 'update:modelValue', value: string): void
+  (event: 'update:modelValue', value: any): void
 }
 
 const props = defineProps<Props>()
