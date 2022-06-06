@@ -1,42 +1,27 @@
 {
-  "extends": "@vue/tsconfig/tsconfig.web.json",
-  "include": [
-    "src/classes/*.json",
-    "src/**/*.ts",
-    "src/**/*.vue",
-    "types/*.ts",
-  ],
-  "exclude": [
-    "dist",
-    "build",
-    "node_modules",
-  ],
   "compilerOptions": {
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"],
-    },
-    "types": ["node"],
-    "declaration": true,
-    "declarationMap": true,
-    "declarationDir": "dist/types",
+    "target": "esnext",
+    "useDefineForClassFields": true,
+    "module": "esnext",
     "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "noImplicitAny": false,
-    "esModuleInterop": true,
-    "sourceMap": true,
     "strict": true,
     "jsx": "preserve",
-    "importHelpers": true,
+    "sourceMap": true,
+    "resolveJsonModule": true,
     "isolatedModules": false,
-    "plugins": [{ "name": "typescript-plugin-css-modules" }],
-  },
-
-  "references": [
-    {
-      "path": "./tsconfig.vite-config.json"
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "lib": ["esnext", "dom"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
     }
-  ]
+  },
+  "include": [
+    "src/**/*.ts", 
+    "src/**/*.d.ts", 
+    "src/**/*.tsx", 
+    "src/**/*.vue"
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

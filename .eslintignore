@@ -9,4 +9,3 @@ src/**/*.css
 package.json
 README.md
 .storybook
-postcss.config.js
