@@ -1,5 +1,5 @@
 {
-  "name": "vue-grid",
+  "name": "vue-ui-grid",
   "version": "1.0.0-alpha.1",
   "main": "./dist/vue-grid.umd.js",
   "scripts": {
