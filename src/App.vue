@@ -20,43 +20,43 @@
         button(
           type="button",
         ) Export
-  // div(style="width: 1000px; margin: 20px auto")
-  //   VCards(
-  //     :columns="gridColumns",
-  //     :data="gridData",
-  //     :per-page="10",
-  //     :column-visible="true",
-  //     :col-md="4"
-  //     :col-xl="4"
-  //     :col-lg="4"
-  //     ref="list"
-  //     :exportable="true"
-  //   )
-  //     template(#column-action="{ entry }")
-  //       button(
-  //         type="button",
-  //         @click="remove(entry)"
-  //       ) remove
-  //       a(
-  //         href="javascript:;"
-  //       ) Edit
-  // div(style="width: 1000px; margin: 20px auto")
-  //   VList(
-  //     :columns="listColumns",
-  //     :data="listData",
-  //     :per-page="10",
-  //     :column-visible="true",
-  //     :orderable="true",
-  //     :pagination="false",
-  //     ref="list"
-  //   )
-  //     template(#column-action="{ entry }")
-  //       button(
-  //         type="button",
-  //       ) ADD
-  //       a(
-  //         href="javascript:;"
-  //       ) Edit
+  div(style="width: 1000px; margin: 20px auto")
+    VCards(
+      :columns="gridColumns",
+      :data="gridData",
+      :per-page="10",
+      :column-visible="true",
+      :col-md="4"
+      :col-xl="4"
+      :col-lg="4"
+      ref="list"
+      :exportable="true"
+    )
+      template(#column-action="{ entry }")
+        button(
+          type="button",
+          @click="remove(entry)"
+        ) remove
+        a(
+          href="javascript:;"
+        ) Edit
+  div(style="width: 1000px; margin: 20px auto")
+    VList(
+      :columns="listColumns",
+      :data="listData",
+      :per-page="10",
+      :column-visible="true",
+      :orderable="true",
+      :pagination="false",
+      ref="list"
+    )
+      template(#column-action="{ entry }")
+        button(
+          type="button",
+        ) ADD
+        a(
+          href="javascript:;"
+        ) Edit
 </template>
 
 <script setup lang="ts">

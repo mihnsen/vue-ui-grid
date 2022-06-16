@@ -4967,7 +4967,6 @@ const _sfc_main$3 = defineComponent({
     };
   }
 });
-var DefaultApolloClient = Symbol("default-apollo-client");
 function useGraphData(props, option) {
   const vGridOptions = inject("$vgrid", {
     filterKey: "where",
@@ -4978,7 +4977,10 @@ function useGraphData(props, option) {
     graphqlOrder: null,
     graphqlDataCounter: null
   });
-  const apolloClient = inject(DefaultApolloClient);
+  const apolloClient = inject("$vgridApolloClient", null);
+  if (!apolloClient) {
+    throw new Error("$vgridApolloClient is not defined");
+  }
   const graphOptions = {
     resource: props.resource,
     resourceMeta: props.resourceMeta,

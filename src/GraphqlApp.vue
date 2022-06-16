@@ -6,12 +6,13 @@
       resource-meta="catalogs_aggregate",
       search-field="title",
       :columns="columns",
-      :per-page="5",
+      :per-page="25",
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
-      sort-by="id",
-      sort-type="asc"
+      :orderable="true",
+      sort-by="created_at",
+      sort-type="desc"
       :exportable="true"
     )
     VGraphCards(

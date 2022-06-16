@@ -53,6 +53,7 @@ const router = createRouter({
 const app = createApp(MainApp)
 app.use(router)
 app.provide(DefaultApolloClient, apolloClient)
+app.provide('$vgridApolloClient', apolloClient)
 app.use(VueGrid, {
   debug: true,
   ajax: true,

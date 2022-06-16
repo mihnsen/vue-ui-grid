@@ -1,5 +1,4 @@
 import { watch, reactive, inject } from 'vue'
-import { DefaultApolloClient } from '@vue/apollo-composable'
 import { GraphDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
@@ -13,7 +12,11 @@ export default function(props, option) {
     graphqlOrder: null,
     graphqlDataCounter: null
   })
-  const apolloClient = inject(DefaultApolloClient)
+  const apolloClient = inject('$vgridApolloClient', null);
+
+  if (!apolloClient) {
+    throw new Error('$vgridApolloClient is not defined');
+  }
 
   const graphOptions = {
     resource: props.resource,
