@@ -100,4 +100,8 @@ const {
 // Kick it off
 setColumnVisibility()
 getData()
+
+defineExpose({
+  getData,
+})
 </script>

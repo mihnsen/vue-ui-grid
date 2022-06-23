@@ -3669,7 +3669,7 @@ const _sfc_main$8 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -3697,6 +3697,9 @@ const _sfc_main$8 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -3921,7 +3924,7 @@ const _sfc_main$7 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -3949,6 +3952,9 @@ const _sfc_main$7 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -4128,7 +4134,7 @@ const _sfc_main$6 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -4156,6 +4162,9 @@ const _sfc_main$6 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -4366,7 +4375,7 @@ const _sfc_main$5 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -4391,6 +4400,9 @@ const _sfc_main$5 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -4615,7 +4627,7 @@ const _sfc_main$4 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -4640,6 +4652,9 @@ const _sfc_main$4 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -4815,7 +4830,7 @@ const _sfc_main$3 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -4840,6 +4855,9 @@ const _sfc_main$3 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -5063,7 +5081,7 @@ const _sfc_main$2 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -5088,6 +5106,9 @@ const _sfc_main$2 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -5314,7 +5335,7 @@ const _sfc_main$1 = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -5339,6 +5360,9 @@ const _sfc_main$1 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
@@ -5516,7 +5540,7 @@ const _sfc_main = defineComponent({
     routeState: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { expose, emit: emits }) {
     const props = __props;
     const {
       gridOption,
@@ -5541,6 +5565,9 @@ const _sfc_main = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    expose({
+      getData: getData2
+    });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
