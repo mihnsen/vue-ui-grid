@@ -11,7 +11,6 @@ import GraphList from './components/grid/GraphList.vue'
 import GraphCards from './components/grid/GraphCards.vue'
 
 import Pagination from './components/Pagination.vue'
-
 import './assets/scss/_index.scss'
 
 const Plugin = {
@@ -54,6 +53,7 @@ const Plugin = {
       ajaxOption = {
         extractData: options.extractData,
         pageKey: options.pageKey || 'page',
+        cursorKey: options.cursorKey || 'cursor',
         hasSortType: options.hasSortType,
         sortKey: options.sortKey || 'sort',
         sortTypeKey: options.sortTypeKey || 'sort_type',

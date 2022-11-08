@@ -19,6 +19,7 @@ export default interface GridOption {
 
   perPageKey?: string; // Ajax & Graphql
   pageKey?: string; // Ajax & Graphql
+  cursorKey?: string; // CursorPagination
   searchField?: string;
   limit: number;
   sortKey?: string;

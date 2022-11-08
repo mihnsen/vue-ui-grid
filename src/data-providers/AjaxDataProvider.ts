@@ -74,16 +74,19 @@ export default class AjaxDataProvider extends ADataProvider {
       .then((data: any): DataResponse => {
         let items: any = []
         let total = 0
+        let meta = null
 
         if (this.options.extractData) {
           const res = this.options.extractData(data)
           items = res.items
           total = res.total
+          meta = res.meta
         }
 
         return {
           items,
           total,
+          meta,
           query: params
         }
       })

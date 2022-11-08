@@ -22,6 +22,7 @@ declare interface VGrid {
   graphqlOrder(by: string, type: string): string;
   graphqlDataCounter(data: any): number;
   pageKey: string;
+  cursorKey: string;
   perPageKey: string;
   sortKey: string;
   sortTypeKey: string;

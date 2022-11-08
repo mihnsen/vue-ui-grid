@@ -4,6 +4,7 @@ include BasicGrid.pug
 <script lang="ts">
 import { Component, Vue, Prop, Watch } from 'vue-property-decorator'
 import Pagination from '../Pagination.vue'
+import CursorPagination from '../CursorPagination.vue'
 import ColumnType from '../ColumnType.vue'
 import ColumnFilter from '../ColumnFilter.vue'
 import GridFilter from '../Filter.vue'
@@ -30,6 +31,7 @@ interface Where {
   name: 'VGrid',
   components: {
     Pagination,
+    CursorPagination,
     ColumnType,
     ColumnFilter,
     GridFilter,
@@ -119,6 +121,9 @@ export default class VGrid extends Vue {
   @Prop({ default: false })
   routeState!: boolean
 
+  @Prop({ default: false })
+  cursorPagination!: boolean
+
   @Prop()
   searchField!: string // Prepare for GraphGrid + AjaxGrid
 
@@ -162,7 +167,7 @@ export default class VGrid extends Vue {
   initialState: GridState = this.getStateFromRouteIfNeeded()
   debug: boolean = this.$vgrid.debug || false
   dataCollections: Array<any> = []
-  total: number = 0
+  total: number | any = 0
 
   isLoading: boolean = false
   columnVisibility: Array<string> = []
@@ -185,6 +190,7 @@ export default class VGrid extends Vue {
   displayType: string = 'grid'
   dataType: string = 'js'
   dataQuery: any = ''
+  meta: any = null
 
   dataProvider: IDataProvider | null = null
 
@@ -207,8 +213,23 @@ export default class VGrid extends Vue {
   get currentState() {
     let state: any = {
       s: this.searchKeyword,
-      page: this.currentPage,
       limit: this.limit
+    }
+
+    if (this.gridOption.pageKey) {
+      if (this.cursorPagination) {
+        if (this.currentPage) {
+          state = {
+            ...state,
+            [this.gridOption.pageKey]: this.currentPage
+          }
+        }
+      } else {
+        state = {
+          ...state,
+          [this.gridOption.pageKey]: this.currentPage
+        }
+      }
     }
 
     if (this.order && this.order.by) {
@@ -345,9 +366,10 @@ export default class VGrid extends Vue {
       this.where,
       this.order
     )
-      .then(({ items, total, query }: DataResponse) => {
+      .then(({ items, total, meta, query }: DataResponse) => {
         this.dataCollections = items
         this.total = total
+        this.meta = meta
         this.dataQuery = query
       })
       .catch((error: any) => {
@@ -457,8 +479,14 @@ export default class VGrid extends Vue {
         state.searchKeyword = query.s
       }
 
-      if (query.page) {
-        state.currentPage = parseInt(query.page, 10)
+      if (this.cursorPagination) {
+        if (query.cursor) {
+          state.currentPage = parseInt(query.cursor, 10)
+        }
+      } else {
+        if (query.page) {
+          state.currentPage = parseInt(query.page, 10)
+        }
       }
 
       if (query.limit) {

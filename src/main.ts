@@ -31,13 +31,14 @@ Vue.use(VueUIGrid, {
   fetchData: axios.get,
   cancelToken: axios.CancelToken,
   pageKey: 'page',
+  cursorKey: 'cursor',
   perPageKey: 'per_page',
   extractData: (responseData: any) => {
     const data = responseData.data
-    // console.log('hello', data)
     return {
       items: data.data,
-      total: data.total
+      total: data.total,
+      meta: null
     }
   },
   getPageIndex: (index: number) => (index + 1),

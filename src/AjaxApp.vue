@@ -14,6 +14,7 @@
       :per-page="6",
       :exportable="true",
       :route-state="true",
+      :cursor-pagination="true",
     )
       template(#column-action="{ entry }")
         button(
