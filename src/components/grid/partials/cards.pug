@@ -1,5 +1,5 @@
 .vgrid-nodata(
-  v-if="!total",
+  v-if="isEmptyFilteredData",
 )
   span(v-if="!isFiltered") {{ strEmptyData }}
   span(v-else) {{ strEmptyFilteredData }}

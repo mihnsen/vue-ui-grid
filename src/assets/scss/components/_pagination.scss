@@ -13,7 +13,7 @@
       a {
         position: relative;
         display: block;
-        padding: .5rem .75rem;
+        padding: .5em .75em;
         margin-left: -1px;
         line-height: 1.25;
         color: inherit;
@@ -33,6 +33,24 @@
           border-color: $vgrid-pagination-active;
           color: $vgrid-pagination-active-color;
         }
+      }
+    }
+  }
+}
+
+.vgrid-pagination--cursor {
+  font-size: 1.25em;
+
+  ul {
+    li {
+      a {
+        padding-top: .25em;
+        padding-bottom: .25em;
+        border: 1px solid darken($vgrid-border-color, 30%);
+      }
+
+      &.disabled {
+        opacity: .3;
       }
     }
   }

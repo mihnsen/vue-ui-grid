@@ -1,15 +1,16 @@
 <template lang="pug">
-nav.vgrid-pagination(v-if="meta")
+nav.vgrid-pagination.vgrid-pagination--cursor(v-if="meta")
   ul
     li(
       v-for="(item, index) in pages",
-      :class="{ active: item.page === currentPage, disabled: item.disable }",
+      :class="{ disabled: item.disable }",
       :key="index"
     )
       a(
         href="javascript:;",
         @click="onPageChange(item.page)",
         v-html="item.label"
+        :title="item.title",
       )
 </template>
 
@@ -40,12 +41,14 @@ export default class CursorPagination extends Vue {
       {
         label: '&lsaquo;',
         page: this.meta.prev_cursor,
-        disable: !this.meta.prev_cursor
+        disable: !this.meta.prev_cursor,
+        title: 'Previous'
       },
       {
         label: '&rsaquo;',
         page: this.meta.next_cursor,
-        disable: !this.meta.next_cursor
+        disable: !this.meta.next_cursor,
+        title: 'Next'
       }
     ]
 
