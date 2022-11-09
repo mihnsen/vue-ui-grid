@@ -173,7 +173,7 @@ export default class VGrid extends Vue {
   columnVisibility: Array<string> = []
   hasSortType: boolean = this.$vgrid.hasSortType || true
 
-  defaultPage: any = this.cursorPagination ? null : 0
+  defaultPage: any = this.cursorPagination ? '' : 0
   currentPage: number = this.initialState.currentPage || this.defaultPage
   searchKeyword: string = this.initialState.searchKeyword || ''
   order: Order = this.initialState.order
@@ -218,18 +218,9 @@ export default class VGrid extends Vue {
     }
 
     if (this.gridOption.pageKey) {
-      if (this.cursorPagination) {
-        if (this.currentPage) {
-          state = {
-            ...state,
-            [this.gridOption.pageKey]: this.currentPage
-          }
-        }
-      } else {
-        state = {
-          ...state,
-          [this.gridOption.pageKey]: this.currentPage
-        }
+      state = {
+        ...state,
+        [this.gridOption.pageKey]: this.currentPage
       }
     }
 
