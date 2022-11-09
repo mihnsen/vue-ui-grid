@@ -150,7 +150,7 @@ export default class VGrid extends Vue {
     }
   }
 
-  @Watch('currentState', { deep: true })
+  @Watch('currentStateString')
   onCurrentStateParamsChanged() {
     this.getData()
     this.updateRouteIfNeeded()
@@ -238,6 +238,10 @@ export default class VGrid extends Vue {
     state.gridstate = this.gridstate
 
     return state
+  }
+
+  get currentStateString(): string {
+    return JSON.stringify(this.currentState)
   }
 
   get gridOption(): GridOption {
@@ -371,6 +375,10 @@ export default class VGrid extends Vue {
         this.total = total
         this.meta = meta
         this.dataQuery = query
+
+        setTimeout(() => {
+          this.$emit('data-changed', this.dataCollections)
+        }, 250) // Delay 250ms
       })
       .catch((error: any) => {
         if (error) {
@@ -379,11 +387,8 @@ export default class VGrid extends Vue {
 
         console.log('vgrid error', error) // eslint-disable-line
       })
-      .then(() => {
-        setTimeout(() => {
-          this.isLoading = false
-          this.$emit('data-changed', this.dataCollections)
-        }, 250) // Delay 250ms
+      .finally(() => {
+        this.isLoading = false
       })
   }
 

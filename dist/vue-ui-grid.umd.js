@@ -11147,12 +11147,12 @@ function _defineProperty(obj, key, value) {
 
   return obj;
 }
-// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"79e0a522-vue-loader-template"}!./node_modules/@vue/cli-service/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/@vue/cli-service/node_modules/vue-loader/lib??vue-loader-options!./src/components/grid/BasicGrid.vue?vue&type=template&id=6f3a2d82&lang=pug&
-var BasicGridvue_type_template_id_6f3a2d82_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid",class:_vm.gridClasses},[_c('div',{staticClass:"vgrid-header"},[_vm._t("header",[_vm._t("header-start"),(_vm.searchable)?_c('GridSearch',{attrs:{"placeholder":_vm.searchPlaceholder},model:{value:(_vm.searchKeyword),callback:function ($$v) {_vm.searchKeyword=$$v},expression:"searchKeyword"}}):_vm._e(),(_vm.filterable && _vm.hasColumnFilter)?_c('GridFilter',{attrs:{"columns":_vm.columns},model:{value:(_vm.where),callback:function ($$v) {_vm.where=$$v},expression:"where"}}):_vm._e(),(_vm.orderable && _vm.hasColumnOrder)?_c('GridOrder',{staticClass:"vgrid-ml-auto",attrs:{"has-sort-type":_vm.hasSortType,"columns":_vm.columns},model:{value:(_vm.order),callback:function ($$v) {_vm.order=$$v},expression:"order"}}):_vm._e(),(_vm.columnVisible)?_c('ColumnsVisibility',{staticClass:"vgrid-ml-auto",attrs:{"columns":_vm.columns},model:{value:(_vm.columnVisibility),callback:function ($$v) {_vm.columnVisibility=$$v},expression:"columnVisibility"}}):_vm._e(),(_vm.exportable)?_c('ExportButton',{staticClass:"vgrid-ml-auto",attrs:{"columns":_vm.visibleCols,"data":_vm.dataCollections,"file-name":_vm.exportFileName}}):_vm._e(),_vm._t("header-end")])],2),_c('div',{staticClass:"vgrid-body"},[(_vm.isEmptyFilteredData)?_c('div',{staticClass:"vgrid-nodata"},[(!_vm.isFiltered)?_c('span',[_vm._v(_vm._s(_vm.strEmptyData))]):_c('span',[_vm._v(_vm._s(_vm.strEmptyFilteredData))])]):_vm._e(),(!_vm.isEmptyData)?_vm._t("body",[_c('div',{staticClass:"vgrid-responsive"},[_c('table',{staticClass:"vgrid-table"},[_vm._t("table-head",[_c('thead',[_c('tr',_vm._l((_vm.visibleCols),function(col){return _c('th',{key:col.id,staticClass:"vgrid-field-header",class:_vm.headerColumnClasses(col),on:{"click":function($event){return _vm.setOrder(col.field)}}},[_c('div',{staticClass:"vgrid-field-header-content"},[_vm._t('column-header-' + col.field,[_c('span',[_vm._v(_vm._s(_vm._f("vgrid_header")((col.label || col.field))))]),_c('b',{class:_vm.orderableColumnClasses(col)})],{"col":col})],2)])}),0)])],{"cols":_vm.visibleCols}),_vm._t("table-body",[_c('tbody',[(_vm.columnFilterable && _vm.hasColumnFilter)?_c('tr',{staticClass:"vgrid-table-filter"},_vm._l((_vm.visibleCols),function(col){return _c('td',{key:col.field},[_c('ColumnFilter',{attrs:{"column":col},model:{value:(_vm.where[col.field]),callback:function ($$v) {_vm.$set(_vm.where, col.field, $$v)},expression:"where[col.field]"}})],1)}),0):_vm._e(),_vm._l((_vm.showedData),function(entry,entryIndex){return _c('tr',[_vm._t("default",_vm._l((_vm.visibleCols),function(col){return _c('td',{key:col.field},[_c('ColumnType',{key:col.id,class:_vm.columnClasses[col.field],attrs:{"column":col,"data":entry}},[_vm._t('column-' + col.field,null,{"entry":entry,"index":entryIndex})],2)],1)}),{"entry":entry,"index":entryIndex,"visibleCols":_vm.visibleCols})],2)})],2)],{"entries":_vm.showedData})],2)])],{"entries":_vm.showedData,"visibleCols":_vm.visibleCols}):_vm._e(),(_vm.isLoading)?_c('div',{staticClass:"vgrid-loader"},[_c('span',{staticClass:"vgrid-sr-only"},[_vm._v("Loading..")])]):_vm._e()],2),_c('div',{staticClass:"vgrid-footer"},[_vm._t("footer",[_vm._t("footer-start"),(_vm.pagable)?_c('PageSize',{attrs:{"sizes":_vm.pageSizes},model:{value:(_vm.limit),callback:function ($$v) {_vm.limit=$$v},expression:"limit"}}):_vm._e(),(!_vm.cursorPagination)?[(_vm.statusable)?_c('GridStatus',{attrs:{"limit":_vm.limit,"current-page":_vm.currentPage,"showed":_vm.showedData.length,"total":_vm.total}}):_vm._e()]:_vm._e(),(_vm.pagination)?[_vm._t("pagination",[(_vm.cursorPagination)?_c('CursorPagination',{attrs:{"meta":_vm.meta},model:{value:(_vm.currentPage),callback:function ($$v) {_vm.currentPage=$$v},expression:"currentPage"}}):_c('Pagination',{attrs:{"limit":_vm.limit,"total":_vm.total},model:{value:(_vm.currentPage),callback:function ($$v) {_vm.currentPage=$$v},expression:"currentPage"}})])]:_vm._e(),_vm._t("footer-end")]),(_vm.debug)?_c('div',{staticClass:"vgrid-devbar"},[_c('div',{staticClass:"vgrid-col-9"},[_c('pre',[_vm._v(_vm._s(_vm.dataQuery))])]),_c('div',{staticClass:"vgrid-col-3 vgrid-align-right"},[(_vm.isLoading)?_c('span',[_vm._v("Loading..")]):_vm._e()])]):_vm._e()],2)])}
+// CONCATENATED MODULE: ./node_modules/cache-loader/dist/cjs.js?{"cacheDirectory":"node_modules/.cache/vue-loader","cacheIdentifier":"79e0a522-vue-loader-template"}!./node_modules/@vue/cli-service/node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/pug-plain-loader!./node_modules/cache-loader/dist/cjs.js??ref--0-0!./node_modules/@vue/cli-service/node_modules/vue-loader/lib??vue-loader-options!./src/components/grid/BasicGrid.vue?vue&type=template&id=6e99a465&lang=pug&
+var BasicGridvue_type_template_id_6e99a465_lang_pug_render = function () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"vgrid",class:_vm.gridClasses},[_c('div',{staticClass:"vgrid-header"},[_vm._t("header",[_vm._t("header-start"),(_vm.searchable)?_c('GridSearch',{attrs:{"placeholder":_vm.searchPlaceholder},model:{value:(_vm.searchKeyword),callback:function ($$v) {_vm.searchKeyword=$$v},expression:"searchKeyword"}}):_vm._e(),(_vm.filterable && _vm.hasColumnFilter)?_c('GridFilter',{attrs:{"columns":_vm.columns},model:{value:(_vm.where),callback:function ($$v) {_vm.where=$$v},expression:"where"}}):_vm._e(),(_vm.orderable && _vm.hasColumnOrder)?_c('GridOrder',{staticClass:"vgrid-ml-auto",attrs:{"has-sort-type":_vm.hasSortType,"columns":_vm.columns},model:{value:(_vm.order),callback:function ($$v) {_vm.order=$$v},expression:"order"}}):_vm._e(),(_vm.columnVisible)?_c('ColumnsVisibility',{staticClass:"vgrid-ml-auto",attrs:{"columns":_vm.columns},model:{value:(_vm.columnVisibility),callback:function ($$v) {_vm.columnVisibility=$$v},expression:"columnVisibility"}}):_vm._e(),(_vm.exportable)?_c('ExportButton',{staticClass:"vgrid-ml-auto",attrs:{"columns":_vm.visibleCols,"data":_vm.dataCollections,"file-name":_vm.exportFileName}}):_vm._e(),_vm._t("header-end")])],2),_c('div',{staticClass:"vgrid-body"},[(_vm.isEmptyFilteredData)?_c('div',{staticClass:"vgrid-nodata"},[(!_vm.isFiltered)?_c('span',[_vm._v(_vm._s(_vm.strEmptyData))]):_c('span',[_vm._v(_vm._s(_vm.strEmptyFilteredData))])]):_vm._e(),(!_vm.isEmptyData)?_vm._t("body",[_c('div',{staticClass:"vgrid-responsive"},[_c('table',{staticClass:"vgrid-table"},[_vm._t("table-head",[_c('thead',[_c('tr',_vm._l((_vm.visibleCols),function(col){return _c('th',{key:col.id,staticClass:"vgrid-field-header",class:_vm.headerColumnClasses(col),on:{"click":function($event){return _vm.setOrder(col.field)}}},[_c('div',{staticClass:"vgrid-field-header-content"},[_vm._t('column-header-' + col.field,[_c('span',[_vm._v(_vm._s(_vm._f("vgrid_header")((col.label || col.field))))]),_c('b',{class:_vm.orderableColumnClasses(col)})],{"col":col})],2)])}),0)])],{"cols":_vm.visibleCols}),_vm._t("table-body",[_c('tbody',[(_vm.columnFilterable && _vm.hasColumnFilter)?_c('tr',{staticClass:"vgrid-table-filter"},_vm._l((_vm.visibleCols),function(col){return _c('td',{key:col.field},[_c('ColumnFilter',{attrs:{"column":col},model:{value:(_vm.where[col.field]),callback:function ($$v) {_vm.$set(_vm.where, col.field, $$v)},expression:"where[col.field]"}})],1)}),0):_vm._e(),_vm._l((_vm.showedData),function(entry,entryIndex){return _c('tr',[_vm._t("default",_vm._l((_vm.visibleCols),function(col){return _c('td',{key:col.field},[_c('ColumnType',{key:col.id,class:_vm.columnClasses[col.field],attrs:{"column":col,"data":entry}},[_vm._t('column-' + col.field,null,{"entry":entry,"index":entryIndex})],2)],1)}),{"entry":entry,"index":entryIndex,"visibleCols":_vm.visibleCols})],2)})],2)],{"entries":_vm.showedData})],2)])],{"entries":_vm.showedData,"visibleCols":_vm.visibleCols}):_vm._e(),(_vm.isLoading)?_c('div',{staticClass:"vgrid-loader"},[_c('span',{staticClass:"vgrid-sr-only"},[_vm._v("Loading..")])]):_vm._e()],2),_c('div',{staticClass:"vgrid-footer"},[_vm._t("footer",[_vm._t("footer-start"),(_vm.pagable)?_c('PageSize',{attrs:{"sizes":_vm.pageSizes},model:{value:(_vm.limit),callback:function ($$v) {_vm.limit=$$v},expression:"limit"}}):_vm._e(),(!_vm.cursorPagination)?[(_vm.statusable)?_c('GridStatus',{attrs:{"limit":_vm.limit,"current-page":_vm.currentPage,"showed":_vm.showedData.length,"total":_vm.total}}):_vm._e()]:_vm._e(),(_vm.pagination)?[_vm._t("pagination",[(_vm.cursorPagination)?_c('CursorPagination',{attrs:{"meta":_vm.meta},model:{value:(_vm.currentPage),callback:function ($$v) {_vm.currentPage=$$v},expression:"currentPage"}}):_c('Pagination',{attrs:{"limit":_vm.limit,"total":_vm.total},model:{value:(_vm.currentPage),callback:function ($$v) {_vm.currentPage=$$v},expression:"currentPage"}})])]:_vm._e(),_vm._t("footer-end")]),(_vm.debug)?_c('div',{staticClass:"vgrid-devbar"},[_c('div',{staticClass:"vgrid-col-9"},[_c('pre',[_vm._v(_vm._s(_vm.dataQuery))])]),_c('div',{staticClass:"vgrid-col-3 vgrid-align-right"},[(_vm.isLoading)?_c('span',[_vm._v("Loading..")]):_vm._e()])]):_vm._e()],2)])}
 var staticRenderFns = []
 
 
-// CONCATENATED MODULE: ./src/components/grid/BasicGrid.vue?vue&type=template&id=6f3a2d82&lang=pug&
+// CONCATENATED MODULE: ./src/components/grid/BasicGrid.vue?vue&type=template&id=6e99a465&lang=pug&
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.symbol.description.js
 var es_symbol_description = __webpack_require__("e01a");
@@ -11195,6 +11195,12 @@ var es_object_to_string = __webpack_require__("d3b7");
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.parse-int.js
 var es_parse_int = __webpack_require__("e25e");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.js
+var es_promise = __webpack_require__("e6cf");
+
+// EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.finally.js
+var es_promise_finally = __webpack_require__("a79d");
 
 // EXTERNAL MODULE: ./node_modules/core-js/modules/es.regexp.exec.js
 var es_regexp_exec = __webpack_require__("ac1f");
@@ -14753,12 +14759,6 @@ function (_ADataProvider) {
 }(abstract_ADataProvider);
 
 
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.js
-var es_promise = __webpack_require__("e6cf");
-
-// EXTERNAL MODULE: ./node_modules/core-js/modules/es.promise.finally.js
-var es_promise_finally = __webpack_require__("a79d");
-
 // CONCATENATED MODULE: ./src/data-providers/AjaxDataProvider.ts
 
 
@@ -15280,6 +15280,8 @@ function (_ADataProvider) {
 
 
 
+
+
 function BasicGridvue_type_script_lang_ts_ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
 
 function BasicGridvue_type_script_lang_ts_objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { BasicGridvue_type_script_lang_ts_ownKeys(source, true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { BasicGridvue_type_script_lang_ts_ownKeys(source).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
@@ -15417,18 +15419,17 @@ function (_Vue) {
         _this2.total = total;
         _this2.meta = meta;
         _this2.dataQuery = query;
+        setTimeout(function () {
+          _this2.$emit('data-changed', _this2.dataCollections);
+        }, 250); // Delay 250ms
       }).catch(function (error) {
         if (error) {
           _this2.dataQuery = error.query;
         }
 
         console.log('vgrid error', error); // eslint-disable-line
-      }).then(function () {
-        setTimeout(function () {
-          _this2.isLoading = false;
-
-          _this2.$emit('data-changed', _this2.dataCollections);
-        }, 250); // Delay 250ms
+      }).finally(function () {
+        _this2.isLoading = false;
       });
     }
   }, {
@@ -15617,6 +15618,11 @@ function (_Vue) {
 
       state.gridstate = this.gridstate;
       return state;
+    }
+  }, {
+    key: "currentStateString",
+    get: function get() {
+      return JSON.stringify(this.currentState);
     }
   }, {
     key: "gridOption",
@@ -15844,9 +15850,7 @@ __decorate([Watch('where', {
 
 __decorate([Watch('data')], BasicGridvue_type_script_lang_ts_VGrid.prototype, "setDataCollections", null);
 
-__decorate([Watch('currentState', {
-  deep: true
-})], BasicGridvue_type_script_lang_ts_VGrid.prototype, "onCurrentStateParamsChanged", null);
+__decorate([Watch('currentStateString')], BasicGridvue_type_script_lang_ts_VGrid.prototype, "onCurrentStateParamsChanged", null);
 
 __decorate([Watch('routeGridState')], BasicGridvue_type_script_lang_ts_VGrid.prototype, "onRouteGridStateChanged", null);
 
@@ -15889,7 +15893,7 @@ BasicGridvue_type_script_lang_ts_VGrid = __decorate([vue_class_component_esm({
 
 var BasicGrid_component = normalizeComponent(
   grid_BasicGridvue_type_script_lang_ts_,
-  BasicGridvue_type_template_id_6f3a2d82_lang_pug_render,
+  BasicGridvue_type_template_id_6e99a465_lang_pug_render,
   staticRenderFns,
   false,
   null,
