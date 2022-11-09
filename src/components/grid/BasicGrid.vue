@@ -191,6 +191,12 @@ export default class VGrid extends Vue {
   displayType: string = 'grid'
   dataType: string = 'js'
   dataQuery: any = ''
+
+  pageKey: string = this.$vgrid.pageKey
+  cursorKey: string = this.$vgrid.cursorKey
+  perPageKey: string = this.$vgrid.perPageKey
+  sortKey: string = this.$vgrid.sortKey
+  sortTypeKey: string = this.$vgrid.sortTypeKey
   meta: any = null
 
   dataProvider: IDataProvider | null = null
@@ -256,6 +262,13 @@ export default class VGrid extends Vue {
       exportable: this.exportable,
       columns: this.columns,
       limit: this.limit,
+
+      pageKey: this.cursorPagination ? this.cursorKey : this.pageKey,
+      cursorPagination: this.cursorPagination,
+      perPageKey: this.perPageKey,
+      sortKey: this.sortKey,
+      sortTypeKey: this.sortTypeKey,
+
       ...this.extraGridOption
     }
   }

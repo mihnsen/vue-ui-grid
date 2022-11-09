@@ -17,11 +17,6 @@ export default class AjaxGrid extends Grid {
   searchField!: string
 
   dataType: string = 'ajax'
-  pageKey: string = this.$vgrid.pageKey
-  cursorKey: string = this.$vgrid.cursorKey
-  perPageKey: string = this.$vgrid.perPageKey
-  sortKey: string = this.$vgrid.sortKey
-  sortTypeKey: string = this.$vgrid.sortTypeKey
   getPageIndex: Function = this.$vgrid.getPageIndex
   extractData: Function = this.$vgrid.extractData
   fetchData: Function = this.$vgrid.fetchData
@@ -34,11 +29,6 @@ export default class AjaxGrid extends Grid {
   get extraGridOption() {
     return {
       searchField: this.searchField,
-      pageKey: this.cursorPagination ? this.cursorKey : this.pageKey,
-      cursorPagination: this.cursorPagination,
-      perPageKey: this.perPageKey,
-      sortKey: this.sortKey,
-      sortTypeKey: this.sortTypeKey,
       getPageIndex: this.getPageIndex,
       extractData: this.extractData,
       fetchData: this.fetchData,
