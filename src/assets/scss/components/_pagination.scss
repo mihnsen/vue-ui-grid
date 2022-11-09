@@ -13,7 +13,7 @@
       a {
         position: relative;
         display: block;
-        padding: .5em .75em;
+        padding: .5rem .75rem;
         margin-left: -1px;
         line-height: 1.25;
         color: inherit;
@@ -44,8 +44,8 @@
   ul {
     li {
       a {
-        padding-top: .25em;
-        padding-bottom: .25em;
+        padding-top: .4rem;
+        padding-bottom: .4rem;
         border: 1px solid darken($vgrid-border-color, 30%);
       }
 
