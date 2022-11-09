@@ -287,7 +287,7 @@ export default class VGrid extends Vue {
 
   get isEmptyFilteredData() {
     if (this.cursorPagination) {
-      return false
+      return this.dataCollections.length
     }
 
     return !this.total
