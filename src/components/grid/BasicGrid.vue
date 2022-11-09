@@ -286,11 +286,13 @@ export default class VGrid extends Vue {
   }
 
   get isEmptyFilteredData() {
+    let valToCheck = this.total
+
     if (this.cursorPagination) {
-      return this.dataCollections.length
+      valToCheck = this.dataCollections.length
     }
 
-    return !this.total
+    return !valToCheck
   }
 
   get hasColumnFilter() {
