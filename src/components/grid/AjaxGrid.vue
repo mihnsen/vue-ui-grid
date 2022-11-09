@@ -35,6 +35,7 @@ export default class AjaxGrid extends Grid {
     return {
       searchField: this.searchField,
       pageKey: this.cursorPagination ? this.cursorKey : this.pageKey,
+      cursorPagination: this.cursorPagination,
       perPageKey: this.perPageKey,
       sortKey: this.sortKey,
       sortTypeKey: this.sortTypeKey,

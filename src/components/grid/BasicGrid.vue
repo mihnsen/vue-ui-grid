@@ -173,7 +173,8 @@ export default class VGrid extends Vue {
   columnVisibility: Array<string> = []
   hasSortType: boolean = this.$vgrid.hasSortType || true
 
-  currentPage: number = this.initialState.currentPage || 0
+  defaultPage: any = this.cursorPagination ? null : 0
+  currentPage: number = this.initialState.currentPage || this.defaultPage
   searchKeyword: string = this.initialState.searchKeyword || ''
   order: Order = this.initialState.order
     ? this.initialState.order
@@ -274,6 +275,14 @@ export default class VGrid extends Vue {
 
   get isEmptyData() {
     return !this.dataCollections.length
+  }
+
+  get isEmptyFilteredData() {
+    if (this.cursorPagination) {
+      return false
+    }
+
+    return !this.total
   }
 
   get hasColumnFilter() {
@@ -437,7 +446,7 @@ export default class VGrid extends Vue {
   }
 
   resetState() {
-    this.currentPage = 0
+    this.currentPage = this.defaultPage
   }
 
   resetGrid() {
@@ -445,7 +454,7 @@ export default class VGrid extends Vue {
       ...this.initialState,
       gridstate: (new Date()).getTime()
     }
-    this.currentPage = 0
+    this.currentPage = this.defaultPage
     this.searchKeyword = ''
     this.order = { by: this.sortBy, type: this.sortType }
     this.where = {}
@@ -481,7 +490,7 @@ export default class VGrid extends Vue {
 
       if (this.cursorPagination) {
         if (query.cursor) {
-          state.currentPage = parseInt(query.cursor, 10)
+          state.currentPage = query.cursor
         }
       } else {
         if (query.page) {

@@ -16,8 +16,10 @@ export default class AjaxDataProvider extends ADataProvider {
   getData(page: number, limit?: number, searchKeyword?: string, filter?: object, order?: Order): Promise<DataResponse> {
     let currPage = page
 
-    if (this.options.getPageIndex) {
-      currPage = this.options.getPageIndex(page)
+    if (!this.options.cursorPagination) {
+      if (this.options.getPageIndex) {
+        currPage = this.options.getPageIndex(page)
+      }
     }
 
     const params: any = {}
