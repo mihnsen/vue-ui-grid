@@ -164,7 +164,7 @@ export default class VGrid extends Vue {
   }
 
   // Attributes
-  initialState: GridState = this.getStateFromRouteIfNeeded()
+  initialState: any = this.getStateFromRouteIfNeeded()
   debug: boolean = this.$vgrid.debug || false
   dataCollections: Array<any> = []
   total: number | any = 0
@@ -175,7 +175,7 @@ export default class VGrid extends Vue {
 
   defaultPage: any = this.cursorPagination ? '' : 0
   currentPage: number = this.initialState.currentPage || this.defaultPage
-  searchKeyword: string = this.initialState.searchKeyword || ''
+  searchKeyword: string = this.initialState[this.searchField] || ''
   order: Order = this.initialState.order
     ? this.initialState.order
     : { by: this.sortBy, type: this.sortType }
@@ -219,7 +219,7 @@ export default class VGrid extends Vue {
 
   get currentState() {
     let state: any = {
-      s: this.searchKeyword,
+      [this.searchField]: this.searchKeyword,
       limit: this.limit
     }
 
@@ -495,8 +495,8 @@ export default class VGrid extends Vue {
         state.gridstate = (new Date()).getTime()
       }
 
-      if (query.s) {
-        state.searchKeyword = query.s
+      if (this.searchField && query[this.searchField]) {
+        state[this.searchField] = query[this.searchField]
       }
 
       if (this.cursorPagination) {
@@ -521,10 +521,6 @@ export default class VGrid extends Vue {
       }
 
       let filter : any = {}
-
-      if (this.searchField && query[this.searchField]) {
-        filter[this.searchField] = query[this.searchField]
-      }
 
       Object.keys(query).forEach((key) => {
         const column = this.columns.find(c => c.field === key)
