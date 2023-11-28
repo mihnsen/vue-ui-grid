@@ -524,7 +524,7 @@ export default class VGrid extends Vue {
 
       Object.keys(query).forEach((key) => {
         const column = this.columns.find(c => c.field === key)
-        if (column && column.filter) {
+        if (column && (column.filter || column.field === this.searchField)) {
           filter[key] = query[key]
         }
       })
