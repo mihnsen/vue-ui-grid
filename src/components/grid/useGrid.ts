@@ -236,7 +236,6 @@ export default function(props, emits, dataProvider, gridOption) {
       () => gridState.limit
     ],
     () => {
-      console.log('reset page index')
       resetPageIndex()
     },
     { deep: true }
@@ -245,7 +244,6 @@ export default function(props, emits, dataProvider, gridOption) {
   watch(
     () => paramsState.value,
     (newVal) => {
-      console.log('reset page index')
       getData()
       updateRouteIfNeeded(newVal)
     },
