@@ -5,6 +5,7 @@
   span(v-else) {{ strEmptyFilteredData }}
 slot(
   name="body",
+  v-if="!isEmptyData",
   :entries="dataState.records",
   :visible-cols="visibleCols"
 )

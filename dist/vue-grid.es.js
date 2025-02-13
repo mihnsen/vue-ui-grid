@@ -155,7 +155,6 @@ function useGrid(props, emits, dataProvider, gridOption) {
       [gridOption.searchField]: gridState.searchKeyword,
       limit: gridState.limit
     };
-    console.log("gridoption", gridOption);
     if (gridOption.pageKey) {
       params[gridOption.pageKey] = gridState.currentPage;
     }
@@ -3727,7 +3726,7 @@ const _hoisted_12$8 = ["colspan"];
 const _hoisted_13$8 = { key: 0 };
 const _hoisted_14$8 = { key: 1 };
 const _hoisted_15$5 = {
-  key: 1,
+  key: 2,
   class: "vgrid-loader"
 };
 const _hoisted_16$2 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
@@ -3849,7 +3848,8 @@ const _sfc_main$8 = defineComponent({
           !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$8, [
             !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$8, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$8, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
-          renderSlot(_ctx.$slots, "body", {
+          !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
+            key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
@@ -3934,7 +3934,7 @@ const _sfc_main$8 = defineComponent({
                 ])
               ])
             ])
-          ]),
+          ]) : createCommentVNode("", true),
           unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$5, _hoisted_17$2)) : createCommentVNode("", true)
         ]),
         createElementVNode("div", _hoisted_18$2, [
@@ -4473,7 +4473,7 @@ const _hoisted_12$5 = ["colspan"];
 const _hoisted_13$5 = { key: 0 };
 const _hoisted_14$5 = { key: 1 };
 const _hoisted_15$3 = {
-  key: 1,
+  key: 2,
   class: "vgrid-loader"
 };
 const _hoisted_16$1 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
@@ -4593,7 +4593,8 @@ const _sfc_main$5 = defineComponent({
           !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$5, [
             !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$5, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
-          renderSlot(_ctx.$slots, "body", {
+          !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
+            key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
@@ -4678,7 +4679,7 @@ const _sfc_main$5 = defineComponent({
                 ])
               ])
             ])
-          ]),
+          ]) : createCommentVNode("", true),
           unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$3, _hoisted_17$1)) : createCommentVNode("", true)
         ]),
         createElementVNode("div", _hoisted_18$1, [
@@ -5216,7 +5217,7 @@ const _hoisted_12$2 = ["colspan"];
 const _hoisted_13$2 = { key: 0 };
 const _hoisted_14$2 = { key: 1 };
 const _hoisted_15$1 = {
-  key: 1,
+  key: 2,
   class: "vgrid-loader"
 };
 const _hoisted_16 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
@@ -5338,7 +5339,8 @@ const _sfc_main$2 = defineComponent({
           !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$2, [
             !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$2, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
-          renderSlot(_ctx.$slots, "body", {
+          !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
+            key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
@@ -5423,7 +5425,7 @@ const _sfc_main$2 = defineComponent({
                 ])
               ])
             ])
-          ]),
+          ]) : createCommentVNode("", true),
           unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$1, _hoisted_17)) : createCommentVNode("", true)
         ]),
         createElementVNode("div", _hoisted_18, [
