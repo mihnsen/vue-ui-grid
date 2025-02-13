@@ -1,4 +1,5 @@
 export default interface DataState {
   records: any[];
-  total: number;
+  total?: number;
+  meta?: any;
 }

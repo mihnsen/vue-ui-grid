@@ -75,7 +75,7 @@ export default class AjaxDataProvider extends ADataProvider {
     })
       .then((data: any): DataResponse => {
         let items: any = []
-        let total = 0
+        let total: any = 0
         let meta: any = null
 
         if (this.options.extractData) {

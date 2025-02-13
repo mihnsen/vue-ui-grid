@@ -51,14 +51,15 @@ export default function(props, emits, dataProvider, gridOption) {
 
   // Attributes
   const defaultDataQuery: any = ''
+  const defaultPage = props.cursorPagination ? '' : 0
   const gridState = reactive({
     isLoading: false,
     searchKeyword: '',
-    currentPage: 0,
+    currentPage: defaultPage,
     limit: props.perPage ? props.perPage : vGridOptions.perPage,
     pageSizes: vGridOptions.pageSizes ,
     order: {
-      by: props.sortBy,
+      by: props.sortBy || '',
       type: props.sortType
     },
     where: {},
@@ -69,7 +70,7 @@ export default function(props, emits, dataProvider, gridOption) {
   })
 
   // Param state on Url
-  const paramsState = computed(() => {
+  const currentState = computed(() => {
     let params: any = {
       [gridOption.searchField]: gridState.searchKeyword,
       limit: gridState.limit
@@ -92,10 +93,14 @@ export default function(props, emits, dataProvider, gridOption) {
     params = {
       ...params,
       ...whereParams,
-      gridstate: gridState.time
+      gridstate: gridState.gridstate
     }
 
     return params
+  })
+
+  const currentStateInString = computed(() => {
+    return JSON.stringify(currentState.value)
   })
 
   const hasRecord = computed(() => dataState.records.length > 0)
@@ -170,7 +175,7 @@ export default function(props, emits, dataProvider, gridOption) {
       .then(({ items, total: totalRecord, meta, query }: DataResponse) => {
         dataState.records = items
         dataState.total = totalRecord
-        gridState.meta = meta
+        dataState.meta = meta
         gridState.query = query
       })
       .catch((error: any) => {
@@ -191,11 +196,16 @@ export default function(props, emits, dataProvider, gridOption) {
     if (column && column.order && column.type !== 'custom') {
       if (gridState.order.by === field) {
         if (gridState.hasSortType) {
-          gridState.order.type = gridState.order.type === 'desc' ? 'asc' : 'desc'
+          gridState.order = {
+            ...gridState.order,
+            type: gridState.order.type === 'desc' ? 'asc' : 'desc',
+          }
         }
       } else {
-        gridState.order.by = field
-        gridState.order.type = 'desc'
+        gridState.order = {
+          by: field,
+          type: 'desc',
+        }
       }
     }
   }
@@ -210,10 +220,10 @@ export default function(props, emits, dataProvider, gridOption) {
     return classes
   }
   const resetPageIndex = () => {
-    gridState.currentPage = 0
+    gridState.currentPage = defaultPage
   }
   const resetGrid = () => {
-    gridState.currentPage = 0
+    gridState.currentPage = defaultPage
     gridState.limit = props.perPage ? props.perPage : vGridOptions.perPage
     gridState.searchKeyword = ''
     gridState.order = {
@@ -246,10 +256,10 @@ export default function(props, emits, dataProvider, gridOption) {
   )
   // TODO Check
   watch(
-    () => paramsState.value,
+    () => currentStateInString.value,
     (newVal) => {
       getData()
-      updateRouteIfNeeded(newVal)
+      updateRouteIfNeeded(currentState.value)
     },
     { deep: true }
   )

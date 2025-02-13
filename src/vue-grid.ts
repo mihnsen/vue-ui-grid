@@ -53,10 +53,9 @@ const VueGridPlugin = {
       Vue.component('VAjaxCards', VAjaxCards)
 
       ajaxOption = {
-        extractData: options.extractData,
         pageKey: options.pageKey || 'page',
         cursorKey: options.cursorKey || 'cursor',
-        hasSortType: options.hasSortType,
+        hasSortType: options.hasSortType || true,
         sortKey: options.sortKey || 'sort',
         sortTypeKey: options.sortTypeKey || 'sort_type',
         perPageKey: options.perPageKey || 'limit',
@@ -64,6 +63,7 @@ const VueGridPlugin = {
         cancelToken: options.cancelToken,
 
         // Funcs
+        extractData: options.extractData,
         getPageIndex: options.getPageIndex
       }
     }

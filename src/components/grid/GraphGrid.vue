@@ -12,6 +12,7 @@ import useGrid from './useGrid'
 import type ColumnOption from '../../interfaces/column-option'
 import useGraphData from './useGraphData'
 import Pagination from '../Pagination.vue'
+import CursorPagination from '../CursorPagination.vue'
 import ColumnType from '../ColumnType.vue'
 import ColumnFilter from '../ColumnFilter.vue'
 import GridFilter from '../Filter.vue'
@@ -49,6 +50,7 @@ interface Props {
   colLg?: number;
   colXl?: number;
   routeState?: boolean;
+  cursorPagination?: boolean,
 }
 
 interface Emits {

@@ -1,6 +1,6 @@
 export default interface GridState {
   searchKeyword?: string;
-  currentPage?: number;
+  currentPage?: number | string;
   limit?: number;
   pageSizes?: number[];
   order?: any;

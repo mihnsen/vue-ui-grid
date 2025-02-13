@@ -19,7 +19,7 @@
         CursorPagination(
           v-if="cursorPagination"
           v-model="gridState.currentPage",
-          :meta="gridState.meta",
+          :meta="dataState.meta",
         )
         Pagination(
           v-else,

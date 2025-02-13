@@ -1,17 +1,17 @@
 <template lang="pug">
 .vgrid-order
   .vgrid-select
-    select.vgrid-input(v-model="order.by")
+    select.vgrid-input(v-model="orderBy")
       option(
         v-for="col in orderableColumn",
-        :value="col.field"
+        :value="col.field",
       ) {{ col.label }}
     label
       span.vgrid-label--prefix Sort:
       strong {{ orderedColumn.label }}
   button.vgrid-order-type(
     v-if="hasSortType",
-    @click="toggleType"
+    @click.stop="toggleType"
   ) {{ order.type }}
 </template>
 <script setup lang="ts">
@@ -29,28 +29,48 @@ interface Emits {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: {
+  modelValue: () => ({
     by: '',
     type: 'desc',
-  },
+  }),
   columns: () => ([]),
   hasSortType: true,
 });
 const emits = defineEmits<Emits>();
-const order = reactive({
-  by: props.modelValue ? props.modelValue.by : '',
-  type: props.modelValue ? props.modelValue.type : 'desc',
+const order = computed({
+  get: () => ({
+    by: props.modelValue ? props.modelValue.by : '',
+    type: props.modelValue ? props.modelValue.type : 'desc',
+  }),
+  set: (newVal) => {
+    emits('update:modelValue', newVal);
+  },
 });
+
+const orderBy = computed({
+  get: () => {
+    return order.value.by;
+  },
+  set: (newVal) => {
+    order.value = {
+      ...order.value,
+      by: newVal,
+    };
+  },
+});
+
 const orderedColumn = computed(() => {
   if (!props.columns) {
     return null;
   }
 
-  return props.columns.find((c: any) => c.field === order.by) || {}
+  return props.columns.find((c: any) => c.field === order.value.by) || {}
 })
 const orderableColumn = computed(() => props.columns.filter((c) => c.order))
 const toggleType = () => {
-  order.type = order.type === 'desc' ? 'asc' : 'desc'
-  emits('update:modelValue', order)
+  order.value = {
+    ...order.value,
+    type: order.value.type === 'desc' ? 'asc' : 'desc',
+  };
 }
 </script>
