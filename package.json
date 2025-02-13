@@ -1,6 +1,6 @@
 {
   "name": "vue-ui-grid",
-  "version": "1.0.1",
+  "version": "1.0.0-alpha.5",
   "main": "./dist/vue-grid.umd.js",
   "scripts": {
     "dev": "vite",
