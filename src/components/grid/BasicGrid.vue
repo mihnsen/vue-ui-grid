@@ -19,6 +19,7 @@ import ExportButton from '../ExportButton.vue'
 
 interface Props {
   data?: any[];
+  searchField?: string;
 
   columns?: ColumnOption[];
   perPage?: number;
@@ -51,6 +52,7 @@ interface Emits {
 const emits = defineEmits<Emits>();
 const props = withDefaults(defineProps<Props>(), {
   data: () => ([]),
+  searchField: 's',
 
   columns: () => ([]),
   filterable: true,
@@ -73,7 +75,6 @@ const props = withDefaults(defineProps<Props>(), {
   colXl: 3,
   routeState: false,
   cursorPagination: false,
-  searchField: '',
 })
 
 const {

@@ -2,6 +2,7 @@
 #app
   div(style="width: 1000px; margin: 20px auto 50px")
     VGrid(
+      search-field="name",
       :columns="gridColumns",
       :data="gridData",
       :per-page="6",

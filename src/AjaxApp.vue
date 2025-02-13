@@ -17,23 +17,23 @@
           type="button",
           @click="remove(entry)"
         ) remove
-    // VAjaxCards(
-    //   search-field="name",
-    //   resource="users",
-    //   :columns="gridColumns",
-    //   :orderable="true",
-    //   :per-page="5"
-    // )
-    //   template(#column-index="{ index, entry }")
-    //     span #
-    //     span {{index}}
-    // VAjaxList(
-    //   search-field="name",
-    //   resource="users",
-    //   :columns="gridColumns",
-    //   :orderable="true",
-    //   :per-page="5"
-    // )
+    VAjaxCards(
+      search-field="name",
+      resource="users",
+      :columns="gridColumns",
+      :orderable="true",
+      :per-page="5"
+    )
+      template(#column-index="{ index, entry }")
+        span #
+        span {{index}}
+    VAjaxList(
+      search-field="name",
+      resource="users",
+      :columns="gridColumns",
+      :orderable="true",
+      :per-page="5"
+    )
 </template>
 <script setup lang="ts">
 import axios from 'axios'
