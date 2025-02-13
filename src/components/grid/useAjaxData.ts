@@ -1,4 +1,4 @@
-import { watch, reactive, inject } from 'vue'
+import { reactive, inject } from 'vue'
 import { AjaxDataProvider } from '../../data-providers'
 import useOption from './useOption'
 

@@ -1,7 +1,10 @@
 <template lang="pug">
 #app
   div(style="width: 1000px; margin: 20px auto 50px")
+    input(type="text", v-model="abc")
+
     VGraphGrid(
+      :ref-filter="abc",
       resource="products",
       resource-meta="products_aggregate",
       search-field="title",
@@ -34,6 +37,8 @@
 </template>
 <script setup lang="ts">
 import { ref } from 'vue'
+
+const abc = ref('')
 
 const columns = ref([
   {

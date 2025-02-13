@@ -302,7 +302,7 @@ function useGrid(props, emits, dataProvider, gridOption) {
   watch(() => currentStateInString.value, (newVal) => {
     getData2();
     updateRouteIfNeeded(currentState.value);
-  }, { deep: true });
+  });
   watch(() => queryGridState.value, (newVal, oldVal) => {
     if (oldVal && !newVal) {
       resetGrid();
@@ -5180,6 +5180,16 @@ const _sfc_main$3 = defineComponent({
     };
   }
 });
+function useWatchExtraProps(props, watcher, callback) {
+  const watcherValue = computed(() => {
+    return watcher.reduce((acc, curr) => __spreadProps(__spreadValues({}, acc), {
+      [curr]: props[curr]
+    }), watcher);
+  });
+  watch(() => watcherValue.value, () => {
+    callback();
+  });
+}
 function useGraphData(props, option) {
   const vGridOptions = inject("$vgrid", {
     filterKey: "where",
@@ -5209,8 +5219,6 @@ function useGraphData(props, option) {
   };
   const gridOption = reactive(__spreadValues(__spreadValues(__spreadValues({}, useOption(props)), graphOptions), option));
   const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption);
-  watch(() => props.refFilter, () => {
-  });
   return {
     dataProvider,
     gridOption
@@ -5309,6 +5317,9 @@ const _sfc_main$2 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    useWatchExtraProps(props, ["refFilter"], () => {
+      resetGrid();
+    });
     expose({
       getData: getData2,
       setFilter
@@ -5579,6 +5590,9 @@ const _sfc_main$1 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    useWatchExtraProps(props, ["refFilter"], () => {
+      resetGrid();
+    });
     expose({
       getData: getData2,
       setFilter
@@ -5796,6 +5810,9 @@ const _sfc_main = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
+    useWatchExtraProps(props, ["refFilter"], () => {
+      resetGrid();
+    });
     expose({
       getData: getData2,
       setFilter

@@ -267,7 +267,6 @@ export default function(props, emits, dataProvider, gridOption) {
       getData()
       updateRouteIfNeeded(currentState.value)
     },
-    { deep: true }
   )
   watch(
     () => queryGridState.value,

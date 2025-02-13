@@ -1,4 +1,4 @@
-import { watch, reactive, inject } from 'vue'
+import { reactive, inject } from 'vue'
 import { GraphDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
@@ -39,14 +39,6 @@ export default function(props, option) {
     ...option,
   })
   const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption)
-
-  watch(
-    () => props.refFilter,
-    () => {
-      // TODO reset grid
-      // setDataCollections()
-    },
-  )
 
   return {
     dataProvider,
