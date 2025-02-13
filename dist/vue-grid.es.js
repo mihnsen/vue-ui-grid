@@ -2511,11 +2511,14 @@ class GraphDataProvider extends ADataProvider {
 }
 function useOption(props) {
   const vGridOptions = inject("$vgrid", {
-    debug: false
+    debug: false,
+    pageKey: "page"
   });
   return {
     debug: vGridOptions.debug,
+    pageKey: vGridOptions.pageKey,
     searchable: props.searchable,
+    searchField: props.searchField,
     orderable: props.orderable,
     filterable: props.filterable,
     columnFilterable: props.columnFilterable,
@@ -3745,6 +3748,7 @@ const _sfc_main$8 = defineComponent({
   name: "BasicGrid",
   props: {
     data: { default: () => [] },
+    searchField: { default: "s" },
     columns: { default: () => [] },
     perPage: null,
     filterable: { type: Boolean, default: true },
