@@ -76,6 +76,7 @@ export default function(props, emits, dataProvider, gridOption) {
       limit: gridState.limit
     }
 
+    console.log('gridoption', gridOption);
     if (gridOption.pageKey) {
       params[gridOption.pageKey] = gridState.currentPage
     }

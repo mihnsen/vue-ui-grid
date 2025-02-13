@@ -4,6 +4,7 @@ import useOption from './useOption'
 
 export default function(props, option) {
   const vGridOptions = inject('$vgrid', {
+    cursorKey: 'cursor',
     pageKey: 'page',
     hasSortType: true,
     sortKey: 'sort',
@@ -18,7 +19,8 @@ export default function(props, option) {
   const ajaxOptions = {
     resource: props.resource,
     searchField: props.searchField,
-    pageKey: vGridOptions.pageKey,
+    pageKey: props.cursorPagination ? vGridOptions.cursorKey : vGridOptions.pageKey,
+    cursorPagination: props.cursorPagination,
     perPageKey: vGridOptions.perPageKey,
     sortKey: vGridOptions.sortKey,
     sortTypeKey: vGridOptions.sortTypeKey,

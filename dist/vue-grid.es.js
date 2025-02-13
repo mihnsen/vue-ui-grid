@@ -155,6 +155,7 @@ function useGrid(props, emits, dataProvider, gridOption) {
       [gridOption.searchField]: gridState.searchKeyword,
       limit: gridState.limit
     };
+    console.log("gridoption", gridOption);
     if (gridOption.pageKey) {
       params[gridOption.pageKey] = gridState.currentPage;
     }
@@ -4420,6 +4421,7 @@ const _sfc_main$6 = defineComponent({
 });
 function useAjaxData(props, option) {
   const vGridOptions = inject("$vgrid", {
+    cursorKey: "cursor",
     pageKey: "page",
     hasSortType: true,
     sortKey: "sort",
@@ -4433,7 +4435,8 @@ function useAjaxData(props, option) {
   const ajaxOptions = {
     resource: props.resource,
     searchField: props.searchField,
-    pageKey: vGridOptions.pageKey,
+    pageKey: props.cursorPagination ? vGridOptions.cursorKey : vGridOptions.pageKey,
+    cursorPagination: props.cursorPagination,
     perPageKey: vGridOptions.perPageKey,
     sortKey: vGridOptions.sortKey,
     sortTypeKey: vGridOptions.sortTypeKey,
