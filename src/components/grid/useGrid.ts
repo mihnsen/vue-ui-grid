@@ -209,6 +209,12 @@ export default function(props, emits, dataProvider, gridOption) {
       }
     }
   }
+  const setFilter = (filterData) => {
+    gridState.where = {
+      ...gridState.where,
+      ...filterData,
+    }
+  }
   const getOrderableColumnClasses = (column: any) => {
     const classes: string[] = []
     if (column.order && column.type !== 'custom') {
@@ -287,6 +293,7 @@ export default function(props, emits, dataProvider, gridOption) {
     isFiltered,
     getData,
     setOrder,
+    setFilter,
     resetGrid
   }
 }

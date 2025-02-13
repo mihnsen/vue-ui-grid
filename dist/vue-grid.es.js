@@ -262,6 +262,9 @@ function useGrid(props, emits, dataProvider, gridOption) {
       }
     }
   };
+  const setFilter = (filterData) => {
+    gridState.where = __spreadValues(__spreadValues({}, gridState.where), filterData);
+  };
   const getOrderableColumnClasses = (column) => {
     const classes = [];
     if (column.order && column.type !== "custom") {
@@ -320,6 +323,7 @@ function useGrid(props, emits, dataProvider, gridOption) {
     isFiltered,
     getData: getData2,
     setOrder,
+    setFilter,
     resetGrid
   };
 }
@@ -3797,12 +3801,14 @@ const _sfc_main$8 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4066,12 +4072,14 @@ const _sfc_main$7 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4286,12 +4294,14 @@ const _sfc_main$6 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4542,12 +4552,14 @@ const _sfc_main$5 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4808,12 +4820,14 @@ const _sfc_main$4 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5021,12 +5035,14 @@ const _sfc_main$3 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5288,12 +5304,14 @@ const _sfc_main$2 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5556,12 +5574,14 @@ const _sfc_main$1 = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5771,12 +5791,14 @@ const _sfc_main = defineComponent({
       isFiltered,
       getData: getData2,
       setOrder,
+      setFilter,
       resetGrid
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
     expose({
-      getData: getData2
+      getData: getData2,
+      setFilter
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {

@@ -109,6 +109,7 @@ const {
   isFiltered,
   getData,
   setOrder,
+  setFilter,
   resetGrid,
 } = useGrid(props, emits, dataProvider, gridOption)
 
@@ -118,5 +119,6 @@ getData()
 
 defineExpose({
   getData,
+  setFilter,
 })
 </script>
