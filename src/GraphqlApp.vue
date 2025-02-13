@@ -2,8 +2,8 @@
 #app
   div(style="width: 1000px; margin: 20px auto 50px")
     VGraphGrid(
-      resource="catalogs",
-      resource-meta="catalogs_aggregate",
+      resource="products",
+      resource-meta="products_aggregate",
       search-field="title",
       :columns="columns",
       :per-page="25",
@@ -16,16 +16,16 @@
       :exportable="true"
     )
     VGraphCards(
-      resource="catalogs",
-      resource-meta="catalogs_aggregate",
+      resource="products",
+      resource-meta="products_aggregate",
       :columns="columns",
       offset-key="skip",
       limit-key="last",
       filter-key="filter",
     )
     VGraphList(
-      resource="catalogs",
-      resource-meta="catalogs_aggregate",
+      resource="products",
+      resource-meta="products_aggregate",
       :columns="columns",
       offset-key="skip",
       limit-key="last",
@@ -77,8 +77,8 @@ const columns = ref([
     label: 'Fulfillment name'
   },
   // {
-  //   field: 'catalogs.count',
-  //   label: 'Number of catalogs',
+  //   field: 'products.count',
+  //   label: 'Number of products',
   //   width: 3
   // },
   {

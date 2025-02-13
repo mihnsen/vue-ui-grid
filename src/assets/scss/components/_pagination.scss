@@ -37,3 +37,21 @@
     }
   }
 }
+
+.vgrid-pagination--cursor {
+  font-size: 1.25em;
+
+  ul {
+    li {
+      a {
+        padding-top: .4rem;
+        padding-bottom: .4rem;
+        border: 1px solid darken($vgrid-border-color, 30%);
+      }
+
+      &.disabled {
+        opacity: .3;
+      }
+    }
+  }
+}

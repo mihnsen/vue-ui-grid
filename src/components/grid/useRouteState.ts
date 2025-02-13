@@ -8,17 +8,25 @@ export default function(router, props) {
   const getStateFromRoute = () => {
     const state: any = {}
     const query: any = route.value.query || {}
-    if (query.time) {
-      state.time = query.time
+    if (query.gridstate) {
+      state.gridstate = query.gridstate
     } else {
-      state.time = new Date().getTime()
+      state.gridstate = new Date().getTime()
     }
-    if (query.s) {
-      state.searchKeyword = query.s
+    if (props.searchField && query[props.searchField]) {
+      state[props.searchField] = query[props.searchField]
     }
-    if (query.page) {
-      state.currentPage = parseInt(query.page, 10)
+
+    if (props.cursorPagination) {
+      if (query.cursor) {
+        state.currentPage = query.cursor
+      }
+    } else {
+      if (query.page) {
+        state.currentPage = parseInt(query.page, 10)
+      }
     }
+
     if (query.limit) {
       state.limit = parseInt(query.limit, 10)
     }
@@ -34,7 +42,7 @@ export default function(router, props) {
     }
     Object.keys(query).forEach((key) => {
       const column = props.columns.find((c) => c.field === key)
-      if (column && column.filter) {
+      if (column && (column.filter || column.field === props.searchField)) {
         filter[key] = query[key]
       }
     })
@@ -62,8 +70,8 @@ export default function(router, props) {
   const queryGridState = computed(() => {
     const { currentRoute } = router
     const { query } = currentRoute.value
-    if (query && query.time) {
-      return query.time
+    if (query && query.gridstate) {
+      return query.gridstate
     }
     return null
   })

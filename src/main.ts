@@ -60,12 +60,34 @@ app.use(VueGrid, {
   fetchData: axios.get,
   cancelToken: axios.CancelToken,
   pageKey: 'page',
+  cursorKey: 'cursor',
   perPageKey: 'per_page',
   extractData: (responseData: any) => {
     const data = responseData.data
+    let meta: any = null
+
+    const links: any = {
+      first: null,
+      last: null,
+      next: 'http://localhost:3101/api/orders?cursor=aaa',
+      prev: null
+    }
+
+    if (links) {
+      const reg = /cursor=(.*)&?/
+      const prevMatch = links.prev ? links.prev.match(reg) : null
+      const nextMatch = links.next ? links.next.match(reg) : null
+
+      meta = {
+        prev_cursor: prevMatch ? prevMatch[1] : null,
+        next_cursor: nextMatch ? nextMatch[1] : null
+      }
+    }
+
     return {
       items: data.data,
-      total: data.total
+      total: data.total,
+      meta: meta
     }
   },
   getPageIndex: (index: number) => (index + 1),

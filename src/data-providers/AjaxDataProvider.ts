@@ -16,8 +16,10 @@ export default class AjaxDataProvider extends ADataProvider {
   getData(page: number, limit?: number, searchKeyword?: string, filter?: object, order?: Order): Promise<DataResponse> {
     let currPage = page
 
-    if (this.options.getPageIndex) {
-      currPage = this.options.getPageIndex(page)
+    if (!this.options.cursorPagination) {
+      if (this.options.getPageIndex) {
+        currPage = this.options.getPageIndex(page)
+      }
     }
 
     const params: any = {}
@@ -74,16 +76,19 @@ export default class AjaxDataProvider extends ADataProvider {
       .then((data: any): DataResponse => {
         let items: any = []
         let total = 0
+        let meta: any = null
 
         if (this.options.extractData) {
           const res = this.options.extractData(data)
           items = res.items
           total = res.total
+          meta = res.meta
         }
 
         return {
           items,
           total,
+          meta,
           query: params
         }
       })

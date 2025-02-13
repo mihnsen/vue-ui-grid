@@ -1,3 +1,8 @@
+.vgrid-nodata(
+  v-if="!hasRecord",
+)
+  span(v-if="!isFiltered") {{ strEmptyData }}
+  span(v-else) {{ strEmptyFilteredData }}
 slot(
   name="body",
   :entries="dataState.records",

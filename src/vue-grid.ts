@@ -13,7 +13,6 @@ import VGraphList from './components/grid/GraphList.vue'
 import VGraphCards from './components/grid/GraphCards.vue'
 
 import Pagination from './components/Pagination.vue'
-
 import './assets/scss/_index.scss'
 
 const VueGridPlugin = {
@@ -32,26 +31,6 @@ const VueGridPlugin = {
     let graphqlOption = {}
     let ajaxOption = {}
 
-    if (options.ajax) {
-      Vue.component('VAjaxGrid', VAjaxGrid)
-      Vue.component('VAjaxList', VAjaxList)
-      Vue.component('VAjaxCards', VAjaxCards)
-
-      ajaxOption = {
-        pageKey: options.pageKey || 'page',
-        hasSortType: options.hasSortType || true,
-        sortKey: options.sortKey || 'sort',
-        sortTypeKey: options.sortTypeKey || 'sort_type',
-        perPageKey: options.perPageKey || 'limit',
-        fetchData: options.fetchData,
-        cancelToken: options.cancelToken,
-
-        // Funcs
-        extractData: options.extractData,
-        getPageIndex: options.getPageIndex
-      }
-    }
-
     if (options.graphql) {
       Vue.component('VGraphGrid', VGraphGrid)
       Vue.component('VGraphList', VGraphList)
@@ -65,6 +44,27 @@ const VueGridPlugin = {
         graphqlFilter: options.graphqlFilter,
         graphqlOrder: options.graphqlOrder,
         graphqlDataCounter: options.graphqlDataCounter
+      }
+    }
+
+    if (options.ajax) {
+      Vue.component('VAjaxGrid', VAjaxGrid)
+      Vue.component('VAjaxList', VAjaxList)
+      Vue.component('VAjaxCards', VAjaxCards)
+
+      ajaxOption = {
+        extractData: options.extractData,
+        pageKey: options.pageKey || 'page',
+        cursorKey: options.cursorKey || 'cursor',
+        hasSortType: options.hasSortType,
+        sortKey: options.sortKey || 'sort',
+        sortTypeKey: options.sortTypeKey || 'sort_type',
+        perPageKey: options.perPageKey || 'limit',
+        fetchData: options.fetchData,
+        cancelToken: options.cancelToken,
+
+        // Funcs
+        getPageIndex: options.getPageIndex
       }
     }
 

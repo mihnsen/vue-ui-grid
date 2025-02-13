@@ -6,19 +6,27 @@
       v-model="gridState.limit",
       :sizes="gridState.pageSizes",
     )
-    GridStatus(
-      v-if="statusable",
-      :limit="gridState.limit",
-      :current-page="gridState.currentPage",
-      :showed="dataState.records.length",
-      :total="dataState.total"
-    )
-    Pagination(
-      v-if="pagination",
-      v-model="gridState.currentPage",
-      :limit="gridState.limit",
-      :total="dataState.total",
-    )
+    template(v-if="!cursorPagination")
+      GridStatus(
+        v-if="statusable",
+        :limit="gridState.limit",
+        :current-page="gridState.currentPage",
+        :showed="dataState.records.length",
+        :total="dataState.total"
+      )
+    template(v-if="pagination")
+      slot(name="pagination")
+        CursorPagination(
+          v-if="cursorPagination"
+          v-model="gridState.currentPage",
+          :meta="gridState.meta",
+        )
+        Pagination(
+          v-else,
+          v-model="gridState.currentPage",
+          :limit="gridState.limit",
+          :total="dataState.total",
+        )
     slot(name="footer-end")
 
   .vgrid-devbar(v-if="gridOption.debug")

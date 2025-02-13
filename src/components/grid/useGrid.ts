@@ -63,7 +63,7 @@ export default function(props, emits, dataProvider, gridOption) {
     },
     where: {},
     hasSortType: vGridOptions.hasSortType,
-    time: new Date().getTime(),
+    gridstate: new Date().getTime(),
     query: defaultDataQuery, // Current query to get data
     ...routeGridParams
   })
@@ -71,12 +71,15 @@ export default function(props, emits, dataProvider, gridOption) {
   // Param state on Url
   const paramsState = computed(() => {
     let params: any = {
-      s: gridState.searchKeyword,
-      page: gridState.currentPage,
+      [gridOption.searchField]: gridState.searchKeyword,
       limit: gridState.limit
     }
 
-    if (props.orderable) {
+    if (gridOption.pageKey) {
+      params[gridOption.pageKey] = gridState.currentPage
+    }
+
+    if (props.orderable && gridState.order && gridState.order.by) {
       params.order = gridState.order.by
       params.order_type = gridState.order.type
     }
@@ -89,7 +92,7 @@ export default function(props, emits, dataProvider, gridOption) {
     params = {
       ...params,
       ...whereParams,
-      time: gridState.time
+      gridstate: gridState.time
     }
 
     return params
@@ -164,9 +167,10 @@ export default function(props, emits, dataProvider, gridOption) {
     gridState.isLoading = true;
     dataProvider
       .getData(gridState.currentPage, gridState.limit, gridState.searchKeyword, gridState.where, gridState.order)
-      .then(({ items, total: totalRecord, query }: DataResponse) => {
+      .then(({ items, total: totalRecord, meta, query }: DataResponse) => {
         dataState.records = items
         dataState.total = totalRecord
+        gridState.meta = meta
         gridState.query = query
       })
       .catch((error: any) => {
@@ -216,7 +220,7 @@ export default function(props, emits, dataProvider, gridOption) {
       by: props.sortBy,
       type: props.sortType
     }
-    gridState.time = new Date().getTime();
+    gridState.gridstate = new Date().getTime();
     gridState.where = {}
   }
 

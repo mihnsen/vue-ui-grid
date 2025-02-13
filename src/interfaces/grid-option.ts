@@ -16,8 +16,12 @@ export default interface GridOption {
   pageSizes?: Array<number>;
   columns: Array<ColumnOption>;
 
+  routeState?: boolean;
+  cursorPagination?: boolean;
+
   perPageKey?: string; // Ajax & Graphql
   pageKey?: string; // Ajax & Graphql
+  cursorKey?: string; // CursorPagination
   searchField?: string;
   limit?: number;
   sortKey?: string;
