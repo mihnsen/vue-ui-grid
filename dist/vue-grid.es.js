@@ -97,7 +97,7 @@ function useRouteState(router, props) {
     updateRouteIfNeeded
   };
 }
-function useGrid(props, emits, dataProvider, gridOption) {
+function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
   const vGridOptions = inject("$vgrid", {
     debug: false,
     routerKey: null,
@@ -152,11 +152,11 @@ function useGrid(props, emits, dataProvider, gridOption) {
   }, routeGridParams));
   const currentState = computed(() => {
     let params = {
-      [gridOption.searchField]: gridState.searchKeyword,
+      [gridOption.value.searchField]: gridState.searchKeyword,
       limit: gridState.limit
     };
-    if (gridOption.pageKey) {
-      params[gridOption.pageKey] = gridState.currentPage;
+    if (gridOption.value.pageKey) {
+      params[gridOption.value.pageKey] = gridState.currentPage;
     }
     if (props.orderable && gridState.order && gridState.order.by) {
       params.order = gridState.order.by;
@@ -199,7 +199,7 @@ function useGrid(props, emits, dataProvider, gridOption) {
     }));
   });
   const gridClasses = computed(() => {
-    return [`vgrid-${gridOption.displayType}`, `vgrid-${gridOption.dataType}`];
+    return [`vgrid-${gridOption.value.displayType}`, `vgrid-${gridOption.value.dataType}`];
   });
   const setColumnVisibility = () => {
     columnVisibility.value = props.columns.filter((c) => c.type !== "hidden").filter((c) => !c.hidden).map((c) => c.field);
@@ -289,6 +289,15 @@ function useGrid(props, emits, dataProvider, gridOption) {
     gridState.gridstate = new Date().getTime();
     gridState.where = {};
   };
+  const watchPropsValue = computed(() => {
+    return watchProps.reduce((acc, curr) => __spreadProps(__spreadValues({}, acc), {
+      [curr]: props[curr]
+    }), {});
+  });
+  watch(() => watchPropsValue.value, () => {
+    dataProvider.setOptions(gridOption.value);
+    resetGrid();
+  });
   watch(() => props.columns, () => {
     columnVisibility.value = props.columns.filter((c) => c.type !== "hidden").filter((c) => !c.hidden).map((c) => c.field);
   });
@@ -352,6 +361,9 @@ class ADataProvider {
   }
   applyPagination(page) {
     return this;
+  }
+  setOptions(options) {
+    this.options = options;
   }
 }
 class JsonDataProvider extends ADataProvider {
@@ -2518,7 +2530,7 @@ function useOption(props) {
     debug: false,
     pageKey: "page"
   });
-  return {
+  return computed(() => ({
     debug: vGridOptions.debug,
     pageKey: vGridOptions.pageKey,
     searchable: props.searchable,
@@ -2531,11 +2543,12 @@ function useOption(props) {
     pagination: props.pagination,
     exportable: props.exportable,
     columns: props.columns
-  };
+  }));
 }
 function useJsonData(props, option, dataCallback) {
-  const gridOption = reactive(__spreadValues(__spreadValues({}, useOption(props)), option));
-  const dataProvider = new JsonDataProvider(props.data, gridOption);
+  const baseOptions = useOption(props);
+  const gridOption = computed(() => __spreadValues(__spreadValues({}, baseOptions.value), option));
+  const dataProvider = new JsonDataProvider(props.data, gridOption.value);
   const setDataCollections = () => {
     dataProvider.updateData(props.data);
     dataCallback();
@@ -4446,7 +4459,8 @@ function useAjaxData(props, option) {
     getPageIndex: null,
     extractData: null
   });
-  const ajaxOptions = {
+  const baseOptions = useOption(props);
+  const ajaxOptions = computed(() => ({
     resource: props.resource,
     searchField: props.searchField,
     pageKey: props.cursorPagination ? vGridOptions.cursorKey : vGridOptions.pageKey,
@@ -4458,9 +4472,9 @@ function useAjaxData(props, option) {
     extractData: vGridOptions.extractData,
     fetchData: vGridOptions.fetchData,
     cancelToken: vGridOptions.cancelToken
-  };
-  const gridOption = reactive(__spreadValues(__spreadValues(__spreadValues({}, useOption(props)), ajaxOptions), option));
-  const dataProvider = new AjaxDataProvider(props.resource, gridOption);
+  }));
+  const gridOption = computed(() => __spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), ajaxOptions.value), option));
+  const dataProvider = new AjaxDataProvider(props.resource, gridOption.value);
   return {
     dataProvider,
     gridOption
@@ -5180,16 +5194,6 @@ const _sfc_main$3 = defineComponent({
     };
   }
 });
-function useWatchExtraProps(props, watcher, callback) {
-  const watcherValue = computed(() => {
-    return watcher.reduce((acc, curr) => __spreadProps(__spreadValues({}, acc), {
-      [curr]: props[curr]
-    }), watcher);
-  });
-  watch(() => watcherValue.value, () => {
-    callback();
-  });
-}
 function useGraphData(props, option) {
   const vGridOptions = inject("$vgrid", {
     filterKey: "where",
@@ -5204,7 +5208,8 @@ function useGraphData(props, option) {
   if (!apolloClient) {
     throw new Error("$vgridApolloClient is not defined");
   }
-  const graphOptions = {
+  const baseOptions = useOption(props);
+  const graphOptions = computed(() => ({
     resource: props.resource,
     resourceMeta: props.resourceMeta,
     searchField: props.searchField,
@@ -5216,9 +5221,9 @@ function useGraphData(props, option) {
     graphqlFilter: vGridOptions.graphqlFilter,
     graphqlOrder: vGridOptions.graphqlOrder,
     graphqlDataCounter: vGridOptions.graphqlDataCounter
-  };
-  const gridOption = reactive(__spreadValues(__spreadValues(__spreadValues({}, useOption(props)), graphOptions), option));
-  const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption);
+  }));
+  const gridOption = computed(() => __spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), graphOptions.value), option));
+  const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption.value);
   return {
     dataProvider,
     gridOption
@@ -5314,12 +5319,9 @@ const _sfc_main$2 = defineComponent({
       setOrder,
       setFilter,
       resetGrid
-    } = useGrid(props, emits, dataProvider, gridOption);
+    } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    useWatchExtraProps(props, ["refFilter"], () => {
-      resetGrid();
-    });
     expose({
       getData: getData2,
       setFilter
@@ -5587,12 +5589,9 @@ const _sfc_main$1 = defineComponent({
       setOrder,
       setFilter,
       resetGrid
-    } = useGrid(props, emits, dataProvider, gridOption);
+    } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    useWatchExtraProps(props, ["refFilter"], () => {
-      resetGrid();
-    });
     expose({
       getData: getData2,
       setFilter
@@ -5807,12 +5806,9 @@ const _sfc_main = defineComponent({
       setOrder,
       setFilter,
       resetGrid
-    } = useGrid(props, emits, dataProvider, gridOption);
+    } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    useWatchExtraProps(props, ["refFilter"], () => {
-      resetGrid();
-    });
     expose({
       getData: getData2,
       setFilter

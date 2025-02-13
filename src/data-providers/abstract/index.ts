@@ -40,4 +40,8 @@ export default class ADataProvider implements IDataProvider {
   applyPagination(page: number): IDataProvider {
     return this
   }
+
+  setOptions(options: GridOption) {
+    this.options = options
+  }
 }

@@ -1,4 +1,4 @@
-import { reactive, inject } from 'vue'
+import { computed, inject } from 'vue'
 import { GraphDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
@@ -18,7 +18,9 @@ export default function(props, option) {
     throw new Error('$vgridApolloClient is not defined');
   }
 
-  const graphOptions = {
+  const baseOptions = useOption(props);
+
+  const graphOptions = computed(() => ({
     resource: props.resource,
     resourceMeta: props.resourceMeta,
     searchField: props.searchField,
@@ -31,14 +33,14 @@ export default function(props, option) {
     graphqlFilter: vGridOptions.graphqlFilter,
     graphqlOrder: vGridOptions.graphqlOrder,
     graphqlDataCounter: vGridOptions.graphqlDataCounter,
-  }
+  }));
 
-  const gridOption = reactive({
-    ...useOption(props),
-    ...graphOptions,
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
+    ...graphOptions.value,
     ...option,
-  })
-  const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption)
+  }))
+  const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption.value)
 
   return {
     dataProvider,

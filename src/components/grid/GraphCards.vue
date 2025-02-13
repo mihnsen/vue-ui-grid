@@ -11,7 +11,6 @@ block search
 </template>
 <script setup lang="ts">
 import useGrid from './useGrid'
-import useWatchExtraProps from './useWatchExtraProps';
 import type ColumnOption from '../../interfaces/column-option'
 import useGraphData from './useGraphData'
 import Pagination from '../Pagination.vue'
@@ -112,15 +111,11 @@ const {
   setOrder,
   setFilter,
   resetGrid,
-} = useGrid(props, emits, dataProvider, gridOption)
+} = useGrid(props, emits, dataProvider, gridOption, ['refFilter'])
 
 // Kick it off
 setColumnVisibility()
 getData()
-
-useWatchExtraProps(props, ['refFilter'], () => {
-  resetGrid();
-});
 
 defineExpose({
   getData,

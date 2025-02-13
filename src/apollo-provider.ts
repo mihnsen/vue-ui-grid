@@ -38,7 +38,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: 'http://localhost:3102/v1/graphql',
+  uri: 'https://staging-graphql.teeinblue.com/v1/graphql',
   headers: {
     'x-hasura-admin-secret': import.meta.env.VITE_GRAPHQL_SECRET
   },

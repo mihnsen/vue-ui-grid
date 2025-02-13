@@ -1,4 +1,4 @@
-import { reactive, inject } from 'vue'
+import { computed, inject } from 'vue'
 import { AjaxDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
@@ -16,7 +16,9 @@ export default function(props, option) {
     extractData: null,
   })
 
-  const ajaxOptions = {
+  const baseOptions = useOption(props);
+
+  const ajaxOptions = computed(() => ({
     resource: props.resource,
     searchField: props.searchField,
     pageKey: props.cursorPagination ? vGridOptions.cursorKey : vGridOptions.pageKey,
@@ -28,14 +30,14 @@ export default function(props, option) {
     extractData: vGridOptions.extractData,
     fetchData: vGridOptions.fetchData,
     cancelToken: vGridOptions.cancelToken
-  }
+  }))
 
-  const gridOption = reactive({
-    ...useOption(props),
-    ...ajaxOptions,
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
+    ...ajaxOptions.value,
     ...option,
-  })
-  const dataProvider = new AjaxDataProvider(props.resource, gridOption)
+  }))
+  const dataProvider = new AjaxDataProvider(props.resource, gridOption.value)
 
   return {
     dataProvider,

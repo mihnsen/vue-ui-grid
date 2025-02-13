@@ -1,13 +1,17 @@
-import { watch, reactive } from 'vue'
+import { watch, computed } from 'vue'
 import { JsonDataProvider } from '../../data-providers'
 import useOption from './useOption'
 
 export default function(props, option, dataCallback) {
-  const gridOption = reactive({
-    ...useOption(props),
+  const baseOptions = useOption(props);
+
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
     ...option,
-  })
-  const dataProvider = new JsonDataProvider(props.data, gridOption)
+  }))
+
+  const dataProvider = new JsonDataProvider(props.data, gridOption.value)
+
   const setDataCollections = () => {
     dataProvider.updateData(props.data)
     dataCallback()

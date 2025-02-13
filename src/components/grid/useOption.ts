@@ -1,4 +1,4 @@
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 import type GridOption from '../../interfaces/grid-option'
 
 export default function(props): any {
@@ -7,7 +7,7 @@ export default function(props): any {
     pageKey: 'page',
   })
 
-  return {
+  return computed(() => ({
     debug: vGridOptions.debug,
 
     pageKey: vGridOptions.pageKey,
@@ -23,5 +23,5 @@ export default function(props): any {
     exportable: props.exportable,
     columns: props.columns,
     // limit: limit.value,
-  }
+  }))
 }

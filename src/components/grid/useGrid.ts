@@ -8,7 +8,7 @@ import type ColumnOption from '../../interfaces/column-option'
 import type DataResponse from '../../interfaces/data-response'
 import useRouteState from './useRouteState'
 
-export default function(props, emits, dataProvider, gridOption) {
+export default function(props, emits, dataProvider, gridOption, watchProps: any = []) {
   const vGridOptions = inject('$vgrid', {
     debug: false,
     routerKey: null,
@@ -72,12 +72,12 @@ export default function(props, emits, dataProvider, gridOption) {
   // Param state on Url
   const currentState = computed(() => {
     let params: any = {
-      [gridOption.searchField]: gridState.searchKeyword,
+      [gridOption.value.searchField]: gridState.searchKeyword,
       limit: gridState.limit
     }
 
-    if (gridOption.pageKey) {
-      params[gridOption.pageKey] = gridState.currentPage
+    if (gridOption.value.pageKey) {
+      params[gridOption.value.pageKey] = gridState.currentPage
     }
 
     if (props.orderable && gridState.order && gridState.order.by) {
@@ -136,7 +136,7 @@ export default function(props, emits, dataProvider, gridOption) {
       }))
   })
   const gridClasses = computed(() => {
-    return [`vgrid-${gridOption.displayType}`, `vgrid-${gridOption.dataType}`]
+    return [`vgrid-${gridOption.value.displayType}`, `vgrid-${gridOption.value.dataType}`]
   })
   const setColumnVisibility = () => {
     columnVisibility.value = props.columns
@@ -239,6 +239,21 @@ export default function(props, emits, dataProvider, gridOption) {
     gridState.gridstate = new Date().getTime();
     gridState.where = {}
   }
+
+  const watchPropsValue = computed(() => {
+    return watchProps.reduce((acc, curr) => ({
+      ...acc,
+      [curr]: props[curr],
+    }), {});
+  });
+
+  watch(
+    () => watchPropsValue.value,
+    () => {
+      dataProvider.setOptions(gridOption.value)
+      resetGrid()
+    },
+  );
 
   watch(
     () => props.columns,
