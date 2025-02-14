@@ -107,6 +107,7 @@ setColumnVisibility()
 getData()
 
 defineExpose({
+  dataState,
   getData,
   setFilter,
 })

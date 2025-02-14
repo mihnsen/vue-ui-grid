@@ -3820,6 +3820,7 @@ const _sfc_main$8 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -4091,6 +4092,7 @@ const _sfc_main$7 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -4313,6 +4315,7 @@ const _sfc_main$6 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -4572,6 +4575,7 @@ const _sfc_main$5 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -4840,6 +4844,7 @@ const _sfc_main$4 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -5055,6 +5060,7 @@ const _sfc_main$3 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -5323,6 +5329,7 @@ const _sfc_main$2 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -5593,6 +5600,7 @@ const _sfc_main$1 = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
@@ -5810,6 +5818,7 @@ const _sfc_main = defineComponent({
     setColumnVisibility();
     getData2();
     expose({
+      dataState,
       getData: getData2,
       setFilter
     });
