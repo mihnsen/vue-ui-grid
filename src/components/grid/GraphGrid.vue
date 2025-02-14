@@ -117,7 +117,9 @@ getData()
 
 defineExpose({
   dataState,
+  gridState,
   getData,
   setFilter,
+  resetGrid,
 })
 </script>

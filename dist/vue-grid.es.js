@@ -3821,8 +3821,10 @@ const _sfc_main$8 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4093,8 +4095,10 @@ const _sfc_main$7 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4316,8 +4320,10 @@ const _sfc_main$6 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4576,8 +4582,10 @@ const _sfc_main$5 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -4845,8 +4853,10 @@ const _sfc_main$4 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5061,8 +5071,10 @@ const _sfc_main$3 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5330,8 +5342,10 @@ const _sfc_main$2 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5601,8 +5615,10 @@ const _sfc_main$1 = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
@@ -5819,8 +5835,10 @@ const _sfc_main = defineComponent({
     getData2();
     expose({
       dataState,
+      gridState,
       getData: getData2,
-      setFilter
+      setFilter,
+      resetGrid
     });
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
