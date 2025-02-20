@@ -2576,7 +2576,7 @@ const _hoisted_1$p = {
   key: 0,
   class: "vgrid-pagination"
 };
-const _hoisted_2$j = ["onClick", "innerHTML"];
+const _hoisted_2$k = ["onClick", "innerHTML"];
 const _sfc_main$u = /* @__PURE__ */ defineComponent({
   name: "Pagination",
   props: {
@@ -2659,7 +2659,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
                 href: "javascript:;",
                 onClick: ($event) => onPageChange(item.page),
                 innerHTML: item.label
-              }, null, 8, _hoisted_2$j)
+              }, null, 8, _hoisted_2$k)
             ], 2);
           }), 128))
         ])
@@ -2671,7 +2671,7 @@ const _hoisted_1$o = {
   key: 0,
   class: "vgrid-pagination vgrid-pagination--cursor"
 };
-const _hoisted_2$i = ["onClick", "innerHTML", "title"];
+const _hoisted_2$j = ["onClick", "innerHTML", "title"];
 const _sfc_main$t = /* @__PURE__ */ defineComponent({
   name: "CursorPagination",
   props: {
@@ -2715,7 +2715,7 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
                 onClick: ($event) => onPageChange(item.page),
                 innerHTML: item.label,
                 title: item.title
-              }, null, 8, _hoisted_2$i)
+              }, null, 8, _hoisted_2$j)
             ], 2);
           }), 128))
         ])
@@ -2902,7 +2902,7 @@ function useColumnFilter(props) {
   };
 }
 const _hoisted_1$l = { class: "vgrid-text-input" };
-const _hoisted_2$h = ["value", "placeholder"];
+const _hoisted_2$i = ["value", "placeholder"];
 const _sfc_main$n = /* @__PURE__ */ defineComponent({
   name: "TextInput",
   props: {
@@ -2953,7 +2953,7 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
           value: unref(localValue),
           placeholder: __props.placeholder,
           onInput: onChange
-        }, null, 42, _hoisted_2$h),
+        }, null, 42, _hoisted_2$i),
         unref(hasClearable) ? (openBlock(), createElementBlock("a", {
           key: 0,
           class: "vgrid-input-clear",
@@ -2988,7 +2988,7 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$k = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Clear selected", -1);
-const _hoisted_2$g = ["value"];
+const _hoisted_2$h = ["value"];
 const _sfc_main$l = /* @__PURE__ */ defineComponent({
   name: "Dropdown",
   props: {
@@ -3013,7 +3013,7 @@ const _sfc_main$l = /* @__PURE__ */ defineComponent({
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
             return openBlock(), createElementBlock("option", {
               value: value.id + ""
-            }, toDisplayString(value.label), 9, _hoisted_2$g);
+            }, toDisplayString(value.label), 9, _hoisted_2$h);
           }), 256))
         ], 512), [
           [vModelSelect, unref(localValue)]
@@ -3090,7 +3090,7 @@ function useFilter(props, localValue, el = {}) {
   };
 }
 const _hoisted_1$j = { class: "vgrid-filter-value" };
-const _hoisted_2$f = { class: "vgrid-label--prefix" };
+const _hoisted_2$g = { class: "vgrid-label--prefix" };
 const _hoisted_3$f = { class: "vgrid-filter-editor" };
 const _hoisted_4$f = { class: "vgrid-filter-label" };
 const _sfc_main$j = /* @__PURE__ */ defineComponent({
@@ -3123,7 +3123,7 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
           createElementVNode("span", _hoisted_1$j, [
-            createElementVNode("span", _hoisted_2$f, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("span", _hoisted_2$g, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
@@ -3146,7 +3146,7 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$i = { class: "vgrid-filter-value" };
-const _hoisted_2$e = { class: "vgrid-label--prefix" };
+const _hoisted_2$f = { class: "vgrid-label--prefix" };
 const _hoisted_3$e = { class: "vgrid-filter-editor" };
 const _hoisted_4$e = { class: "vgrid-filter-label" };
 const _hoisted_5$d = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Select a value", -1);
@@ -3187,7 +3187,7 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
           createElementVNode("span", _hoisted_1$i, [
-            createElementVNode("span", _hoisted_2$e, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("span", _hoisted_2$f, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
@@ -3219,7 +3219,7 @@ function uniqueId(prefix) {
   return `${p}-${rand}`;
 }
 const _hoisted_1$h = { class: "vgrid-filter-value" };
-const _hoisted_2$d = { class: "vgrid-label--prefix" };
+const _hoisted_2$e = { class: "vgrid-label--prefix" };
 const _hoisted_3$d = { class: "vgrid-filter-editor" };
 const _hoisted_4$d = { class: "vgrid-filter-label" };
 const _hoisted_5$c = { class: "form-check" };
@@ -3261,7 +3261,7 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
           createElementVNode("span", _hoisted_1$h, [
-            createElementVNode("span", _hoisted_2$d, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("span", _hoisted_2$e, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
@@ -3292,7 +3292,7 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$g = { class: "vgrid-filter-value" };
-const _hoisted_2$c = { class: "vgrid-label--prefix" };
+const _hoisted_2$d = { class: "vgrid-label--prefix" };
 const _hoisted_3$c = { class: "vgrid-filter-editor" };
 const _hoisted_4$c = { class: "vgrid-filter-label" };
 const _hoisted_5$b = { class: "form-check" };
@@ -3338,7 +3338,7 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
           createElementVNode("span", _hoisted_1$g, [
-            createElementVNode("span", _hoisted_2$c, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("span", _hoisted_2$d, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
@@ -3421,7 +3421,7 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$e = { class: "vgrid-order" };
-const _hoisted_2$b = { class: "vgrid-select" };
+const _hoisted_2$c = { class: "vgrid-select" };
 const _hoisted_3$b = ["value"];
 const _hoisted_4$b = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-label--prefix" }, "Sort:", -1);
 const _hoisted_5$a = ["onClick"];
@@ -3471,7 +3471,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1$e, [
-        createElementVNode("div", _hoisted_2$b, [
+        createElementVNode("div", _hoisted_2$c, [
           withDirectives(createElementVNode("select", {
             class: "vgrid-input",
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(orderBy) ? orderBy.value = $event : null)
@@ -3499,7 +3499,7 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$d = { class: "vgrid-size" };
-const _hoisted_2$a = /* @__PURE__ */ createElementVNode("span", null, "Show", -1);
+const _hoisted_2$b = /* @__PURE__ */ createElementVNode("span", null, "Show", -1);
 const _hoisted_3$a = ["value"];
 const _hoisted_4$a = /* @__PURE__ */ createElementVNode("span", null, "entries", -1);
 const _sfc_main$d = /* @__PURE__ */ defineComponent({
@@ -3514,7 +3514,7 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     const localValue = useLocalValue(props, emits);
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1$d, [
-        _hoisted_2$a,
+        _hoisted_2$b,
         withDirectives(createElementVNode("select", {
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, [
@@ -3533,9 +3533,9 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$c = ["onClick"];
-const _hoisted_2$9 = /* @__PURE__ */ createElementVNode("span", null, "Columns visibility", -1);
+const _hoisted_2$a = /* @__PURE__ */ createElementVNode("span", null, "Columns visibility", -1);
 const _hoisted_3$9 = [
-  _hoisted_2$9
+  _hoisted_2$a
 ];
 const _hoisted_4$9 = { class: "vgrid-visibility-body" };
 const _hoisted_5$9 = ["id", "value"];
@@ -3692,12 +3692,13 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
   }
 });
 const _hoisted_1$9 = { class: "vgrid-export-button" };
+const _hoisted_2$9 = ["onClick"];
 const _sfc_main$9 = /* @__PURE__ */ defineComponent({
   name: "ExportButton",
   props: {
     data: { default: () => [] },
     columns: { default: () => [] },
-    fileName: { default: new Date().toISOString() }
+    fileName: { default: () => new Date().toISOString() }
   },
   setup(__props) {
     const props = __props;
@@ -3705,6 +3706,7 @@ const _sfc_main$9 = /* @__PURE__ */ defineComponent({
       return props.columns.filter((c) => c.type !== "custom");
     });
     const exportData = () => {
+      const fileName = props.fileName || new Date().toISOString();
       const header = filteredColumn.value.map((c) => c.label).join(",");
       const body = props.data.map((d) => {
         return filteredColumn.value.map((c) => getData(c.field, d)).map((v) => `"${v}"`).join(",");
@@ -3714,13 +3716,16 @@ ${body}`;
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `${props.fileName}.csv`);
+      link.setAttribute("download", `${fileName}.csv`);
       document.body.appendChild(link);
       link.click();
     };
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", _hoisted_1$9, [
-        createElementVNode("button", { onClick: exportData }, "Export")
+        createElementVNode("button", {
+          type: "button",
+          onClick: withModifiers(exportData, ["stop"])
+        }, "Export", 8, _hoisted_2$9)
       ]);
     };
   }

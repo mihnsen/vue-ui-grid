@@ -1,7 +1,8 @@
 <template lang="pug">
 .vgrid-export-button
   button(
-    @click="exportData"
+    type="button",
+    @click.stop="exportData",
   ) Export
 </template>
 <script setup lang="ts">
@@ -17,13 +18,14 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   data: () => ([]),
   columns: () => ([]),
-  fileName: (new Date()).toISOString(),
+  fileName: () => (new Date()).toISOString(),
 })
 const filteredColumn = computed(() => {
   return props.columns.filter(c => c.type !== 'custom')
 })
 
 const exportData = () => {
+  const fileName = props.fileName || (new Date()).toISOString();
   const header = filteredColumn.value.map(c => c.label).join(',')
 
   const body = props.data.map(d => {
@@ -37,7 +39,7 @@ const exportData = () => {
   const encodedUri = encodeURI(csvContent)
   const link = document.createElement('a')
   link.setAttribute('href', encodedUri)
-  link.setAttribute('download', `${props.fileName}.csv`)
+  link.setAttribute('download', `${fileName}.csv`)
   document.body.appendChild(link) // Required for FF
 
   link.click()
