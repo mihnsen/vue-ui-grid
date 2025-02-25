@@ -1,19 +1,21 @@
 .vgrid-footer
   slot(name="footer")
     slot(name="footer-start")
-    PageSize(
-      v-if="pagable",
-      v-model="gridState.limit",
-      :sizes="gridState.pageSizes",
-    )
-    template(v-if="!cursorPagination")
-      GridStatus(
-        v-if="statusable",
-        :limit="gridState.limit",
-        :current-page="gridState.currentPage",
-        :showed="dataState.records.length",
-        :total="dataState.total"
+    slot(name="pagesize")
+      PageSize(
+        v-if="pagable",
+        v-model="gridState.limit",
+        :sizes="gridState.pageSizes",
       )
+    template(v-if="!cursorPagination")
+      slot(name="grid-status")
+        GridStatus(
+          v-if="statusable",
+          :limit="gridState.limit",
+          :current-page="gridState.currentPage",
+          :showed="dataState.records.length",
+          :total="dataState.total"
+        )
     template(v-if="pagination")
       slot(name="pagination")
         CursorPagination(

@@ -1,36 +1,41 @@
 .vgrid-header
   slot(name="header")
     slot(name="header-start")
-    block search
-      GridSearch(
-        v-model="gridState.searchKeyword",
-        :placeholder="searchPlaceholder",
-        v-if="searchable"
-      )
-    block filter
-      GridFilter(
-        v-if="filterable && hasColumnFilter",
-        v-model="gridState.where",
-        :columns="columns"
-      )
-    block order
-      GridOrder.vgrid-ml-auto(
-        v-if="orderable && hasColumnOrder",
-        v-model="gridState.order",
-        :has-sort-type="gridState.hasSortType",
-        :columns="columns"
-      )
-    block visibility
-      ColumnsVisibility.vgrid-ml-auto(
-        v-if="columnVisible"
-        :columns="columns",
-        v-model="columnVisibility",
-      )
-    block export
-      ExportButton.vgrid-ml-auto(
-        v-if="exportable"
-        :columns="visibleCols",
-        :data="dataState.records",
-        :file-name="exportFileName ? exportFileName : ''"
-      )
+    slot(name="header-search")
+      block search
+        GridSearch(
+          v-model="gridState.searchKeyword",
+          :placeholder="searchPlaceholder",
+          v-if="searchable"
+        )
+    slot(name="header-filter")
+      block filter
+        GridFilter(
+          v-if="filterable && hasColumnFilter",
+          v-model="gridState.where",
+          :columns="columns"
+        )
+    slot(name="header-order")
+      block order
+        GridOrder.vgrid-ml-auto(
+          v-if="orderable && hasColumnOrder",
+          v-model="gridState.order",
+          :has-sort-type="gridState.hasSortType",
+          :columns="columns"
+        )
+    slot(name="header-column-visibility")
+      block visibility
+        ColumnsVisibility.vgrid-ml-auto(
+          v-if="columnVisible"
+          :columns="columns",
+          v-model="columnVisibility",
+        )
+    slot(name="header-export")
+      block export
+        ExportButton.vgrid-ml-auto(
+          v-if="exportable"
+          :columns="visibleCols",
+          :data="dataState.records",
+          :file-name="exportFileName ? exportFileName : ''"
+        )
     slot(name="header-end")

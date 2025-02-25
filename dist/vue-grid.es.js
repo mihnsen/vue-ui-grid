@@ -3838,40 +3838,50 @@ const _sfc_main$8 = defineComponent({
         createElementVNode("div", _hoisted_1$8, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).searchKeyword,
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).searchKeyword,
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -3971,13 +3981,15 @@ const _sfc_main$8 = defineComponent({
         createElementVNode("div", _hoisted_18$2, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -3985,8 +3997,8 @@ const _sfc_main$8 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -4112,40 +4124,50 @@ const _sfc_main$7 = defineComponent({
         createElementVNode("div", _hoisted_1$7, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).searchKeyword,
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).searchKeyword,
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -4197,13 +4219,15 @@ const _sfc_main$7 = defineComponent({
         createElementVNode("div", _hoisted_11$7, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -4211,8 +4235,8 @@ const _sfc_main$7 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -4337,40 +4361,50 @@ const _sfc_main$6 = defineComponent({
         createElementVNode("div", _hoisted_1$6, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).searchKeyword,
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).searchKeyword,
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -4416,13 +4450,15 @@ const _sfc_main$6 = defineComponent({
         createElementVNode("div", _hoisted_10$6, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -4430,8 +4466,8 @@ const _sfc_main$6 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -4599,40 +4635,50 @@ const _sfc_main$5 = defineComponent({
         createElementVNode("div", _hoisted_1$5, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).searchKeyword,
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).searchKeyword,
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -4732,13 +4778,15 @@ const _sfc_main$5 = defineComponent({
         createElementVNode("div", _hoisted_18$1, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -4746,8 +4794,8 @@ const _sfc_main$5 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -4870,40 +4918,50 @@ const _sfc_main$4 = defineComponent({
         createElementVNode("div", _hoisted_1$4, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).searchKeyword,
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).searchKeyword,
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -4949,13 +5007,15 @@ const _sfc_main$4 = defineComponent({
         createElementVNode("div", _hoisted_10$4, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -4963,8 +5023,8 @@ const _sfc_main$4 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -5088,40 +5148,50 @@ const _sfc_main$3 = defineComponent({
         createElementVNode("div", _hoisted_1$3, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).searchKeyword,
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).searchKeyword,
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -5173,13 +5243,15 @@ const _sfc_main$3 = defineComponent({
         createElementVNode("div", _hoisted_11$3, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -5187,8 +5259,8 @@ const _sfc_main$3 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -5359,40 +5431,50 @@ const _sfc_main$2 = defineComponent({
         createElementVNode("div", _hoisted_1$2, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).where[__props.searchField],
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).where[__props.searchField],
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -5492,13 +5574,15 @@ const _sfc_main$2 = defineComponent({
         createElementVNode("div", _hoisted_18, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -5506,8 +5590,8 @@ const _sfc_main$2 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -5632,40 +5716,50 @@ const _sfc_main$1 = defineComponent({
         createElementVNode("div", _hoisted_1$1, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).where[__props.searchField],
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).where[__props.searchField],
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -5711,13 +5805,15 @@ const _sfc_main$1 = defineComponent({
         createElementVNode("div", _hoisted_10$1, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -5725,8 +5821,8 @@ const _sfc_main$1 = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
@@ -5852,40 +5948,50 @@ const _sfc_main = defineComponent({
         createElementVNode("div", _hoisted_1, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
-            __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
-              key: 0,
-              modelValue: unref(gridState).where[__props.searchField],
-              "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
-              placeholder: __props.searchPlaceholder
-            }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true),
-            __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
-              key: 1,
-              modelValue: unref(gridState).where,
-              "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
-              columns: __props.columns
-            }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true),
-            __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
-              key: 2,
-              class: "vgrid-ml-auto",
-              modelValue: unref(gridState).order,
-              "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
-              "has-sort-type": unref(gridState).hasSortType,
-              columns: __props.columns
-            }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true),
-            __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
-              key: 3,
-              class: "vgrid-ml-auto",
-              columns: __props.columns,
-              modelValue: unref(columnVisibility),
-              "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
-            }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true),
-            __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
-              key: 4,
-              class: "vgrid-ml-auto",
-              columns: unref(visibleCols),
-              data: unref(dataState).records,
-              "file-name": __props.exportFileName ? __props.exportFileName : ""
-            }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+                key: 0,
+                modelValue: unref(gridState).where[__props.searchField],
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                modelValue: unref(gridState).order,
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => unref(gridState).order = $event),
+                "has-sort-type": unref(gridState).hasSortType,
+                columns: __props.columns
+              }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
@@ -5937,13 +6043,15 @@ const _sfc_main = defineComponent({
         createElementVNode("div", _hoisted_11, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
-            __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
-              key: 0,
-              modelValue: unref(gridState).limit,
-              "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
-              sizes: unref(gridState).pageSizes
-            }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true),
-            !__props.cursorPagination ? (openBlock(), createElementBlock(Fragment, { key: 1 }, [
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
               __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
                 key: 0,
                 limit: unref(gridState).limit,
@@ -5951,8 +6059,8 @@ const _sfc_main = defineComponent({
                 showed: unref(dataState).records.length,
                 total: unref(dataState).total
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
-            ], 64)) : createCommentVNode("", true),
-            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 2 }, () => [
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
               __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
