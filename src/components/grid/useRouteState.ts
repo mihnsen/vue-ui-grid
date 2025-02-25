@@ -14,7 +14,7 @@ export default function(router, props) {
       state.gridstate = new Date().getTime()
     }
     if (props.searchField && query[props.searchField]) {
-      state[props.searchField] = query[props.searchField]
+      state.searchKeyword = query[props.searchField]
     }
 
     if (props.cursorPagination) {
@@ -37,9 +37,6 @@ export default function(router, props) {
       }
     }
     const filter: any = {}
-    if (props.searchField && query[props.searchField]) {
-      filter[props.searchField] = query[props.searchField]
-    }
     Object.keys(query).forEach((key) => {
       const column = props.columns.find((c) => c.field === key)
       if (column && (column.filter || column.field === props.searchField)) {
