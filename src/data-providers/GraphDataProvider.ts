@@ -87,7 +87,14 @@ export default class GraphDataProvider extends ADataProvider {
   getSearchQuery(filter?: object) {
     let search: Array<string> = []
     if (filter) {
-      const where: any = { ...filter }
+      // Filter empty keys
+      const where: any = Object.keys(filter).reduce((acc, curr) => {
+        if (curr && filter[curr]) {
+          acc[curr] = filter[curr]
+        }
+
+        return acc;
+      }, {});
       const normalKeys = Object.keys(where).filter(key => !key.match(/\./))
       const refKeys = Object.keys(where).filter(key => key.match(/\./))
 
