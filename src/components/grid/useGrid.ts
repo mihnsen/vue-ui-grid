@@ -72,8 +72,11 @@ export default function(props, emits, dataProvider, gridOption, watchProps: any 
   // Param state on Url
   const currentState = computed(() => {
     let params: any = {
-      [gridOption.value.searchField]: gridState.searchKeyword,
       limit: gridState.limit
+    }
+
+    if (props.searchField) {
+      params[props.searchField] = gridState.searchKeyword;
     }
 
     if (gridOption.value.pageKey) {
