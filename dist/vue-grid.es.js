@@ -149,9 +149,11 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
   }, routeGridParams));
   const currentState = computed(() => {
     let params = {
-      [gridOption.value.searchField]: gridState.searchKeyword,
       limit: gridState.limit
     };
+    if (props.searchField) {
+      params[props.searchField] = gridState.searchKeyword;
+    }
     if (gridOption.value.pageKey) {
       params[gridOption.value.pageKey] = gridState.currentPage;
     }
@@ -2386,7 +2388,12 @@ class GraphDataProvider extends ADataProvider {
   getSearchQuery(filter) {
     let search = [];
     if (filter) {
-      const where = __spreadValues({}, filter);
+      const where = Object.keys(filter).reduce((acc, curr) => {
+        if (curr && filter[curr]) {
+          acc[curr] = filter[curr];
+        }
+        return acc;
+      }, {});
       const normalKeys = Object.keys(where).filter((key) => !key.match(/\./));
       const refKeys = Object.keys(where).filter((key) => key.match(/\./));
       const normalSearch = normalKeys.map((key) => {
