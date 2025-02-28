@@ -7,10 +7,13 @@ export default function(props, localValue, el:any = {}) {
 
   const classes = computed(() => {
     const type = props.column.type || 'text'
-    const { field } = props.column
+    const { field, filterClass } = props.column
     const result = [`vgrid-column-type--${type}`, `vgrid-column-data--${field}`]
     if (localValue.value) {
       result.push('active')
+    }
+    if (filterClass) {
+      result.push(filterClass)
     }
     return result
   })
