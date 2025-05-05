@@ -271,7 +271,8 @@ export default function(props, emits, dataProvider, gridOption, watchProps: any 
     [
       () => gridState.where,
       () => gridState.searchKeyword,
-      () => gridState.limit
+      () => gridState.limit,
+      () => gridState.order
     ],
     () => {
       resetPageIndex()

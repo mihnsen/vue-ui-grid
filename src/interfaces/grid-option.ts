@@ -42,5 +42,8 @@ export default interface GridOption {
   graphqlDataCounter?: (data) => number;
 
   routerKey?: any,
+
+  relayFilter?: (field: string, fieldType: string | any, value: any, filterType: string | any) => string;
+  relayOrder?: (by: string, type: string) => string;
 }
 

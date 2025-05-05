@@ -15,7 +15,7 @@ export default class ADataProvider implements IDataProvider {
     this.options = options
   }
 
-  getData(page: number, limit?: number, search?: string, filter?: object, order?: object): Promise<DataResponse> {
+  getData(page: string|number, limit?: number, search?: string, filter?: object, order?: object): Promise<DataResponse> {
     return new Promise((resolve, reject) => {
       const response: DataResponse = {
         items: [],

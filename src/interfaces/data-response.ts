@@ -2,7 +2,7 @@ export interface DataResponse {
   query?: object | string;
   items: Array<object>;
   total?: number;
-  meta?: number;
+  meta?: object;
 }
 
 export interface ErrorResponse extends Error {

@@ -41,5 +41,10 @@ export const VGraphGrid: object;
 export const VGraphList: object;
 export const VGraphCards: object;
 
+// Relay
+export const VRelayGrid: object;
+export const VRelayList: object;
+export const VRelayCards: object;
+
 export const VPagination: object;
 

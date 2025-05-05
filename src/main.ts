@@ -9,12 +9,13 @@ import VueGrid from './vue-grid'
 // import TestVue from './TestVue.vue'
 
 import MainApp from './MainApp.vue'
-import GraphqlApp from './GraphqlApp.vue'
 import AjaxApp from './AjaxApp.vue'
+import GraphqlApp from './GraphqlApp.vue'
+import RelayApp from './RelayApp.vue'
 import App from './App.vue'
 
 // Graph
-import apolloClient from './apollo-provider'
+import apolloClient, { relayClient } from './apollo-provider'
 
 // Ajax
 axios.defaults.baseURL = 'https://reqres.in/api'
@@ -46,6 +47,11 @@ const router = createRouter({
       path: '/graph',
       name: 'graph',
       component: GraphqlApp
+    },
+    {
+      path: '/relay',
+      name: 'relay',
+      component: RelayApp
     }
   ]
 });
@@ -54,6 +60,7 @@ const app = createApp(MainApp)
 app.use(router)
 app.provide(DefaultApolloClient, apolloClient)
 app.provide('$vgridApolloClient', apolloClient)
+app.provide('$vgridRelayClient', relayClient)
 app.use(VueGrid, {
   debug: true,
   ajax: true,
@@ -134,7 +141,28 @@ app.use(VueGrid, {
   graphqlOrder(by: string, type: string) {
     return `order_by: { ${by}: ${type} }`
   },
-  graphqlDataCounter: (data: any) => data.aggregate.count
+  graphqlDataCounter: (data: any) => data.aggregate.count,
+
+  // Relay
+  relay: true,
+  relayFilter(field: string, fieldType: string, value: any, filterType: string) {
+    let result = ''
+
+    if (field) {
+      if (filterType === 'checkbox') {
+        result = `${field}: { _in: [${value.join(', ')}] }`
+      } else if (fieldType === 'uuid' || fieldType === 'id') {
+        result = `${field}: { _eq: "${value}" }`
+      } else {
+        result = `${field}: { _ilike: "%${value}%" }`
+      }
+    }
+
+    return result
+  },
+  relayOrder(by: string, type: string) {
+    return `order_by: { ${by}: ${type} }`
+  },
 })
 
 app.mount('#app');

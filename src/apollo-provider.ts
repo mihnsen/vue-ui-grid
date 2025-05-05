@@ -38,7 +38,7 @@ import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client/core
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: 'https://tst/v1/graphql',
+  uri: 'https://staging-graphql.teeinblue.com/v1/graphql',
   headers: {
     'x-hasura-admin-secret': import.meta.env.VITE_GRAPHQL_SECRET
   },
@@ -52,5 +52,17 @@ const apolloClient = new ApolloClient({
   link: httpLink,
   cache,
 })
+
+const relayClient = new ApolloClient({
+  link: createHttpLink({
+    uri: 'https://staging-graphql.teeinblue.com/v1beta1/relay',
+    headers: {
+      'x-hasura-admin-secret': import.meta.env.VITE_GRAPHQL_SECRET
+    },
+  }),
+  cache,
+});
+
+export { relayClient }
 
 export default apolloClient

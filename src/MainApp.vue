@@ -7,6 +7,7 @@
     <router-link to="/">Go to Json</router-link>
     <router-link to="/ajax">Go to Ajax</router-link>
     <router-link to="/graph">Go to Graph</router-link>
+    <router-link to="/relay">Go to Relay</router-link>
   </p>
   <RouterView></RouterView>
 </template>

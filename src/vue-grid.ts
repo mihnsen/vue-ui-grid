@@ -12,6 +12,10 @@ import VGraphGrid from './components/grid/GraphGrid.vue'
 import VGraphList from './components/grid/GraphList.vue'
 import VGraphCards from './components/grid/GraphCards.vue'
 
+import VRelayGrid from './components/grid/RelayGrid.vue'
+import VRelayList from './components/grid/RelayList.vue'
+import VRelayCards from './components/grid/RelayCards.vue'
+
 import Pagination from './components/Pagination.vue'
 import './assets/scss/_index.scss'
 
@@ -30,6 +34,7 @@ const VueGridPlugin = {
 
     let graphqlOption = {}
     let ajaxOption = {}
+    let relayOption = {}
 
     if (options.graphql) {
       Vue.component('VGraphGrid', VGraphGrid)
@@ -44,6 +49,21 @@ const VueGridPlugin = {
         graphqlFilter: options.graphqlFilter,
         graphqlOrder: options.graphqlOrder,
         graphqlDataCounter: options.graphqlDataCounter
+      }
+    }
+
+    if (options.relay) {
+      Vue.component('VRelayGrid', VRelayGrid)
+      Vue.component('VRelayList', VRelayList)
+      Vue.component('VRelayCards', VRelayCards)
+
+      relayOption = {
+        filterKey: options.filterKey || 'where',
+        limitKey: options.limitKey || 'limit',
+        offsetKey: options.offsetKey || 'offset',
+        aggregateQuery: options.aggregateQuery || 'aggregate { count }',
+        relayFilter: options.relayFilter,
+        relayOrder: options.relayOrder,
       }
     }
 
@@ -71,7 +91,8 @@ const VueGridPlugin = {
     const vueGridOptions = {
       ...gridOption,
       ...ajaxOption,
-      ...graphqlOption
+      ...graphqlOption,
+      ...relayOption,
     }
 
     Vue.provide('$vgrid', vueGridOptions);
