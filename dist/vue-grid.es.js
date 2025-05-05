@@ -303,7 +303,8 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
   watch([
     () => gridState.where,
     () => gridState.searchKeyword,
-    () => gridState.limit
+    () => gridState.limit,
+    () => gridState.order
   ], () => {
     resetPageIndex();
   }, { deep: true });
@@ -2529,6 +2530,261 @@ class GraphDataProvider extends ADataProvider {
     return node;
   }
 }
+class RelayDataProvider extends ADataProvider {
+  constructor(apollo, resource, options) {
+    super(options);
+    __publicField(this, "relayClient");
+    __publicField(this, "resource");
+    __publicField(this, "resourceConnection");
+    this.relayClient = apollo;
+    this.resource = resource;
+    this.resourceConnection = `${this.resource}_connection`;
+  }
+  getData(page, limit, searchKeyword, filter, order) {
+    return new Promise((resolve, reject) => {
+      const query = this.getQuery(page, limit, filter, order);
+      const variables = {
+        limit
+      };
+      const relayQuery = gql$1`${query}`;
+      this.relayClient.query({
+        fetchPolicy: "no-cache",
+        query: relayQuery,
+        variables
+      }).then((result) => {
+        if (!result.loading) {
+          if (result.error) {
+            const err = {
+              name: "relay query from vue-ui-grid",
+              query,
+              error: result.error,
+              message: result.error
+            };
+            return reject(err);
+          }
+          const data = result.data;
+          const rData = data[`${this.resourceConnection}`];
+          if (data) {
+            const total = 0;
+            let prevCursor = null;
+            let nextCursor = null;
+            if (rData.pageInfo.hasPreviousPage) {
+              prevCursor = btoa(`before: "${rData.pageInfo.startCursor}"`);
+            }
+            if (rData.pageInfo.hasNextPage) {
+              nextCursor = btoa(`after: "${rData.pageInfo.endCursor}"`);
+            }
+            const meta = {
+              prev_cursor: prevCursor,
+              next_cursor: nextCursor
+            };
+            const nodes = rData.edges.map((edge) => edge.node).map((item) => this.decodeObject(item));
+            const res = {
+              query,
+              items: nodes,
+              total,
+              meta
+            };
+            resolve(res);
+          }
+        }
+      });
+    });
+  }
+  decodeObject(node) {
+    const decoded = Object.keys(node).reduce((acc, curr) => {
+      let currValue = node[curr];
+      if (typeof node[curr] === "object" && node[curr] && !(node[curr] instanceof Array)) {
+        currValue = this.decodeObject(node[curr]);
+      }
+      return __spreadProps(__spreadValues({}, acc), {
+        [curr]: currValue
+      });
+    }, {});
+    return __spreadProps(__spreadValues({}, decoded), {
+      id: this.decodeId(node.id)
+    });
+  }
+  decodeId(nodeId) {
+    try {
+      const schemaData = atob(nodeId);
+      const schemaId = JSON.parse(schemaData);
+      return schemaId[3];
+    } catch (e) {
+      return nodeId;
+    }
+  }
+  getRelayColumn() {
+    const cols = this.options.columns.filter((col) => !["custom", "query"].includes(col.type));
+    const normalCols = cols.filter((col) => !col.field.match(/\./));
+    const refColumn = cols.filter((col) => col.field.match(/\./));
+    const normalQuery = normalCols.filter((col) => !col.field.match(/\./)).map((col) => col.field).join("\n");
+    const refQuery = this.getRefQuery(refColumn);
+    return `
+    ${normalQuery}
+    ${refQuery}
+    `;
+  }
+  getSearchQuery(filter) {
+    let search = [];
+    if (filter) {
+      const where = Object.keys(filter).reduce((acc, curr) => {
+        if (curr && filter[curr]) {
+          acc[curr] = filter[curr];
+        }
+        return acc;
+      }, {});
+      const normalKeys = Object.keys(where).filter((key) => !key.match(/\./));
+      const refKeys = Object.keys(where).filter((key) => key.match(/\./));
+      const normalSearch = normalKeys.map((key) => {
+        const cfilter = this.getFilter(key, where[key]);
+        return where[key] ? `${cfilter}` : "";
+      }).filter((s) => s).join("");
+      const refFilters = refKeys.map((key) => {
+        return {
+          key,
+          value: where[key]
+        };
+      });
+      const refSearch = this.getRefFilter(refFilters);
+      search = [
+        normalSearch,
+        refSearch
+      ];
+    }
+    return search.join("\n");
+  }
+  getOrderQuery(order) {
+    if (this.options.relayOrder && order && order.by) {
+      return this.options.relayOrder(order.by, order.type);
+    }
+    return "";
+  }
+  getQuery(page, limit, filter, order) {
+    const orderQuery = this.getOrderQuery(order);
+    const searchQuery = this.getSearchQuery(filter);
+    const relayColumn = this.getRelayColumn();
+    let cursor = "";
+    let paginationExp = "first";
+    if (page) {
+      try {
+        cursor = atob(page);
+        if (/before/.test(cursor)) {
+          paginationExp = "last";
+        } else {
+          paginationExp = "first";
+        }
+      } catch (e) {
+        cursor = "";
+      }
+    }
+    const query = `
+      query getData($limit: Int!) {
+        ${this.resourceConnection} (
+          ${cursor},
+          ${paginationExp}: $limit,
+          ${this.options.filterKey}: {
+            ${this.options.refFilter}
+            ${searchQuery}
+          }
+          ${orderQuery}
+        ) {
+          edges {
+            cursor
+            node {
+              ${relayColumn}
+            }
+          }
+          pageInfo {
+            hasNextPage
+            hasPreviousPage
+            startCursor
+            endCursor
+          }
+        }
+      }
+    `;
+    return query;
+  }
+  getFilter(columnKey, receivedValue) {
+    let value = receivedValue;
+    if (typeof receivedValue === "string") {
+      value = receivedValue.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+    }
+    const column = this.options.columns.find((c) => c.field === columnKey);
+    if (this.options.relayFilter && column && value) {
+      return this.options.relayFilter(column.field, column.field_type, value, column.filter_type);
+    }
+    return "";
+  }
+  getRefQuery(columns) {
+    const fields = columns.map((c) => c.field).map((field) => field.split("."));
+    const tree = {};
+    fields.forEach((row) => {
+      row.reduce((acc, curr) => {
+        if (!acc[curr]) {
+          acc[curr] = {};
+        }
+        return acc[curr];
+      }, tree);
+    });
+    return this.getRefQueryByNode(tree, true);
+  }
+  getRefQueryByNode(node, isRoot = false) {
+    const keys = Object.keys(node);
+    if (keys.length) {
+      const q = keys.map((key) => {
+        return `
+          ${key} ${this.getRefQueryByNode(node[key])}
+        `;
+      }).join("\n");
+      return isRoot ? q : `{ ${q} }`;
+    }
+    return "";
+  }
+  getRefFilter(filters) {
+    if (!filters || !filters.length) {
+      return "";
+    }
+    const tree = {};
+    filters.forEach((filter) => {
+      const column = this.options.columns.find((c) => c.field === filter.key);
+      const fields = filter.key.split(".");
+      const len = fields.length;
+      fields.reduce((acc, curr, index) => {
+        let filterValue = {};
+        if (index === len - 1) {
+          filterValue = filter.value;
+          if (this.options.relayFilter && column && filter.value) {
+            filterValue = this.options.relayFilter(curr, column.field_type, filter.value, column.filter_type);
+          }
+        }
+        if (!acc[curr]) {
+          acc[curr] = filterValue;
+        }
+        return acc[curr];
+      }, tree);
+    });
+    return this.getRefFilterByNode(tree, true);
+  }
+  getRefFilterByNode(node, isRoot = false) {
+    if (typeof node === "object") {
+      const keys = Object.keys(node);
+      if (keys.length) {
+        const q = keys.map((key) => {
+          if (typeof node[key] === "object") {
+            return `
+              ${key}: ${this.getRefFilterByNode(node[key])}
+            `;
+          }
+          return this.getRefFilterByNode(node[key]);
+        }).join("\n");
+        return isRoot ? q : `{ ${q} }`;
+      }
+    }
+    return node;
+  }
+}
 function useOption(props) {
   const vGridOptions = inject("$vgrid", {
     debug: false,
@@ -2576,12 +2832,12 @@ function useLocalValue(props, emit) {
     }
   });
 }
-const _hoisted_1$p = {
+const _hoisted_1$s = {
   key: 0,
   class: "vgrid-pagination"
 };
-const _hoisted_2$k = ["onClick", "innerHTML"];
-const _sfc_main$u = /* @__PURE__ */ defineComponent({
+const _hoisted_2$n = ["onClick", "innerHTML"];
+const _sfc_main$x = /* @__PURE__ */ defineComponent({
   name: "Pagination",
   props: {
     modelValue: null,
@@ -2652,7 +2908,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
       localValue.value = page;
     };
     return (_ctx, _cache) => {
-      return unref(totalPage) > 1 ? (openBlock(), createElementBlock("nav", _hoisted_1$p, [
+      return unref(totalPage) > 1 ? (openBlock(), createElementBlock("nav", _hoisted_1$s, [
         createElementVNode("ul", null, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pages), (item, index) => {
             return openBlock(), createElementBlock("li", {
@@ -2663,7 +2919,7 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
                 href: "javascript:;",
                 onClick: ($event) => onPageChange(item.page),
                 innerHTML: item.label
-              }, null, 8, _hoisted_2$k)
+              }, null, 8, _hoisted_2$n)
             ], 2);
           }), 128))
         ])
@@ -2671,12 +2927,12 @@ const _sfc_main$u = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$o = {
+const _hoisted_1$r = {
   key: 0,
   class: "vgrid-pagination vgrid-pagination--cursor"
 };
-const _hoisted_2$j = ["onClick", "innerHTML", "title"];
-const _sfc_main$t = /* @__PURE__ */ defineComponent({
+const _hoisted_2$m = ["onClick", "innerHTML", "title"];
+const _sfc_main$w = /* @__PURE__ */ defineComponent({
   name: "CursorPagination",
   props: {
     modelValue: null,
@@ -2707,7 +2963,7 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
       localValue.value = page;
     };
     return (_ctx, _cache) => {
-      return __props.meta ? (openBlock(), createElementBlock("nav", _hoisted_1$o, [
+      return __props.meta ? (openBlock(), createElementBlock("nav", _hoisted_1$r, [
         createElementVNode("ul", null, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pages), (item, index) => {
             return openBlock(), createElementBlock("li", {
@@ -2719,7 +2975,7 @@ const _sfc_main$t = /* @__PURE__ */ defineComponent({
                 onClick: ($event) => onPageChange(item.page),
                 innerHTML: item.label,
                 title: item.title
-              }, null, 8, _hoisted_2$j)
+              }, null, 8, _hoisted_2$m)
             ], 2);
           }), 128))
         ])
@@ -2770,8 +3026,8 @@ function useColumnType(props) {
     classes
   };
 }
-const _hoisted_1$n = ["innerHTML"];
-const _sfc_main$s = /* @__PURE__ */ defineComponent({
+const _hoisted_1$q = ["innerHTML"];
+const _sfc_main$v = /* @__PURE__ */ defineComponent({
   name: "Basic",
   props: {
     column: null,
@@ -2786,13 +3042,13 @@ const _sfc_main$s = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["vgrid-field", unref(classes)])
       }, [
         renderSlot(_ctx.$slots, "default", {}, () => [
-          createElementVNode("span", { innerHTML: unref(text) }, null, 8, _hoisted_1$n)
+          createElementVNode("span", { innerHTML: unref(text) }, null, 8, _hoisted_1$q)
         ])
       ], 2);
     };
   }
 });
-const _sfc_main$r = /* @__PURE__ */ defineComponent({
+const _sfc_main$u = /* @__PURE__ */ defineComponent({
   name: "DateTime",
   props: {
     column: null,
@@ -2814,7 +3070,7 @@ const _sfc_main$r = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$q = /* @__PURE__ */ defineComponent({
+const _sfc_main$t = /* @__PURE__ */ defineComponent({
   name: "Timestamp",
   props: {
     column: null,
@@ -2836,8 +3092,8 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$m = ["innerHTML"];
-const _sfc_main$p = /* @__PURE__ */ defineComponent({
+const _hoisted_1$p = ["innerHTML"];
+const _sfc_main$s = /* @__PURE__ */ defineComponent({
   name: "Custom",
   props: {
     column: null,
@@ -2852,13 +3108,13 @@ const _sfc_main$p = /* @__PURE__ */ defineComponent({
         class: normalizeClass(["vgrid-field", unref(classes)])
       }, [
         renderSlot(_ctx.$slots, "default", {}, () => [
-          createElementVNode("span", { innerHTML: unref(text) }, null, 8, _hoisted_1$m)
+          createElementVNode("span", { innerHTML: unref(text) }, null, 8, _hoisted_1$p)
         ])
       ], 2);
     };
   }
 });
-const _sfc_main$o = /* @__PURE__ */ defineComponent({
+const _sfc_main$r = /* @__PURE__ */ defineComponent({
   name: "ColumnType",
   props: {
     column: null,
@@ -2867,16 +3123,16 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
   },
   setup(__props) {
     const generateFieldByType = (ctype) => {
-      let columnLayout = _sfc_main$s;
+      let columnLayout = _sfc_main$v;
       switch (ctype) {
         case "datetime":
-          columnLayout = _sfc_main$r;
+          columnLayout = _sfc_main$u;
           break;
         case "timestamp":
-          columnLayout = _sfc_main$q;
+          columnLayout = _sfc_main$t;
           break;
         case "custom":
-          columnLayout = _sfc_main$p;
+          columnLayout = _sfc_main$s;
           break;
       }
       return columnLayout;
@@ -2905,9 +3161,9 @@ function useColumnFilter(props) {
     classes
   };
 }
-const _hoisted_1$l = { class: "vgrid-text-input" };
-const _hoisted_2$i = ["value", "placeholder"];
-const _sfc_main$n = /* @__PURE__ */ defineComponent({
+const _hoisted_1$o = { class: "vgrid-text-input" };
+const _hoisted_2$l = ["value", "placeholder"];
+const _sfc_main$q = /* @__PURE__ */ defineComponent({
   name: "TextInput",
   props: {
     modelValue: { default: "" },
@@ -2948,7 +3204,7 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
       focus
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$l, [
+      return openBlock(), createElementBlock("div", _hoisted_1$o, [
         createElementVNode("input", {
           class: normalizeClass(["vgrid-input", { "vgrid-input--active": unref(localValue) }]),
           ref_key: "input",
@@ -2957,7 +3213,7 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
           value: unref(localValue),
           placeholder: __props.placeholder,
           onInput: onChange
-        }, null, 42, _hoisted_2$i),
+        }, null, 42, _hoisted_2$l),
         unref(hasClearable) ? (openBlock(), createElementBlock("a", {
           key: 0,
           class: "vgrid-input-clear",
@@ -2968,7 +3224,7 @@ const _sfc_main$n = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$m = /* @__PURE__ */ defineComponent({
+const _sfc_main$p = /* @__PURE__ */ defineComponent({
   name: "Basic",
   props: {
     modelValue: null,
@@ -2983,7 +3239,7 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid-column-filter", unref(classes)])
       }, [
-        createVNode(_sfc_main$n, {
+        createVNode(_sfc_main$q, {
           modelValue: unref(localValue),
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, null, 8, ["modelValue"])
@@ -2991,9 +3247,9 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$k = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Clear selected", -1);
-const _hoisted_2$h = ["value"];
-const _sfc_main$l = /* @__PURE__ */ defineComponent({
+const _hoisted_1$n = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Clear selected", -1);
+const _hoisted_2$k = ["value"];
+const _sfc_main$o = /* @__PURE__ */ defineComponent({
   name: "Dropdown",
   props: {
     modelValue: null,
@@ -3013,11 +3269,11 @@ const _sfc_main$l = /* @__PURE__ */ defineComponent({
           ref: "input",
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, [
-          _hoisted_1$k,
+          _hoisted_1$n,
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
             return openBlock(), createElementBlock("option", {
               value: value.id + ""
-            }, toDisplayString(value.label), 9, _hoisted_2$h);
+            }, toDisplayString(value.label), 9, _hoisted_2$k);
           }), 256))
         ], 512), [
           [vModelSelect, unref(localValue)]
@@ -3026,17 +3282,17 @@ const _sfc_main$l = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$k = /* @__PURE__ */ defineComponent({
+const _sfc_main$n = /* @__PURE__ */ defineComponent({
   name: "ColumnFilter",
   props: {
     column: null
   },
   setup(__props) {
     const generateFieldByType = (ftype) => {
-      let filterLayout = _sfc_main$m;
+      let filterLayout = _sfc_main$p;
       switch (ftype) {
         case "dropdown":
-          filterLayout = _sfc_main$l;
+          filterLayout = _sfc_main$o;
           break;
       }
       return filterLayout;
@@ -3093,11 +3349,11 @@ function useFilter(props, localValue, el = {}) {
     onEnter
   };
 }
-const _hoisted_1$j = { class: "vgrid-filter-value" };
-const _hoisted_2$g = { class: "vgrid-label--prefix" };
-const _hoisted_3$f = { class: "vgrid-filter-editor" };
-const _hoisted_4$f = { class: "vgrid-filter-label" };
-const _sfc_main$j = /* @__PURE__ */ defineComponent({
+const _hoisted_1$m = { class: "vgrid-filter-value" };
+const _hoisted_2$j = { class: "vgrid-label--prefix" };
+const _hoisted_3$i = { class: "vgrid-filter-editor" };
+const _hoisted_4$i = { class: "vgrid-filter-label" };
+const _sfc_main$m = /* @__PURE__ */ defineComponent({
   name: "Basic",
   props: {
     modelValue: null,
@@ -3126,14 +3382,14 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$j, [
-            createElementVNode("span", _hoisted_2$g, toDisplayString(__props.column.label) + ":\xA0", 1),
+          createElementVNode("span", _hoisted_1$m, [
+            createElementVNode("span", _hoisted_2$j, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$f, [
-          createElementVNode("span", _hoisted_4$f, toDisplayString(__props.column.label) + ":", 1),
-          createVNode(_sfc_main$n, {
+        withDirectives(createElementVNode("div", _hoisted_3$i, [
+          createElementVNode("span", _hoisted_4$i, toDisplayString(__props.column.label) + ":", 1),
+          createVNode(_sfc_main$q, {
             class: "vgrid-input-sm",
             ref_key: "input",
             ref: input,
@@ -3149,13 +3405,13 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$i = { class: "vgrid-filter-value" };
-const _hoisted_2$f = { class: "vgrid-label--prefix" };
-const _hoisted_3$e = { class: "vgrid-filter-editor" };
-const _hoisted_4$e = { class: "vgrid-filter-label" };
-const _hoisted_5$d = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Select a value", -1);
-const _hoisted_6$c = ["value"];
-const _sfc_main$i = /* @__PURE__ */ defineComponent({
+const _hoisted_1$l = { class: "vgrid-filter-value" };
+const _hoisted_2$i = { class: "vgrid-label--prefix" };
+const _hoisted_3$h = { class: "vgrid-filter-editor" };
+const _hoisted_4$h = { class: "vgrid-filter-label" };
+const _hoisted_5$g = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Select a value", -1);
+const _hoisted_6$f = ["value"];
+const _sfc_main$l = /* @__PURE__ */ defineComponent({
   name: "Dropdown",
   props: {
     modelValue: null,
@@ -3190,22 +3446,22 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$i, [
-            createElementVNode("span", _hoisted_2$f, toDisplayString(__props.column.label) + ":\xA0", 1),
+          createElementVNode("span", _hoisted_1$l, [
+            createElementVNode("span", _hoisted_2$i, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$e, [
-          createElementVNode("span", _hoisted_4$e, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$h, [
+          createElementVNode("span", _hoisted_4$h, toDisplayString(__props.column.label) + ":", 1),
           withDirectives(createElementVNode("select", {
             class: "vgrid-input",
             "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => isRef(localValue) ? localValue.value = $event : null)
           }, [
-            _hoisted_5$d,
+            _hoisted_5$g,
             (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
               return openBlock(), createElementBlock("option", {
                 value: value.id + ""
-              }, toDisplayString(value.label), 9, _hoisted_6$c);
+              }, toDisplayString(value.label), 9, _hoisted_6$f);
             }), 256))
           ], 512), [
             [vModelSelect, unref(localValue)]
@@ -3222,14 +3478,14 @@ function uniqueId(prefix) {
   const rand = Math.floor(1e5 + Math.random() * 9e5);
   return `${p}-${rand}`;
 }
-const _hoisted_1$h = { class: "vgrid-filter-value" };
-const _hoisted_2$e = { class: "vgrid-label--prefix" };
-const _hoisted_3$d = { class: "vgrid-filter-editor" };
-const _hoisted_4$d = { class: "vgrid-filter-label" };
-const _hoisted_5$c = { class: "form-check" };
-const _hoisted_6$b = ["value", "id"];
-const _hoisted_7$b = ["for"];
-const _sfc_main$h = /* @__PURE__ */ defineComponent({
+const _hoisted_1$k = { class: "vgrid-filter-value" };
+const _hoisted_2$h = { class: "vgrid-label--prefix" };
+const _hoisted_3$g = { class: "vgrid-filter-editor" };
+const _hoisted_4$g = { class: "vgrid-filter-label" };
+const _hoisted_5$f = { class: "form-check" };
+const _hoisted_6$e = ["value", "id"];
+const _hoisted_7$e = ["for"];
+const _sfc_main$k = /* @__PURE__ */ defineComponent({
   name: "Checkbox",
   props: {
     modelValue: null,
@@ -3264,28 +3520,28 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$h, [
-            createElementVNode("span", _hoisted_2$e, toDisplayString(__props.column.label) + ":\xA0", 1),
+          createElementVNode("span", _hoisted_1$k, [
+            createElementVNode("span", _hoisted_2$h, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$d, [
-          createElementVNode("span", _hoisted_4$d, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$g, [
+          createElementVNode("span", _hoisted_4$g, toDisplayString(__props.column.label) + ":", 1),
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
-            return openBlock(), createElementBlock("div", _hoisted_5$c, [
+            return openBlock(), createElementBlock("div", _hoisted_5$f, [
               withDirectives(createElementVNode("input", {
                 class: "form-check-input",
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => isRef(localValue) ? localValue.value = $event : null),
                 value: value.id + "",
                 id: __props.column.field + "-" + value.id,
                 type: "checkbox"
-              }, null, 8, _hoisted_6$b), [
+              }, null, 8, _hoisted_6$e), [
                 [vModelCheckbox, unref(localValue)]
               ]),
               createElementVNode("label", {
                 class: "form-check-label",
                 for: __props.column.field + "-" + value.id
-              }, toDisplayString(value.label), 9, _hoisted_7$b)
+              }, toDisplayString(value.label), 9, _hoisted_7$e)
             ]);
           }), 256))
         ], 512), [
@@ -3295,14 +3551,14 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$g = { class: "vgrid-filter-value" };
-const _hoisted_2$d = { class: "vgrid-label--prefix" };
-const _hoisted_3$c = { class: "vgrid-filter-editor" };
-const _hoisted_4$c = { class: "vgrid-filter-label" };
-const _hoisted_5$b = { class: "form-check" };
-const _hoisted_6$a = ["name", "value", "id"];
-const _hoisted_7$a = ["for"];
-const _sfc_main$g = /* @__PURE__ */ defineComponent({
+const _hoisted_1$j = { class: "vgrid-filter-value" };
+const _hoisted_2$g = { class: "vgrid-label--prefix" };
+const _hoisted_3$f = { class: "vgrid-filter-editor" };
+const _hoisted_4$f = { class: "vgrid-filter-label" };
+const _hoisted_5$e = { class: "form-check" };
+const _hoisted_6$d = ["name", "value", "id"];
+const _hoisted_7$d = ["for"];
+const _sfc_main$j = /* @__PURE__ */ defineComponent({
   name: "Radio",
   props: {
     modelValue: null,
@@ -3341,15 +3597,15 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$g, [
-            createElementVNode("span", _hoisted_2$d, toDisplayString(__props.column.label) + ":\xA0", 1),
+          createElementVNode("span", _hoisted_1$j, [
+            createElementVNode("span", _hoisted_2$g, toDisplayString(__props.column.label) + ":\xA0", 1),
             createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$c, [
-          createElementVNode("span", _hoisted_4$c, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$f, [
+          createElementVNode("span", _hoisted_4$f, toDisplayString(__props.column.label) + ":", 1),
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
-            return openBlock(), createElementBlock("div", _hoisted_5$b, [
+            return openBlock(), createElementBlock("div", _hoisted_5$e, [
               withDirectives(createElementVNode("input", {
                 class: "form-check-input",
                 name: unref(elName),
@@ -3357,13 +3613,13 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
                 value: value.id + "",
                 id: __props.column.field + "-" + value.id,
                 type: "radio"
-              }, null, 8, _hoisted_6$a), [
+              }, null, 8, _hoisted_6$d), [
                 [vModelRadio, unref(localValue)]
               ]),
               createElementVNode("label", {
                 class: "form-check-label",
                 for: __props.column.field + "-" + value.id
-              }, toDisplayString(value.label), 9, _hoisted_7$a)
+              }, toDisplayString(value.label), 9, _hoisted_7$d)
             ]);
           }), 256)),
           createElementVNode("div", { class: "text-center mt-2" }, [
@@ -3380,8 +3636,8 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$f = { class: "vgrid-filter" };
-const _sfc_main$f = /* @__PURE__ */ defineComponent({
+const _hoisted_1$i = { class: "vgrid-filter" };
+const _sfc_main$i = /* @__PURE__ */ defineComponent({
   name: "Filter",
   props: {
     modelValue: { default: {} },
@@ -3392,22 +3648,22 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
     const props = __props;
     const localValue = useLocalValue(props, emits);
     const generateFieldByType = (ftype) => {
-      let filterItem = _sfc_main$j;
+      let filterItem = _sfc_main$m;
       switch (ftype) {
         case "dropdown":
-          filterItem = _sfc_main$i;
+          filterItem = _sfc_main$l;
           break;
         case "checkbox":
-          filterItem = _sfc_main$h;
+          filterItem = _sfc_main$k;
           break;
         case "radio":
-          filterItem = _sfc_main$g;
+          filterItem = _sfc_main$j;
           break;
       }
       return filterItem;
     };
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$f, [
+      return openBlock(), createElementBlock("div", _hoisted_1$i, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(__props.columns, (col) => {
           return openBlock(), createElementBlock(Fragment, {
             key: col.id
@@ -3424,12 +3680,12 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$e = { class: "vgrid-order" };
-const _hoisted_2$c = { class: "vgrid-select" };
-const _hoisted_3$b = ["value"];
-const _hoisted_4$b = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-label--prefix" }, "Sort:", -1);
-const _hoisted_5$a = ["onClick"];
-const _sfc_main$e = /* @__PURE__ */ defineComponent({
+const _hoisted_1$h = { class: "vgrid-order" };
+const _hoisted_2$f = { class: "vgrid-select" };
+const _hoisted_3$e = ["value"];
+const _hoisted_4$e = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-label--prefix" }, "Sort:", -1);
+const _hoisted_5$d = ["onClick"];
+const _sfc_main$h = /* @__PURE__ */ defineComponent({
   name: "Order",
   props: {
     modelValue: { default: () => ({
@@ -3474,8 +3730,8 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
       });
     };
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$e, [
-        createElementVNode("div", _hoisted_2$c, [
+      return openBlock(), createElementBlock("div", _hoisted_1$h, [
+        createElementVNode("div", _hoisted_2$f, [
           withDirectives(createElementVNode("select", {
             class: "vgrid-input",
             "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(orderBy) ? orderBy.value = $event : null)
@@ -3483,13 +3739,13 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(orderableColumn), (col) => {
               return openBlock(), createElementBlock("option", {
                 value: col.field
-              }, toDisplayString(col.label), 9, _hoisted_3$b);
+              }, toDisplayString(col.label), 9, _hoisted_3$e);
             }), 256))
           ], 512), [
             [vModelSelect, unref(orderBy)]
           ]),
           createElementVNode("label", null, [
-            _hoisted_4$b,
+            _hoisted_4$e,
             createElementVNode("strong", null, toDisplayString(unref(orderedColumn).label), 1)
           ])
         ]),
@@ -3497,16 +3753,16 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
           key: 0,
           class: "vgrid-order-type",
           onClick: withModifiers(toggleType, ["stop"])
-        }, toDisplayString(unref(order).type), 9, _hoisted_5$a)) : createCommentVNode("", true)
+        }, toDisplayString(unref(order).type), 9, _hoisted_5$d)) : createCommentVNode("", true)
       ]);
     };
   }
 });
-const _hoisted_1$d = { class: "vgrid-size" };
-const _hoisted_2$b = /* @__PURE__ */ createElementVNode("span", null, "Show", -1);
-const _hoisted_3$a = ["value"];
-const _hoisted_4$a = /* @__PURE__ */ createElementVNode("span", null, "entries", -1);
-const _sfc_main$d = /* @__PURE__ */ defineComponent({
+const _hoisted_1$g = { class: "vgrid-size" };
+const _hoisted_2$e = /* @__PURE__ */ createElementVNode("span", null, "Show", -1);
+const _hoisted_3$d = ["value"];
+const _hoisted_4$d = /* @__PURE__ */ createElementVNode("span", null, "entries", -1);
+const _sfc_main$g = /* @__PURE__ */ defineComponent({
   name: "PageSize",
   props: {
     modelValue: null,
@@ -3517,8 +3773,8 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
     const props = __props;
     const localValue = useLocalValue(props, emits);
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$d, [
-        _hoisted_2$b,
+      return openBlock(), createElementBlock("div", _hoisted_1$g, [
+        _hoisted_2$e,
         withDirectives(createElementVNode("select", {
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, [
@@ -3526,27 +3782,27 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
             return openBlock(), createElementBlock("option", {
               value: s,
               key: index
-            }, toDisplayString(s), 9, _hoisted_3$a);
+            }, toDisplayString(s), 9, _hoisted_3$d);
           }), 128))
         ], 512), [
           [vModelSelect, unref(localValue)]
         ]),
-        _hoisted_4$a
+        _hoisted_4$d
       ]);
     };
   }
 });
-const _hoisted_1$c = ["onClick"];
-const _hoisted_2$a = /* @__PURE__ */ createElementVNode("span", null, "Columns visibility", -1);
-const _hoisted_3$9 = [
-  _hoisted_2$a
+const _hoisted_1$f = ["onClick"];
+const _hoisted_2$d = /* @__PURE__ */ createElementVNode("span", null, "Columns visibility", -1);
+const _hoisted_3$c = [
+  _hoisted_2$d
 ];
-const _hoisted_4$9 = { class: "vgrid-visibility-body" };
-const _hoisted_5$9 = ["id", "value"];
-const _hoisted_6$9 = ["for"];
-const _hoisted_7$9 = ["onClick"];
-const _hoisted_8$9 = ["onClick"];
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
+const _hoisted_4$c = { class: "vgrid-visibility-body" };
+const _hoisted_5$c = ["id", "value"];
+const _hoisted_6$c = ["for"];
+const _hoisted_7$c = ["onClick"];
+const _hoisted_8$c = ["onClick"];
+const _sfc_main$f = /* @__PURE__ */ defineComponent({
   name: "ColumnsVisibility",
   props: {
     modelValue: { default: () => ({}) },
@@ -3611,8 +3867,8 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
           class: "vgrid-visibility-button",
           type: "button",
           onClick: toggleVisibility
-        }, _hoisted_3$9),
-        withDirectives(createElementVNode("div", _hoisted_4$9, [
+        }, _hoisted_3$c),
+        withDirectives(createElementVNode("div", _hoisted_4$c, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(columnData.value, (column, index) => {
             return withDirectives((openBlock(), createElementBlock("div", {
               class: "vgrid-visibility-column",
@@ -3623,20 +3879,20 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
                 id: "grid-column-" + column.field,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => tempValue.value = $event),
                 value: column.field
-              }, null, 8, _hoisted_5$9), [
+              }, null, 8, _hoisted_5$c), [
                 [vModelCheckbox, tempValue.value]
               ]),
               createElementVNode("label", {
                 for: "grid-column-" + column.field
-              }, toDisplayString(unref(useGridHeader)(column.label || column.field)), 9, _hoisted_6$9),
+              }, toDisplayString(unref(useGridHeader)(column.label || column.field)), 9, _hoisted_6$c),
               createElementVNode("button", {
                 class: "vgrid-visibility-down",
                 onClick: ($event) => moveDown(index)
-              }, "\xA0", 8, _hoisted_7$9),
+              }, "\xA0", 8, _hoisted_7$c),
               createElementVNode("button", {
                 class: "vgrid-visibility-up",
                 onClick: ($event) => moveUp(index)
-              }, "\xA0", 8, _hoisted_8$9)
+              }, "\xA0", 8, _hoisted_8$c)
             ])), [
               [vShow, column.type !== "hidden"]
             ]);
@@ -3644,12 +3900,12 @@ const _sfc_main$c = /* @__PURE__ */ defineComponent({
         ], 512), [
           [vShow, showVisibility.value]
         ])
-      ], 8, _hoisted_1$c);
+      ], 8, _hoisted_1$f);
     };
   }
 });
-const _hoisted_1$b = ["onSubmit"];
-const _sfc_main$b = /* @__PURE__ */ defineComponent({
+const _hoisted_1$e = ["onSubmit"];
+const _sfc_main$e = /* @__PURE__ */ defineComponent({
   name: "Search",
   props: {
     modelValue: { default: "" },
@@ -3665,17 +3921,17 @@ const _sfc_main$b = /* @__PURE__ */ defineComponent({
         class: "vgrid-search",
         onSubmit: withModifiers(stop, ["prevent"])
       }, [
-        createVNode(_sfc_main$n, {
+        createVNode(_sfc_main$q, {
           placeholder: __props.placeholder,
           modelValue: unref(localValue),
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, null, 8, ["placeholder", "modelValue"])
-      ], 40, _hoisted_1$b);
+      ], 40, _hoisted_1$e);
     };
   }
 });
-const _hoisted_1$a = { class: "vgrid-status" };
-const _sfc_main$a = /* @__PURE__ */ defineComponent({
+const _hoisted_1$d = { class: "vgrid-status" };
+const _sfc_main$d = /* @__PURE__ */ defineComponent({
   name: "Status",
   props: {
     limit: { default: 10 },
@@ -3691,13 +3947,13 @@ const _sfc_main$a = /* @__PURE__ */ defineComponent({
       return `Showing ${from + 1} to ${to} of ${props.total} entries`;
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$a, toDisplayString(unref(paginationInfo)), 1);
+      return openBlock(), createElementBlock("div", _hoisted_1$d, toDisplayString(unref(paginationInfo)), 1);
     };
   }
 });
-const _hoisted_1$9 = { class: "vgrid-export-button" };
-const _hoisted_2$9 = ["onClick"];
-const _sfc_main$9 = /* @__PURE__ */ defineComponent({
+const _hoisted_1$c = { class: "vgrid-export-button" };
+const _hoisted_2$c = ["onClick"];
+const _sfc_main$c = /* @__PURE__ */ defineComponent({
   name: "ExportButton",
   props: {
     data: { default: () => [] },
@@ -3725,52 +3981,52 @@ ${body}`;
       link.click();
     };
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$9, [
+      return openBlock(), createElementBlock("div", _hoisted_1$c, [
         createElementVNode("button", {
           type: "button",
           onClick: withModifiers(exportData, ["stop"])
-        }, "Export", 8, _hoisted_2$9)
+        }, "Export", 8, _hoisted_2$c)
       ]);
     };
   }
 });
-const _hoisted_1$8 = { class: "vgrid-header" };
-const _hoisted_2$8 = { class: "vgrid-body" };
-const _hoisted_3$8 = {
+const _hoisted_1$b = { class: "vgrid-header" };
+const _hoisted_2$b = { class: "vgrid-body" };
+const _hoisted_3$b = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$8 = { key: 0 };
-const _hoisted_5$8 = { key: 1 };
-const _hoisted_6$8 = { class: "vgrid-responsive" };
-const _hoisted_7$8 = { class: "vgrid-table" };
-const _hoisted_8$8 = ["onClick"];
-const _hoisted_9$8 = { class: "vgrid-field-header-content" };
-const _hoisted_10$8 = {
+const _hoisted_4$b = { key: 0 };
+const _hoisted_5$b = { key: 1 };
+const _hoisted_6$b = { class: "vgrid-responsive" };
+const _hoisted_7$b = { class: "vgrid-table" };
+const _hoisted_8$b = ["onClick"];
+const _hoisted_9$b = { class: "vgrid-field-header-content" };
+const _hoisted_10$b = {
   key: 0,
   class: "vgrid-table-filter"
 };
-const _hoisted_11$8 = { key: 1 };
-const _hoisted_12$8 = ["colspan"];
-const _hoisted_13$8 = { key: 0 };
-const _hoisted_14$8 = { key: 1 };
-const _hoisted_15$5 = {
+const _hoisted_11$b = { key: 1 };
+const _hoisted_12$b = ["colspan"];
+const _hoisted_13$b = { key: 0 };
+const _hoisted_14$b = { key: 1 };
+const _hoisted_15$8 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_16$2 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_17$2 = [
-  _hoisted_16$2
+const _hoisted_16$4 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_17$3 = [
+  _hoisted_16$4
 ];
-const _hoisted_18$2 = { class: "vgrid-footer" };
-const _hoisted_19$2 = {
+const _hoisted_18$3 = { class: "vgrid-footer" };
+const _hoisted_19$3 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_20$2 = { class: "vgrid-col-9" };
-const _hoisted_21$2 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_22$2 = { key: 0 };
-const _sfc_main$8 = defineComponent({
+const _hoisted_20$3 = { class: "vgrid-col-9" };
+const _hoisted_21$3 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_22$3 = { key: 0 };
+const _sfc_main$b = defineComponent({
   name: "BasicGrid",
   props: {
     data: { default: () => [] },
@@ -3839,11 +4095,11 @@ const _sfc_main$8 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$8, [
+        createElementVNode("div", _hoisted_1$b, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).searchKeyword,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
@@ -3851,7 +4107,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -3859,7 +4115,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -3869,7 +4125,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -3878,7 +4134,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -3889,17 +4145,17 @@ const _sfc_main$8 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$8, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$8, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$8, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$8, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$b, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$b, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$b, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$b, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_6$8, [
-              createElementVNode("table", _hoisted_7$8, [
+            createElementVNode("div", _hoisted_6$b, [
+              createElementVNode("table", _hoisted_7$b, [
                 renderSlot(_ctx.$slots, "table-head", { cols: unref(visibleCols) }, () => [
                   createElementVNode("thead", null, [
                     createElementVNode("tr", null, [
@@ -3909,7 +4165,7 @@ const _sfc_main$8 = defineComponent({
                           onClick: ($event) => unref(setOrder)(col.field),
                           key: col.id
                         }, [
-                          createElementVNode("div", _hoisted_9$8, [
+                          createElementVNode("div", _hoisted_9$b, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
                               createElementVNode("b", {
@@ -3917,7 +4173,7 @@ const _sfc_main$8 = defineComponent({
                               }, null, 2)
                             ])
                           ])
-                        ], 10, _hoisted_8$8);
+                        ], 10, _hoisted_8$b);
                       }), 128))
                     ])
                   ])
@@ -3926,12 +4182,12 @@ const _sfc_main$8 = defineComponent({
                   entries: unref(dataState).records
                 }, () => [
                   createElementVNode("tbody", null, [
-                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$8, [
+                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$b, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("td", {
                           key: col.field
                         }, [
-                          col.filter ? (openBlock(), createBlock(_sfc_main$k, {
+                          col.filter ? (openBlock(), createBlock(_sfc_main$n, {
                             key: 0,
                             column: col,
                             modelValue: unref(gridState).where[col.field],
@@ -3940,12 +4196,12 @@ const _sfc_main$8 = defineComponent({
                         ]);
                       }), 128))
                     ])) : createCommentVNode("", true),
-                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$8, [
+                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$b, [
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$8, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$8, toDisplayString(__props.strEmptyFilteredData), 1))
-                      ], 8, _hoisted_12$8)
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$b, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$b, toDisplayString(__props.strEmptyFilteredData), 1))
+                      ], 8, _hoisted_12$b)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
                         renderSlot(_ctx.$slots, "default", {
@@ -3957,7 +4213,7 @@ const _sfc_main$8 = defineComponent({
                             return openBlock(), createElementBlock("td", {
                               key: col.field
                             }, [
-                              createVNode(_sfc_main$o, {
+                              createVNode(_sfc_main$r, {
                                 column: col,
                                 data: entry,
                                 class: normalizeClass(col.columnClasses)
@@ -3980,13 +4236,13 @@ const _sfc_main$8 = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$5, _hoisted_17$2)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$8, _hoisted_17$3)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_18$2, [
+        createElementVNode("div", _hoisted_18$3, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -3994,7 +4250,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -4003,12 +4259,12 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -4018,12 +4274,12 @@ const _sfc_main$8 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$2, [
-            createElementVNode("div", _hoisted_20$2, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$3, [
+            createElementVNode("div", _hoisted_20$3, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_21$2, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$2, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_21$3, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$3, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4031,33 +4287,33 @@ const _sfc_main$8 = defineComponent({
     };
   }
 });
-const _hoisted_1$7 = { class: "vgrid-header" };
-const _hoisted_2$7 = { class: "vgrid-body" };
-const _hoisted_3$7 = {
+const _hoisted_1$a = { class: "vgrid-header" };
+const _hoisted_2$a = { class: "vgrid-body" };
+const _hoisted_3$a = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$7 = { key: 0 };
-const _hoisted_5$7 = { key: 1 };
-const _hoisted_6$7 = { class: "vgrid-row" };
-const _hoisted_7$7 = { class: "vgrid-entry-wrapper" };
-const _hoisted_8$7 = {
+const _hoisted_4$a = { key: 0 };
+const _hoisted_5$a = { key: 1 };
+const _hoisted_6$a = { class: "vgrid-row" };
+const _hoisted_7$a = { class: "vgrid-entry-wrapper" };
+const _hoisted_8$a = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9$7 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10$7 = [
-  _hoisted_9$7
+const _hoisted_9$a = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_10$a = [
+  _hoisted_9$a
 ];
-const _hoisted_11$7 = { class: "vgrid-footer" };
-const _hoisted_12$7 = {
+const _hoisted_11$a = { class: "vgrid-footer" };
+const _hoisted_12$a = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13$7 = { class: "vgrid-col-9" };
-const _hoisted_14$7 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15$4 = { key: 0 };
-const _sfc_main$7 = defineComponent({
+const _hoisted_13$a = { class: "vgrid-col-9" };
+const _hoisted_14$a = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_15$7 = { key: 0 };
+const _sfc_main$a = defineComponent({
   name: "BasicCards",
   props: {
     data: { default: () => [] },
@@ -4125,11 +4381,11 @@ const _sfc_main$7 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$7, [
+        createElementVNode("div", _hoisted_1$a, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).searchKeyword,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
@@ -4137,7 +4393,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4145,7 +4401,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4155,7 +4411,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4164,7 +4420,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4175,16 +4431,16 @@ const _sfc_main$7 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$7, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$7, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$7, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$7, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$a, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$a, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$a, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$a, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_6$7, [
+            createElementVNode("div", _hoisted_6$a, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
                 return openBlock(), createElementBlock("div", {
                   class: normalizeClass(["vgrid-col", unref(cardColumnClasses)])
@@ -4194,9 +4450,9 @@ const _sfc_main$7 = defineComponent({
                     index: entryIndex,
                     visibleCols: unref(visibleCols)
                   }, () => [
-                    createElementVNode("div", _hoisted_7$7, [
+                    createElementVNode("div", _hoisted_7$a, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                        return openBlock(), createBlock(_sfc_main$o, {
+                        return openBlock(), createBlock(_sfc_main$r, {
                           column: col,
                           data: entry,
                           key: col.id,
@@ -4218,13 +4474,13 @@ const _sfc_main$7 = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$7, _hoisted_10$7)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$a, _hoisted_10$a)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11$7, [
+        createElementVNode("div", _hoisted_11$a, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -4232,7 +4488,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -4241,12 +4497,12 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -4256,12 +4512,12 @@ const _sfc_main$7 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$7, [
-            createElementVNode("div", _hoisted_13$7, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$a, [
+            createElementVNode("div", _hoisted_13$a, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_14$7, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$4, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_14$a, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$7, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4269,32 +4525,32 @@ const _sfc_main$7 = defineComponent({
     };
   }
 });
-const _hoisted_1$6 = { class: "vgrid-header" };
-const _hoisted_2$6 = { class: "vgrid-body" };
-const _hoisted_3$6 = {
+const _hoisted_1$9 = { class: "vgrid-header" };
+const _hoisted_2$9 = { class: "vgrid-body" };
+const _hoisted_3$9 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$6 = { key: 0 };
-const _hoisted_5$6 = { key: 1 };
-const _hoisted_6$6 = { class: "vgrid-entry-wrapper" };
-const _hoisted_7$6 = {
+const _hoisted_4$9 = { key: 0 };
+const _hoisted_5$9 = { key: 1 };
+const _hoisted_6$9 = { class: "vgrid-entry-wrapper" };
+const _hoisted_7$9 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_8$6 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_9$6 = [
-  _hoisted_8$6
+const _hoisted_8$9 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_9$9 = [
+  _hoisted_8$9
 ];
-const _hoisted_10$6 = { class: "vgrid-footer" };
-const _hoisted_11$6 = {
+const _hoisted_10$9 = { class: "vgrid-footer" };
+const _hoisted_11$9 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_12$6 = { class: "vgrid-col-9" };
-const _hoisted_13$6 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_14$6 = { key: 0 };
-const _sfc_main$6 = defineComponent({
+const _hoisted_12$9 = { class: "vgrid-col-9" };
+const _hoisted_13$9 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_14$9 = { key: 0 };
+const _sfc_main$9 = defineComponent({
   name: "BasicList",
   props: {
     data: { default: () => [] },
@@ -4362,11 +4618,11 @@ const _sfc_main$6 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$6, [
+        createElementVNode("div", _hoisted_1$9, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).searchKeyword,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
@@ -4374,7 +4630,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4382,7 +4638,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4392,7 +4648,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4401,7 +4657,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4412,9 +4668,9 @@ const _sfc_main$6 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$6, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$6, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$6, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$6, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$9, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$9, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$9, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$9, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
@@ -4422,14 +4678,14 @@ const _sfc_main$6 = defineComponent({
             visibleCols: unref(visibleCols)
           }, () => [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
-              return openBlock(), createElementBlock("div", _hoisted_6$6, [
+              return openBlock(), createElementBlock("div", _hoisted_6$9, [
                 renderSlot(_ctx.$slots, "default", {
                   entry,
                   index: entryIndex,
                   visibleCols: unref(visibleCols)
                 }, () => [
                   (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                    return openBlock(), createBlock(_sfc_main$o, {
+                    return openBlock(), createBlock(_sfc_main$r, {
                       column: col,
                       data: entry,
                       key: col.id,
@@ -4449,13 +4705,13 @@ const _sfc_main$6 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$6, _hoisted_9$6)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$9, _hoisted_9$9)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_10$6, [
+        createElementVNode("div", _hoisted_10$9, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -4463,7 +4719,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -4472,12 +4728,12 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -4487,12 +4743,12 @@ const _sfc_main$6 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$6, [
-            createElementVNode("div", _hoisted_12$6, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$9, [
+            createElementVNode("div", _hoisted_12$9, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_13$6, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$6, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_13$9, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$9, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4534,43 +4790,43 @@ function useAjaxData(props, option) {
     gridOption
   };
 }
-const _hoisted_1$5 = { class: "vgrid-header" };
-const _hoisted_2$5 = { class: "vgrid-body" };
-const _hoisted_3$5 = {
+const _hoisted_1$8 = { class: "vgrid-header" };
+const _hoisted_2$8 = { class: "vgrid-body" };
+const _hoisted_3$8 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$5 = { key: 0 };
-const _hoisted_5$5 = { key: 1 };
-const _hoisted_6$5 = { class: "vgrid-responsive" };
-const _hoisted_7$5 = { class: "vgrid-table" };
-const _hoisted_8$5 = ["onClick"];
-const _hoisted_9$5 = { class: "vgrid-field-header-content" };
-const _hoisted_10$5 = {
+const _hoisted_4$8 = { key: 0 };
+const _hoisted_5$8 = { key: 1 };
+const _hoisted_6$8 = { class: "vgrid-responsive" };
+const _hoisted_7$8 = { class: "vgrid-table" };
+const _hoisted_8$8 = ["onClick"];
+const _hoisted_9$8 = { class: "vgrid-field-header-content" };
+const _hoisted_10$8 = {
   key: 0,
   class: "vgrid-table-filter"
 };
-const _hoisted_11$5 = { key: 1 };
-const _hoisted_12$5 = ["colspan"];
-const _hoisted_13$5 = { key: 0 };
-const _hoisted_14$5 = { key: 1 };
-const _hoisted_15$3 = {
+const _hoisted_11$8 = { key: 1 };
+const _hoisted_12$8 = ["colspan"];
+const _hoisted_13$8 = { key: 0 };
+const _hoisted_14$8 = { key: 1 };
+const _hoisted_15$6 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_16$1 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_17$1 = [
-  _hoisted_16$1
+const _hoisted_16$3 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_17$2 = [
+  _hoisted_16$3
 ];
-const _hoisted_18$1 = { class: "vgrid-footer" };
-const _hoisted_19$1 = {
+const _hoisted_18$2 = { class: "vgrid-footer" };
+const _hoisted_19$2 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_20$1 = { class: "vgrid-col-9" };
-const _hoisted_21$1 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_22$1 = { key: 0 };
-const _sfc_main$5 = defineComponent({
+const _hoisted_20$2 = { class: "vgrid-col-9" };
+const _hoisted_21$2 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_22$2 = { key: 0 };
+const _sfc_main$8 = defineComponent({
   name: "AjaxGrid",
   props: {
     resource: { default: "" },
@@ -4636,11 +4892,11 @@ const _sfc_main$5 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$5, [
+        createElementVNode("div", _hoisted_1$8, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).searchKeyword,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
@@ -4648,7 +4904,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4656,7 +4912,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4666,7 +4922,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4675,7 +4931,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4686,17 +4942,17 @@ const _sfc_main$5 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$5, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$5, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$5, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$8, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$8, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$8, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$8, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_6$5, [
-              createElementVNode("table", _hoisted_7$5, [
+            createElementVNode("div", _hoisted_6$8, [
+              createElementVNode("table", _hoisted_7$8, [
                 renderSlot(_ctx.$slots, "table-head", { cols: unref(visibleCols) }, () => [
                   createElementVNode("thead", null, [
                     createElementVNode("tr", null, [
@@ -4706,7 +4962,7 @@ const _sfc_main$5 = defineComponent({
                           onClick: ($event) => unref(setOrder)(col.field),
                           key: col.id
                         }, [
-                          createElementVNode("div", _hoisted_9$5, [
+                          createElementVNode("div", _hoisted_9$8, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
                               createElementVNode("b", {
@@ -4714,7 +4970,7 @@ const _sfc_main$5 = defineComponent({
                               }, null, 2)
                             ])
                           ])
-                        ], 10, _hoisted_8$5);
+                        ], 10, _hoisted_8$8);
                       }), 128))
                     ])
                   ])
@@ -4723,12 +4979,12 @@ const _sfc_main$5 = defineComponent({
                   entries: unref(dataState).records
                 }, () => [
                   createElementVNode("tbody", null, [
-                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$5, [
+                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$8, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("td", {
                           key: col.field
                         }, [
-                          col.filter ? (openBlock(), createBlock(_sfc_main$k, {
+                          col.filter ? (openBlock(), createBlock(_sfc_main$n, {
                             key: 0,
                             column: col,
                             modelValue: unref(gridState).where[col.field],
@@ -4737,12 +4993,12 @@ const _sfc_main$5 = defineComponent({
                         ]);
                       }), 128))
                     ])) : createCommentVNode("", true),
-                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$5, [
+                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$8, [
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$5, toDisplayString(__props.strEmptyFilteredData), 1))
-                      ], 8, _hoisted_12$5)
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$8, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$8, toDisplayString(__props.strEmptyFilteredData), 1))
+                      ], 8, _hoisted_12$8)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
                         renderSlot(_ctx.$slots, "default", {
@@ -4754,7 +5010,7 @@ const _sfc_main$5 = defineComponent({
                             return openBlock(), createElementBlock("td", {
                               key: col.field
                             }, [
-                              createVNode(_sfc_main$o, {
+                              createVNode(_sfc_main$r, {
                                 column: col,
                                 data: entry,
                                 class: normalizeClass(col.columnClasses)
@@ -4777,13 +5033,13 @@ const _sfc_main$5 = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$3, _hoisted_17$1)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$6, _hoisted_17$2)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_18$1, [
+        createElementVNode("div", _hoisted_18$2, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -4791,7 +5047,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -4800,12 +5056,12 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -4815,12 +5071,12 @@ const _sfc_main$5 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$1, [
-            createElementVNode("div", _hoisted_20$1, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$2, [
+            createElementVNode("div", _hoisted_20$2, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_21$1, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$1, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_21$2, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$2, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4828,32 +5084,32 @@ const _sfc_main$5 = defineComponent({
     };
   }
 });
-const _hoisted_1$4 = { class: "vgrid-header" };
-const _hoisted_2$4 = { class: "vgrid-body" };
-const _hoisted_3$4 = {
+const _hoisted_1$7 = { class: "vgrid-header" };
+const _hoisted_2$7 = { class: "vgrid-body" };
+const _hoisted_3$7 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$4 = { key: 0 };
-const _hoisted_5$4 = { key: 1 };
-const _hoisted_6$4 = { class: "vgrid-entry-wrapper" };
-const _hoisted_7$4 = {
+const _hoisted_4$7 = { key: 0 };
+const _hoisted_5$7 = { key: 1 };
+const _hoisted_6$7 = { class: "vgrid-entry-wrapper" };
+const _hoisted_7$7 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_8$4 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_9$4 = [
-  _hoisted_8$4
+const _hoisted_8$7 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_9$7 = [
+  _hoisted_8$7
 ];
-const _hoisted_10$4 = { class: "vgrid-footer" };
-const _hoisted_11$4 = {
+const _hoisted_10$7 = { class: "vgrid-footer" };
+const _hoisted_11$7 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_12$4 = { class: "vgrid-col-9" };
-const _hoisted_13$4 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_14$4 = { key: 0 };
-const _sfc_main$4 = defineComponent({
+const _hoisted_12$7 = { class: "vgrid-col-9" };
+const _hoisted_13$7 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_14$7 = { key: 0 };
+const _sfc_main$7 = defineComponent({
   name: "AjaxList",
   props: {
     resource: { default: "" },
@@ -4919,11 +5175,11 @@ const _sfc_main$4 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$4, [
+        createElementVNode("div", _hoisted_1$7, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).searchKeyword,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
@@ -4931,7 +5187,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4939,7 +5195,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4949,7 +5205,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4958,7 +5214,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4969,9 +5225,9 @@ const _sfc_main$4 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$4, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$4, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$4, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$4, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$7, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$7, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$7, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$7, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
@@ -4979,14 +5235,14 @@ const _sfc_main$4 = defineComponent({
             visibleCols: unref(visibleCols)
           }, () => [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
-              return openBlock(), createElementBlock("div", _hoisted_6$4, [
+              return openBlock(), createElementBlock("div", _hoisted_6$7, [
                 renderSlot(_ctx.$slots, "default", {
                   entry,
                   index: entryIndex,
                   visibleCols: unref(visibleCols)
                 }, () => [
                   (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                    return openBlock(), createBlock(_sfc_main$o, {
+                    return openBlock(), createBlock(_sfc_main$r, {
                       column: col,
                       data: entry,
                       key: col.id,
@@ -5006,13 +5262,13 @@ const _sfc_main$4 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$4, _hoisted_9$4)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$7, _hoisted_9$7)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_10$4, [
+        createElementVNode("div", _hoisted_10$7, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -5020,7 +5276,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -5029,12 +5285,12 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -5044,12 +5300,12 @@ const _sfc_main$4 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$4, [
-            createElementVNode("div", _hoisted_12$4, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$7, [
+            createElementVNode("div", _hoisted_12$7, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_13$4, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$4, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_13$7, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$7, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5057,33 +5313,33 @@ const _sfc_main$4 = defineComponent({
     };
   }
 });
-const _hoisted_1$3 = { class: "vgrid-header" };
-const _hoisted_2$3 = { class: "vgrid-body" };
-const _hoisted_3$3 = {
+const _hoisted_1$6 = { class: "vgrid-header" };
+const _hoisted_2$6 = { class: "vgrid-body" };
+const _hoisted_3$6 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$3 = { key: 0 };
-const _hoisted_5$3 = { key: 1 };
-const _hoisted_6$3 = { class: "vgrid-row" };
-const _hoisted_7$3 = { class: "vgrid-entry-wrapper" };
-const _hoisted_8$3 = {
+const _hoisted_4$6 = { key: 0 };
+const _hoisted_5$6 = { key: 1 };
+const _hoisted_6$6 = { class: "vgrid-row" };
+const _hoisted_7$6 = { class: "vgrid-entry-wrapper" };
+const _hoisted_8$6 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9$3 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10$3 = [
-  _hoisted_9$3
+const _hoisted_9$6 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_10$6 = [
+  _hoisted_9$6
 ];
-const _hoisted_11$3 = { class: "vgrid-footer" };
-const _hoisted_12$3 = {
+const _hoisted_11$6 = { class: "vgrid-footer" };
+const _hoisted_12$6 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13$3 = { class: "vgrid-col-9" };
-const _hoisted_14$3 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15$2 = { key: 0 };
-const _sfc_main$3 = defineComponent({
+const _hoisted_13$6 = { class: "vgrid-col-9" };
+const _hoisted_14$6 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_15$5 = { key: 0 };
+const _sfc_main$6 = defineComponent({
   name: "AjaxCards",
   props: {
     resource: { default: "" },
@@ -5149,11 +5405,11 @@ const _sfc_main$3 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$3, [
+        createElementVNode("div", _hoisted_1$6, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).searchKeyword,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).searchKeyword = $event),
@@ -5161,7 +5417,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5169,7 +5425,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5179,7 +5435,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5188,7 +5444,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5199,16 +5455,16 @@ const _sfc_main$3 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$3, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$3, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$3, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$3, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$6, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$6, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$6, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$6, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_6$3, [
+            createElementVNode("div", _hoisted_6$6, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
                 return openBlock(), createElementBlock("div", {
                   class: normalizeClass(["vgrid-col", unref(cardColumnClasses)])
@@ -5218,9 +5474,9 @@ const _sfc_main$3 = defineComponent({
                     index: entryIndex,
                     visibleCols: unref(visibleCols)
                   }, () => [
-                    createElementVNode("div", _hoisted_7$3, [
+                    createElementVNode("div", _hoisted_7$6, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                        return openBlock(), createBlock(_sfc_main$o, {
+                        return openBlock(), createBlock(_sfc_main$r, {
                           column: col,
                           data: entry,
                           key: col.id,
@@ -5242,13 +5498,13 @@ const _sfc_main$3 = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$3, _hoisted_10$3)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$6, _hoisted_10$6)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11$3, [
+        createElementVNode("div", _hoisted_11$6, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -5256,7 +5512,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -5265,12 +5521,12 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -5280,12 +5536,12 @@ const _sfc_main$3 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$3, [
-            createElementVNode("div", _hoisted_13$3, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$6, [
+            createElementVNode("div", _hoisted_13$6, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_14$3, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$2, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_14$6, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$5, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5328,43 +5584,43 @@ function useGraphData(props, option) {
     gridOption
   };
 }
-const _hoisted_1$2 = { class: "vgrid-header" };
-const _hoisted_2$2 = { class: "vgrid-body" };
-const _hoisted_3$2 = {
+const _hoisted_1$5 = { class: "vgrid-header" };
+const _hoisted_2$5 = { class: "vgrid-body" };
+const _hoisted_3$5 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$2 = { key: 0 };
-const _hoisted_5$2 = { key: 1 };
-const _hoisted_6$2 = { class: "vgrid-responsive" };
-const _hoisted_7$2 = { class: "vgrid-table" };
-const _hoisted_8$2 = ["onClick"];
-const _hoisted_9$2 = { class: "vgrid-field-header-content" };
-const _hoisted_10$2 = {
+const _hoisted_4$5 = { key: 0 };
+const _hoisted_5$5 = { key: 1 };
+const _hoisted_6$5 = { class: "vgrid-responsive" };
+const _hoisted_7$5 = { class: "vgrid-table" };
+const _hoisted_8$5 = ["onClick"];
+const _hoisted_9$5 = { class: "vgrid-field-header-content" };
+const _hoisted_10$5 = {
   key: 0,
   class: "vgrid-table-filter"
 };
-const _hoisted_11$2 = { key: 1 };
-const _hoisted_12$2 = ["colspan"];
-const _hoisted_13$2 = { key: 0 };
-const _hoisted_14$2 = { key: 1 };
-const _hoisted_15$1 = {
+const _hoisted_11$5 = { key: 1 };
+const _hoisted_12$5 = ["colspan"];
+const _hoisted_13$5 = { key: 0 };
+const _hoisted_14$5 = { key: 1 };
+const _hoisted_15$4 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_16 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_17 = [
-  _hoisted_16
+const _hoisted_16$2 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_17$1 = [
+  _hoisted_16$2
 ];
-const _hoisted_18 = { class: "vgrid-footer" };
-const _hoisted_19 = {
+const _hoisted_18$1 = { class: "vgrid-footer" };
+const _hoisted_19$1 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_20 = { class: "vgrid-col-9" };
-const _hoisted_21 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_22 = { key: 0 };
-const _sfc_main$2 = defineComponent({
+const _hoisted_20$1 = { class: "vgrid-col-9" };
+const _hoisted_21$1 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_22$1 = { key: 0 };
+const _sfc_main$5 = defineComponent({
   name: "GraphGrid",
   props: {
     resource: null,
@@ -5432,11 +5688,11 @@ const _sfc_main$2 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$2, [
+        createElementVNode("div", _hoisted_1$5, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).where[__props.searchField],
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
@@ -5444,7 +5700,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5452,7 +5708,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5462,7 +5718,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5471,7 +5727,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5482,17 +5738,17 @@ const _sfc_main$2 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$2, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$2, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$2, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$5, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$5, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$5, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_6$2, [
-              createElementVNode("table", _hoisted_7$2, [
+            createElementVNode("div", _hoisted_6$5, [
+              createElementVNode("table", _hoisted_7$5, [
                 renderSlot(_ctx.$slots, "table-head", { cols: unref(visibleCols) }, () => [
                   createElementVNode("thead", null, [
                     createElementVNode("tr", null, [
@@ -5502,7 +5758,7 @@ const _sfc_main$2 = defineComponent({
                           onClick: ($event) => unref(setOrder)(col.field),
                           key: col.id
                         }, [
-                          createElementVNode("div", _hoisted_9$2, [
+                          createElementVNode("div", _hoisted_9$5, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
                               createElementVNode("b", {
@@ -5510,7 +5766,7 @@ const _sfc_main$2 = defineComponent({
                               }, null, 2)
                             ])
                           ])
-                        ], 10, _hoisted_8$2);
+                        ], 10, _hoisted_8$5);
                       }), 128))
                     ])
                   ])
@@ -5519,12 +5775,12 @@ const _sfc_main$2 = defineComponent({
                   entries: unref(dataState).records
                 }, () => [
                   createElementVNode("tbody", null, [
-                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$2, [
+                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$5, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("td", {
                           key: col.field
                         }, [
-                          col.filter ? (openBlock(), createBlock(_sfc_main$k, {
+                          col.filter ? (openBlock(), createBlock(_sfc_main$n, {
                             key: 0,
                             column: col,
                             modelValue: unref(gridState).where[col.field],
@@ -5533,12 +5789,12 @@ const _sfc_main$2 = defineComponent({
                         ]);
                       }), 128))
                     ])) : createCommentVNode("", true),
-                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$2, [
+                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$5, [
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$2, toDisplayString(__props.strEmptyFilteredData), 1))
-                      ], 8, _hoisted_12$2)
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$5, toDisplayString(__props.strEmptyFilteredData), 1))
+                      ], 8, _hoisted_12$5)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
                         renderSlot(_ctx.$slots, "default", {
@@ -5550,7 +5806,7 @@ const _sfc_main$2 = defineComponent({
                             return openBlock(), createElementBlock("td", {
                               key: col.field
                             }, [
-                              createVNode(_sfc_main$o, {
+                              createVNode(_sfc_main$r, {
                                 column: col,
                                 data: entry,
                                 class: normalizeClass(col.columnClasses)
@@ -5573,13 +5829,13 @@ const _sfc_main$2 = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$1, _hoisted_17)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$4, _hoisted_17$1)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_18, [
+        createElementVNode("div", _hoisted_18$1, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -5587,7 +5843,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -5596,12 +5852,12 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -5611,12 +5867,12 @@ const _sfc_main$2 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19, [
-            createElementVNode("div", _hoisted_20, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$1, [
+            createElementVNode("div", _hoisted_20$1, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_21, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_21$1, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$1, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5624,32 +5880,32 @@ const _sfc_main$2 = defineComponent({
     };
   }
 });
-const _hoisted_1$1 = { class: "vgrid-header" };
-const _hoisted_2$1 = { class: "vgrid-body" };
-const _hoisted_3$1 = {
+const _hoisted_1$4 = { class: "vgrid-header" };
+const _hoisted_2$4 = { class: "vgrid-body" };
+const _hoisted_3$4 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4$1 = { key: 0 };
-const _hoisted_5$1 = { key: 1 };
-const _hoisted_6$1 = { class: "vgrid-entry-wrapper" };
-const _hoisted_7$1 = {
+const _hoisted_4$4 = { key: 0 };
+const _hoisted_5$4 = { key: 1 };
+const _hoisted_6$4 = { class: "vgrid-entry-wrapper" };
+const _hoisted_7$4 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_8$1 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_9$1 = [
-  _hoisted_8$1
+const _hoisted_8$4 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_9$4 = [
+  _hoisted_8$4
 ];
-const _hoisted_10$1 = { class: "vgrid-footer" };
-const _hoisted_11$1 = {
+const _hoisted_10$4 = { class: "vgrid-footer" };
+const _hoisted_11$4 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_12$1 = { class: "vgrid-col-9" };
-const _hoisted_13$1 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_14$1 = { key: 0 };
-const _sfc_main$1 = defineComponent({
+const _hoisted_12$4 = { class: "vgrid-col-9" };
+const _hoisted_13$4 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_14$4 = { key: 0 };
+const _sfc_main$4 = defineComponent({
   name: "GraphList",
   props: {
     resource: null,
@@ -5717,11 +5973,11 @@ const _sfc_main$1 = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1$1, [
+        createElementVNode("div", _hoisted_1$4, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).where[__props.searchField],
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
@@ -5729,7 +5985,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5737,7 +5993,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5747,7 +6003,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5756,7 +6012,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5767,9 +6023,9 @@ const _sfc_main$1 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2$1, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$1, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$1, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$1, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$4, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$4, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$4, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$4, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
@@ -5777,14 +6033,14 @@ const _sfc_main$1 = defineComponent({
             visibleCols: unref(visibleCols)
           }, () => [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
-              return openBlock(), createElementBlock("div", _hoisted_6$1, [
+              return openBlock(), createElementBlock("div", _hoisted_6$4, [
                 renderSlot(_ctx.$slots, "default", {
                   entry,
                   index: entryIndex,
                   visibleCols: unref(visibleCols)
                 }, () => [
                   (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                    return openBlock(), createBlock(_sfc_main$o, {
+                    return openBlock(), createBlock(_sfc_main$r, {
                       column: col,
                       data: entry,
                       key: col.id,
@@ -5804,13 +6060,13 @@ const _sfc_main$1 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$1, _hoisted_9$1)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$4, _hoisted_9$4)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_10$1, [
+        createElementVNode("div", _hoisted_10$4, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -5818,7 +6074,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -5827,12 +6083,12 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -5842,12 +6098,12 @@ const _sfc_main$1 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$1, [
-            createElementVNode("div", _hoisted_12$1, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$4, [
+            createElementVNode("div", _hoisted_12$4, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_13$1, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$1, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_13$4, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$4, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5855,33 +6111,33 @@ const _sfc_main$1 = defineComponent({
     };
   }
 });
-const _hoisted_1 = { class: "vgrid-header" };
-const _hoisted_2 = { class: "vgrid-body" };
-const _hoisted_3 = {
+const _hoisted_1$3 = { class: "vgrid-header" };
+const _hoisted_2$3 = { class: "vgrid-body" };
+const _hoisted_3$3 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_4 = { key: 0 };
-const _hoisted_5 = { key: 1 };
-const _hoisted_6 = { class: "vgrid-row" };
-const _hoisted_7 = { class: "vgrid-entry-wrapper" };
-const _hoisted_8 = {
+const _hoisted_4$3 = { key: 0 };
+const _hoisted_5$3 = { key: 1 };
+const _hoisted_6$3 = { class: "vgrid-row" };
+const _hoisted_7$3 = { class: "vgrid-entry-wrapper" };
+const _hoisted_8$3 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10 = [
-  _hoisted_9
+const _hoisted_9$3 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_10$3 = [
+  _hoisted_9$3
 ];
-const _hoisted_11 = { class: "vgrid-footer" };
-const _hoisted_12 = {
+const _hoisted_11$3 = { class: "vgrid-footer" };
+const _hoisted_12$3 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13 = { class: "vgrid-col-9" };
-const _hoisted_14 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15 = { key: 0 };
-const _sfc_main = defineComponent({
+const _hoisted_13$3 = { class: "vgrid-col-9" };
+const _hoisted_14$3 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_15$3 = { key: 0 };
+const _sfc_main$3 = defineComponent({
   name: "GraphCards",
   props: {
     resource: null,
@@ -5949,11 +6205,11 @@ const _sfc_main = defineComponent({
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid", unref(gridClasses)])
       }, [
-        createElementVNode("div", _hoisted_1, [
+        createElementVNode("div", _hoisted_1$3, [
           renderSlot(_ctx.$slots, "header", {}, () => [
             renderSlot(_ctx.$slots, "header-start"),
             renderSlot(_ctx.$slots, "header-search", {}, () => [
-              __props.searchable ? (openBlock(), createBlock(_sfc_main$b, {
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
                 key: 0,
                 modelValue: unref(gridState).where[__props.searchField],
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
@@ -5961,7 +6217,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$f, {
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5969,7 +6225,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$e, {
+              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5979,7 +6235,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$c, {
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5988,7 +6244,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$9, {
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5999,16 +6255,16 @@ const _sfc_main = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_2, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$3, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$3, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$3, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$3, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_6, [
+            createElementVNode("div", _hoisted_6$3, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
                 return openBlock(), createElementBlock("div", {
                   class: normalizeClass(["vgrid-col", unref(cardColumnClasses)])
@@ -6018,9 +6274,9 @@ const _sfc_main = defineComponent({
                     index: entryIndex,
                     visibleCols: unref(visibleCols)
                   }, () => [
-                    createElementVNode("div", _hoisted_7, [
+                    createElementVNode("div", _hoisted_7$3, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
-                        return openBlock(), createBlock(_sfc_main$o, {
+                        return openBlock(), createBlock(_sfc_main$r, {
                           column: col,
                           data: entry,
                           key: col.id,
@@ -6042,13 +6298,13 @@ const _sfc_main = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8, _hoisted_10)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$3, _hoisted_10$3)) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11, [
+        createElementVNode("div", _hoisted_11$3, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
-              __props.pagable ? (openBlock(), createBlock(_sfc_main$d, {
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
                 key: 0,
                 modelValue: unref(gridState).limit,
                 "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).limit = $event),
@@ -6056,7 +6312,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
             ]),
             !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
-              __props.statusable ? (openBlock(), createBlock(_sfc_main$a, {
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
                 key: 0,
                 limit: unref(gridState).limit,
                 "current-page": unref(gridState).currentPage,
@@ -6065,12 +6321,12 @@ const _sfc_main = defineComponent({
               }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
             ]) : createCommentVNode("", true),
             __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
-              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$t, {
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
                 key: 0,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
                 meta: unref(dataState).meta
-              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$u, {
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
                 key: 1,
                 modelValue: unref(gridState).currentPage,
                 "onUpdate:modelValue": _cache[6] || (_cache[6] = ($event) => unref(gridState).currentPage = $event),
@@ -6080,12 +6336,795 @@ const _sfc_main = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12, [
-            createElementVNode("div", _hoisted_13, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$3, [
+            createElementVNode("div", _hoisted_13$3, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
+            createElementVNode("div", _hoisted_14$3, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$3, "Loading..")) : createCommentVNode("", true)
+            ])
+          ])) : createCommentVNode("", true)
+        ])
+      ], 2);
+    };
+  }
+});
+function useRelayData(props, option) {
+  const vGridOptions = inject("$vgrid", {
+    cursorKey: "cursor",
+    filterKey: "where",
+    limitKey: "after",
+    offsetKey: "offset",
+    relayFilter: null,
+    relayOrder: null
+  });
+  const relayClient = inject("$vgridRelayClient", null);
+  if (!relayClient) {
+    throw new Error("$vgridRelayClient is not defined");
+  }
+  const baseOptions = useOption(props);
+  const relayOptions = computed(() => ({
+    resource: props.resource,
+    resourceMeta: props.resourceMeta,
+    searchField: props.searchField,
+    refFilter: props.refFilter,
+    pageKey: vGridOptions.cursorKey,
+    offsetKey: vGridOptions.offsetKey,
+    limitKey: vGridOptions.limitKey,
+    filterKey: vGridOptions.filterKey,
+    relayFilter: vGridOptions.relayFilter,
+    relayOrder: vGridOptions.relayOrder
+  }));
+  const gridOption = computed(() => __spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), relayOptions.value), option));
+  if (!props.sortBy) {
+    throw new Error("Relay grid require unique column to do pagination, should provide prop: sort-by");
+  }
+  const dataProvider = new RelayDataProvider(relayClient, props.resource, gridOption.value);
+  return {
+    dataProvider,
+    gridOption
+  };
+}
+const _hoisted_1$2 = { class: "vgrid-header" };
+const _hoisted_2$2 = /* @__PURE__ */ createElementVNode("span", null, "\xA0", -1);
+const _hoisted_3$2 = { class: "vgrid-body" };
+const _hoisted_4$2 = {
+  key: 0,
+  class: "vgrid-nodata"
+};
+const _hoisted_5$2 = { key: 0 };
+const _hoisted_6$2 = { key: 1 };
+const _hoisted_7$2 = { class: "vgrid-responsive" };
+const _hoisted_8$2 = { class: "vgrid-table" };
+const _hoisted_9$2 = ["onClick"];
+const _hoisted_10$2 = { class: "vgrid-field-header-content" };
+const _hoisted_11$2 = {
+  key: 0,
+  class: "vgrid-table-filter"
+};
+const _hoisted_12$2 = { key: 1 };
+const _hoisted_13$2 = ["colspan"];
+const _hoisted_14$2 = { key: 0 };
+const _hoisted_15$2 = { key: 1 };
+const _hoisted_16$1 = {
+  key: 2,
+  class: "vgrid-loader"
+};
+const _hoisted_17 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_18 = [
+  _hoisted_17
+];
+const _hoisted_19 = { class: "vgrid-footer" };
+const _hoisted_20 = {
+  key: 0,
+  class: "vgrid-devbar"
+};
+const _hoisted_21 = { class: "vgrid-col-9" };
+const _hoisted_22 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_23 = { key: 0 };
+const _sfc_main$2 = defineComponent({
+  name: "RelayGrid",
+  props: {
+    resource: null,
+    resourceMeta: null,
+    searchField: null,
+    refFilter: { default: "" },
+    columns: { default: () => [] },
+    perPage: null,
+    filterable: { type: Boolean, default: true },
+    columnFilterable: { type: Boolean, default: false },
+    columnVisible: { type: Boolean, default: false },
+    searchable: { type: Boolean, default: true },
+    searchPlaceholder: null,
+    orderable: { type: Boolean, default: false },
+    sortBy: null,
+    sortType: { default: "desc" },
+    statusable: { type: Boolean, default: true },
+    pagable: { type: Boolean, default: true },
+    pagination: { type: Boolean, default: true },
+    strEmptyFilteredData: { default: "No data matched" },
+    strEmptyData: { default: "Empty data" },
+    exportable: { type: Boolean, default: false },
+    exportFileName: null,
+    colMd: { default: 6 },
+    colLg: { default: 4 },
+    colXl: { default: 3 },
+    routeState: { type: Boolean, default: false },
+    cursorPagination: { type: Boolean, default: true }
+  },
+  emits: ["data-changed"],
+  setup(__props, { expose, emit: emits }) {
+    const props = __props;
+    const {
+      gridOption,
+      dataProvider
+    } = useRelayData(props, { displayType: "grid", dataType: "relay" });
+    const {
+      hasColumnFilter,
+      hasColumnOrder,
+      cardColumnClasses,
+      dataState,
+      hasRecord,
+      columnVisibility,
+      isEmptyData,
+      visibleCols,
+      gridClasses,
+      setColumnVisibility,
+      gridState,
+      isFiltered,
+      getData: getData2,
+      setOrder,
+      setFilter,
+      resetGrid
+    } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
+    setColumnVisibility();
+    getData2();
+    expose({
+      dataState,
+      gridState,
+      getData: getData2,
+      setFilter,
+      resetGrid
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["vgrid", unref(gridClasses)])
+      }, [
+        createElementVNode("div", _hoisted_1$2, [
+          renderSlot(_ctx.$slots, "header", {}, () => [
+            renderSlot(_ctx.$slots, "header-start"),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                modelValue: unref(gridState).where[__props.searchField],
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              _hoisted_2$2
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-end")
+          ])
+        ]),
+        createElementVNode("div", _hoisted_3$2, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_4$2, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_5$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_6$2, toDisplayString(__props.strEmptyFilteredData), 1))
+          ])) : createCommentVNode("", true),
+          !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
+            key: 1,
+            entries: unref(dataState).records,
+            visibleCols: unref(visibleCols)
+          }, () => [
+            createElementVNode("div", _hoisted_7$2, [
+              createElementVNode("table", _hoisted_8$2, [
+                renderSlot(_ctx.$slots, "table-head", { cols: unref(visibleCols) }, () => [
+                  createElementVNode("thead", null, [
+                    createElementVNode("tr", null, [
+                      (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
+                        return openBlock(), createElementBlock("th", {
+                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
+                          onClick: ($event) => unref(setOrder)(col.field),
+                          key: col.id
+                        }, [
+                          createElementVNode("div", _hoisted_10$2, [
+                            renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
+                              createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
+                              createElementVNode("b", {
+                                class: normalizeClass(col.orderClasses)
+                              }, null, 2)
+                            ])
+                          ])
+                        ], 10, _hoisted_9$2);
+                      }), 128))
+                    ])
+                  ])
+                ]),
+                renderSlot(_ctx.$slots, "table-body", {
+                  entries: unref(dataState).records
+                }, () => [
+                  createElementVNode("tbody", null, [
+                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_11$2, [
+                      (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
+                        return openBlock(), createElementBlock("td", {
+                          key: col.field
+                        }, [
+                          col.filter ? (openBlock(), createBlock(_sfc_main$n, {
+                            key: 0,
+                            column: col,
+                            modelValue: unref(gridState).where[col.field],
+                            "onUpdate:modelValue": ($event) => unref(gridState).where[col.field] = $event
+                          }, null, 8, ["column", "modelValue", "onUpdate:modelValue"])) : createCommentVNode("", true)
+                        ]);
+                      }), 128))
+                    ])) : createCommentVNode("", true),
+                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_12$2, [
+                      createElementVNode("td", {
+                        colspan: unref(visibleCols).length
+                      }, [
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_14$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_15$2, toDisplayString(__props.strEmptyFilteredData), 1))
+                      ], 8, _hoisted_13$2)
+                    ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
+                      return openBlock(), createElementBlock("tr", null, [
+                        renderSlot(_ctx.$slots, "default", {
+                          entry,
+                          index: entryIndex,
+                          visibleCols: unref(visibleCols)
+                        }, () => [
+                          (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
+                            return openBlock(), createElementBlock("td", {
+                              key: col.field
+                            }, [
+                              createVNode(_sfc_main$r, {
+                                column: col,
+                                data: entry,
+                                class: normalizeClass(col.columnClasses)
+                              }, {
+                                default: withCtx(() => [
+                                  renderSlot(_ctx.$slots, "column-" + col.field, {
+                                    entry,
+                                    index: entryIndex
+                                  })
+                                ]),
+                                _: 2
+                              }, 1032, ["column", "data", "class"])
+                            ]);
+                          }), 128))
+                        ])
+                      ]);
+                    }), 256))
+                  ])
+                ])
+              ])
+            ])
+          ]) : createCommentVNode("", true),
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_16$1, _hoisted_18)) : createCommentVNode("", true)
+        ]),
+        createElementVNode("div", _hoisted_19, [
+          renderSlot(_ctx.$slots, "footer", {}, () => [
+            renderSlot(_ctx.$slots, "footer-start"),
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                limit: unref(gridState).limit,
+                "current-page": unref(gridState).currentPage,
+                showed: unref(dataState).records.length,
+                total: unref(dataState).total
+              }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
+                key: 0,
+                modelValue: unref(gridState).currentPage,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).currentPage = $event),
+                meta: unref(dataState).meta
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
+                key: 1,
+                modelValue: unref(gridState).currentPage,
+                "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
+                limit: unref(gridState).limit,
+                total: unref(dataState).total
+              }, null, 8, ["modelValue", "limit", "total"]))
+            ]) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "footer-end")
+          ]),
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_20, [
+            createElementVNode("div", _hoisted_21, [
+              createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
+            ]),
+            createElementVNode("div", _hoisted_22, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_23, "Loading..")) : createCommentVNode("", true)
+            ])
+          ])) : createCommentVNode("", true)
+        ])
+      ], 2);
+    };
+  }
+});
+const _hoisted_1$1 = { class: "vgrid-header" };
+const _hoisted_2$1 = /* @__PURE__ */ createElementVNode("span", null, "\xA0", -1);
+const _hoisted_3$1 = { class: "vgrid-body" };
+const _hoisted_4$1 = {
+  key: 0,
+  class: "vgrid-nodata"
+};
+const _hoisted_5$1 = { key: 0 };
+const _hoisted_6$1 = { key: 1 };
+const _hoisted_7$1 = { class: "vgrid-entry-wrapper" };
+const _hoisted_8$1 = {
+  key: 2,
+  class: "vgrid-loader"
+};
+const _hoisted_9$1 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_10$1 = [
+  _hoisted_9$1
+];
+const _hoisted_11$1 = { class: "vgrid-footer" };
+const _hoisted_12$1 = {
+  key: 0,
+  class: "vgrid-devbar"
+};
+const _hoisted_13$1 = { class: "vgrid-col-9" };
+const _hoisted_14$1 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_15$1 = { key: 0 };
+const _sfc_main$1 = defineComponent({
+  name: "RelayList",
+  props: {
+    resource: null,
+    resourceMeta: null,
+    searchField: null,
+    refFilter: { default: "" },
+    columns: { default: () => [] },
+    perPage: null,
+    filterable: { type: Boolean, default: true },
+    columnFilterable: { type: Boolean, default: false },
+    columnVisible: { type: Boolean, default: false },
+    searchable: { type: Boolean, default: true },
+    searchPlaceholder: null,
+    orderable: { type: Boolean, default: false },
+    sortBy: null,
+    sortType: { default: "desc" },
+    statusable: { type: Boolean, default: true },
+    pagable: { type: Boolean, default: true },
+    pagination: { type: Boolean, default: true },
+    strEmptyFilteredData: { default: "No data matched" },
+    strEmptyData: { default: "Empty data" },
+    exportable: { type: Boolean, default: false },
+    exportFileName: null,
+    colMd: { default: 6 },
+    colLg: { default: 4 },
+    colXl: { default: 3 },
+    routeState: { type: Boolean, default: false },
+    cursorPagination: { type: Boolean, default: true }
+  },
+  emits: ["data-changed"],
+  setup(__props, { expose, emit: emits }) {
+    const props = __props;
+    const {
+      gridOption,
+      dataProvider
+    } = useRelayData(props, { displayType: "list", dataType: "relay" });
+    const {
+      hasColumnFilter,
+      hasColumnOrder,
+      cardColumnClasses,
+      dataState,
+      hasRecord,
+      columnVisibility,
+      isEmptyData,
+      visibleCols,
+      gridClasses,
+      setColumnVisibility,
+      gridState,
+      isFiltered,
+      getData: getData2,
+      setOrder,
+      setFilter,
+      resetGrid
+    } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
+    setColumnVisibility();
+    getData2();
+    expose({
+      dataState,
+      gridState,
+      getData: getData2,
+      setFilter,
+      resetGrid
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["vgrid", unref(gridClasses)])
+      }, [
+        createElementVNode("div", _hoisted_1$1, [
+          renderSlot(_ctx.$slots, "header", {}, () => [
+            renderSlot(_ctx.$slots, "header-start"),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                modelValue: unref(gridState).where[__props.searchField],
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              _hoisted_2$1
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-end")
+          ])
+        ]),
+        createElementVNode("div", _hoisted_3$1, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_4$1, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_5$1, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_6$1, toDisplayString(__props.strEmptyFilteredData), 1))
+          ])) : createCommentVNode("", true),
+          !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
+            key: 1,
+            entries: unref(dataState).records,
+            visibleCols: unref(visibleCols)
+          }, () => [
+            (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
+              return openBlock(), createElementBlock("div", _hoisted_7$1, [
+                renderSlot(_ctx.$slots, "default", {
+                  entry,
+                  index: entryIndex,
+                  visibleCols: unref(visibleCols)
+                }, () => [
+                  (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
+                    return openBlock(), createBlock(_sfc_main$r, {
+                      column: col,
+                      data: entry,
+                      key: col.id,
+                      resize: true,
+                      class: normalizeClass(col.columnClasses)
+                    }, {
+                      default: withCtx(() => [
+                        renderSlot(_ctx.$slots, "column-" + col.field, {
+                          entry,
+                          index: entryIndex
+                        })
+                      ]),
+                      _: 2
+                    }, 1032, ["column", "data", "class"]);
+                  }), 128))
+                ])
+              ]);
+            }), 256))
+          ]) : createCommentVNode("", true),
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$1, _hoisted_10$1)) : createCommentVNode("", true)
+        ]),
+        createElementVNode("div", _hoisted_11$1, [
+          renderSlot(_ctx.$slots, "footer", {}, () => [
+            renderSlot(_ctx.$slots, "footer-start"),
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                limit: unref(gridState).limit,
+                "current-page": unref(gridState).currentPage,
+                showed: unref(dataState).records.length,
+                total: unref(dataState).total
+              }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
+                key: 0,
+                modelValue: unref(gridState).currentPage,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).currentPage = $event),
+                meta: unref(dataState).meta
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
+                key: 1,
+                modelValue: unref(gridState).currentPage,
+                "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
+                limit: unref(gridState).limit,
+                total: unref(dataState).total
+              }, null, 8, ["modelValue", "limit", "total"]))
+            ]) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "footer-end")
+          ]),
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$1, [
+            createElementVNode("div", _hoisted_13$1, [
+              createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
+            ]),
+            createElementVNode("div", _hoisted_14$1, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$1, "Loading..")) : createCommentVNode("", true)
+            ])
+          ])) : createCommentVNode("", true)
+        ])
+      ], 2);
+    };
+  }
+});
+const _hoisted_1 = { class: "vgrid-header" };
+const _hoisted_2 = /* @__PURE__ */ createElementVNode("span", null, "\xA0", -1);
+const _hoisted_3 = { class: "vgrid-body" };
+const _hoisted_4 = {
+  key: 0,
+  class: "vgrid-nodata"
+};
+const _hoisted_5 = { key: 0 };
+const _hoisted_6 = { key: 1 };
+const _hoisted_7 = { class: "vgrid-row" };
+const _hoisted_8 = { class: "vgrid-entry-wrapper" };
+const _hoisted_9 = {
+  key: 2,
+  class: "vgrid-loader"
+};
+const _hoisted_10 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
+const _hoisted_11 = [
+  _hoisted_10
+];
+const _hoisted_12 = { class: "vgrid-footer" };
+const _hoisted_13 = {
+  key: 0,
+  class: "vgrid-devbar"
+};
+const _hoisted_14 = { class: "vgrid-col-9" };
+const _hoisted_15 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_16 = { key: 0 };
+const _sfc_main = defineComponent({
+  name: "RelayCards",
+  props: {
+    resource: null,
+    resourceMeta: null,
+    searchField: null,
+    refFilter: { default: "" },
+    columns: { default: () => [] },
+    perPage: null,
+    filterable: { type: Boolean, default: true },
+    columnFilterable: { type: Boolean, default: false },
+    columnVisible: { type: Boolean, default: false },
+    searchable: { type: Boolean, default: true },
+    searchPlaceholder: null,
+    orderable: { type: Boolean, default: false },
+    sortBy: null,
+    sortType: { default: "desc" },
+    statusable: { type: Boolean, default: true },
+    pagable: { type: Boolean, default: true },
+    pagination: { type: Boolean, default: true },
+    strEmptyFilteredData: { default: "No data matched" },
+    strEmptyData: { default: "Empty data" },
+    exportable: { type: Boolean, default: false },
+    exportFileName: null,
+    colMd: { default: 6 },
+    colLg: { default: 4 },
+    colXl: { default: 3 },
+    routeState: { type: Boolean, default: false },
+    cursorPagination: { type: Boolean, default: true }
+  },
+  emits: ["data-changed"],
+  setup(__props, { expose, emit: emits }) {
+    const props = __props;
+    const {
+      gridOption,
+      dataProvider
+    } = useRelayData(props, { displayType: "cards", dataType: "relay" });
+    const {
+      hasColumnFilter,
+      hasColumnOrder,
+      cardColumnClasses,
+      dataState,
+      hasRecord,
+      columnVisibility,
+      isEmptyData,
+      visibleCols,
+      gridClasses,
+      setColumnVisibility,
+      gridState,
+      isFiltered,
+      getData: getData2,
+      setOrder,
+      setFilter,
+      resetGrid
+    } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
+    setColumnVisibility();
+    getData2();
+    expose({
+      dataState,
+      gridState,
+      getData: getData2,
+      setFilter,
+      resetGrid
+    });
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["vgrid", unref(gridClasses)])
+      }, [
+        createElementVNode("div", _hoisted_1, [
+          renderSlot(_ctx.$slots, "header", {}, () => [
+            renderSlot(_ctx.$slots, "header-start"),
+            renderSlot(_ctx.$slots, "header-search", {}, () => [
+              __props.searchable ? (openBlock(), createBlock(_sfc_main$e, {
+                key: 0,
+                modelValue: unref(gridState).where[__props.searchField],
+                "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => unref(gridState).where[__props.searchField] = $event),
+                placeholder: __props.searchPlaceholder
+              }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-filter", {}, () => [
+              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+                key: 0,
+                modelValue: unref(gridState).where,
+                "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
+                columns: __props.columns
+              }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-order", {}, () => [
+              _hoisted_2
+            ]),
+            renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
+              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: __props.columns,
+                modelValue: unref(columnVisibility),
+                "onUpdate:modelValue": _cache[2] || (_cache[2] = ($event) => isRef(columnVisibility) ? columnVisibility.value = $event : null)
+              }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-export", {}, () => [
+              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+                key: 0,
+                class: "vgrid-ml-auto",
+                columns: unref(visibleCols),
+                data: unref(dataState).records,
+                "file-name": __props.exportFileName ? __props.exportFileName : ""
+              }, null, 8, ["columns", "data", "file-name"])) : createCommentVNode("", true)
+            ]),
+            renderSlot(_ctx.$slots, "header-end")
+          ])
+        ]),
+        createElementVNode("div", _hoisted_3, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_4, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_6, toDisplayString(__props.strEmptyFilteredData), 1))
+          ])) : createCommentVNode("", true),
+          !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
+            key: 1,
+            entries: unref(dataState).records,
+            visibleCols: unref(visibleCols)
+          }, () => [
+            createElementVNode("div", _hoisted_7, [
+              (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
+                return openBlock(), createElementBlock("div", {
+                  class: normalizeClass(["vgrid-col", unref(cardColumnClasses)])
+                }, [
+                  renderSlot(_ctx.$slots, "default", {
+                    entry,
+                    index: entryIndex,
+                    visibleCols: unref(visibleCols)
+                  }, () => [
+                    createElementVNode("div", _hoisted_8, [
+                      (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
+                        return openBlock(), createBlock(_sfc_main$r, {
+                          column: col,
+                          data: entry,
+                          key: col.id,
+                          resize: true,
+                          class: normalizeClass(col.columnClasses)
+                        }, {
+                          default: withCtx(() => [
+                            renderSlot(_ctx.$slots, "column-" + col.field, {
+                              entry,
+                              index: entryIndex
+                            })
+                          ]),
+                          _: 2
+                        }, 1032, ["column", "data", "class"]);
+                      }), 128))
+                    ])
+                  ])
+                ], 2);
+              }), 256))
+            ])
+          ]) : createCommentVNode("", true),
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_9, _hoisted_11)) : createCommentVNode("", true)
+        ]),
+        createElementVNode("div", _hoisted_12, [
+          renderSlot(_ctx.$slots, "footer", {}, () => [
+            renderSlot(_ctx.$slots, "footer-start"),
+            renderSlot(_ctx.$slots, "pagesize", {}, () => [
+              __props.pagable ? (openBlock(), createBlock(_sfc_main$g, {
+                key: 0,
+                modelValue: unref(gridState).limit,
+                "onUpdate:modelValue": _cache[3] || (_cache[3] = ($event) => unref(gridState).limit = $event),
+                sizes: unref(gridState).pageSizes
+              }, null, 8, ["modelValue", "sizes"])) : createCommentVNode("", true)
+            ]),
+            !__props.cursorPagination ? renderSlot(_ctx.$slots, "grid-status", { key: 0 }, () => [
+              __props.statusable ? (openBlock(), createBlock(_sfc_main$d, {
+                key: 0,
+                limit: unref(gridState).limit,
+                "current-page": unref(gridState).currentPage,
+                showed: unref(dataState).records.length,
+                total: unref(dataState).total
+              }, null, 8, ["limit", "current-page", "showed", "total"])) : createCommentVNode("", true)
+            ]) : createCommentVNode("", true),
+            __props.pagination ? renderSlot(_ctx.$slots, "pagination", { key: 1 }, () => [
+              __props.cursorPagination ? (openBlock(), createBlock(_sfc_main$w, {
+                key: 0,
+                modelValue: unref(gridState).currentPage,
+                "onUpdate:modelValue": _cache[4] || (_cache[4] = ($event) => unref(gridState).currentPage = $event),
+                meta: unref(dataState).meta
+              }, null, 8, ["modelValue", "meta"])) : (openBlock(), createBlock(_sfc_main$x, {
+                key: 1,
+                modelValue: unref(gridState).currentPage,
+                "onUpdate:modelValue": _cache[5] || (_cache[5] = ($event) => unref(gridState).currentPage = $event),
+                limit: unref(gridState).limit,
+                total: unref(dataState).total
+              }, null, 8, ["modelValue", "limit", "total"]))
+            ]) : createCommentVNode("", true),
+            renderSlot(_ctx.$slots, "footer-end")
+          ]),
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_13, [
             createElementVNode("div", _hoisted_14, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15, "Loading..")) : createCommentVNode("", true)
+              createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
+            ]),
+            createElementVNode("div", _hoisted_15, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_16, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -6096,9 +7135,9 @@ const _sfc_main = defineComponent({
 var _index = "";
 const VueGridPlugin = {
   install(Vue, options = {}) {
-    Vue.component("VGrid", _sfc_main$8);
-    Vue.component("VList", _sfc_main$6);
-    Vue.component("VCards", _sfc_main$7);
+    Vue.component("VGrid", _sfc_main$b);
+    Vue.component("VList", _sfc_main$9);
+    Vue.component("VCards", _sfc_main$a);
     const gridOption = {
       debug: options.debug,
       perPage: options.perPage || 10,
@@ -6107,10 +7146,11 @@ const VueGridPlugin = {
     };
     let graphqlOption = {};
     let ajaxOption = {};
+    let relayOption = {};
     if (options.graphql) {
-      Vue.component("VGraphGrid", _sfc_main$2);
-      Vue.component("VGraphList", _sfc_main$1);
-      Vue.component("VGraphCards", _sfc_main);
+      Vue.component("VGraphGrid", _sfc_main$5);
+      Vue.component("VGraphList", _sfc_main$4);
+      Vue.component("VGraphCards", _sfc_main$3);
       graphqlOption = {
         filterKey: options.filterKey || "where",
         limitKey: options.limitKey || "limit",
@@ -6121,10 +7161,23 @@ const VueGridPlugin = {
         graphqlDataCounter: options.graphqlDataCounter
       };
     }
+    if (options.relay) {
+      Vue.component("VRelayGrid", _sfc_main$2);
+      Vue.component("VRelayList", _sfc_main$1);
+      Vue.component("VRelayCards", _sfc_main);
+      relayOption = {
+        filterKey: options.filterKey || "where",
+        limitKey: options.limitKey || "limit",
+        offsetKey: options.offsetKey || "offset",
+        aggregateQuery: options.aggregateQuery || "aggregate { count }",
+        relayFilter: options.relayFilter,
+        relayOrder: options.relayOrder
+      };
+    }
     if (options.ajax) {
-      Vue.component("VAjaxGrid", _sfc_main$5);
-      Vue.component("VAjaxList", _sfc_main$4);
-      Vue.component("VAjaxCards", _sfc_main$3);
+      Vue.component("VAjaxGrid", _sfc_main$8);
+      Vue.component("VAjaxList", _sfc_main$7);
+      Vue.component("VAjaxCards", _sfc_main$6);
       ajaxOption = {
         pageKey: options.pageKey || "page",
         cursorKey: options.cursorKey || "cursor",
@@ -6138,8 +7191,8 @@ const VueGridPlugin = {
         getPageIndex: options.getPageIndex
       };
     }
-    const vueGridOptions = __spreadValues(__spreadValues(__spreadValues({}, gridOption), ajaxOption), graphqlOption);
+    const vueGridOptions = __spreadValues(__spreadValues(__spreadValues(__spreadValues({}, gridOption), ajaxOption), graphqlOption), relayOption);
     Vue.provide("$vgrid", vueGridOptions);
   }
 };
-export { _sfc_main$u as Pagination, _sfc_main$3 as VAjaxCards, _sfc_main$5 as VAjaxGrid, _sfc_main$4 as VAjaxList, _sfc_main$7 as VCards, _sfc_main as VGraphCards, _sfc_main$2 as VGraphGrid, _sfc_main$1 as VGraphList, _sfc_main$8 as VGrid, _sfc_main$6 as VList, VueGridPlugin as default };
+export { _sfc_main$x as Pagination, _sfc_main$6 as VAjaxCards, _sfc_main$8 as VAjaxGrid, _sfc_main$7 as VAjaxList, _sfc_main$a as VCards, _sfc_main$3 as VGraphCards, _sfc_main$5 as VGraphGrid, _sfc_main$4 as VGraphList, _sfc_main$b as VGrid, _sfc_main$9 as VList, VueGridPlugin as default };
