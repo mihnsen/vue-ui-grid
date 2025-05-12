@@ -17,9 +17,9 @@ slot(
       )
         thead
           tr
-            th.vgrid-field-header(
+            th.vgrid-field-header.abcd(
               v-for="col in visibleCols",
-              @click="setOrder(col.field)",
+              @click.stop="setOrder(col.field)",
               :class="col.headerClasses"
               :key="col.id"
             )
@@ -30,6 +30,7 @@ slot(
                 )
                   span {{ col.showedLabel }}
                   b(
+                    v-if="gridOption.orderable && col.order",
                     :class="col.orderClasses"
                   )
       slot(

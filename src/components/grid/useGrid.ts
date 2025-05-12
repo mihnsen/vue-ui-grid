@@ -32,6 +32,10 @@ export default function(props, emits, dataProvider, gridOption, watchProps: any 
     return props.columns.some(c => c.filter)
   })
   const hasColumnOrder = computed(() => {
+    if (!gridOption.orderable) {
+      return false
+    }
+
     return props.columns.some(c => c.order)
   })
   const cardColumnClasses = computed(() => {
@@ -83,7 +87,7 @@ export default function(props, emits, dataProvider, gridOption, watchProps: any 
       params[gridOption.value.pageKey] = gridState.currentPage
     }
 
-    if (props.orderable && gridState.order && gridState.order.by) {
+    if (gridOption.orderable && gridState.order && gridState.order.by) {
       params.order = gridState.order.by
       params.order_type = gridState.order.type
     }
@@ -195,6 +199,10 @@ export default function(props, emits, dataProvider, gridOption, watchProps: any 
       })
   }
   const setOrder = (field: string) => {
+    if (!gridOption.orderable) {
+      return
+    }
+
     const column: ColumnOption = props.columns.find( (c) => c.field === field)
     if (column && column.order && column.type !== 'custom') {
       if (gridState.order.by === field) {
@@ -219,6 +227,9 @@ export default function(props, emits, dataProvider, gridOption, watchProps: any 
     }
   }
   const getOrderableColumnClasses = (column: any) => {
+    if (!gridOption.orderable) {
+      return ''
+    }
     const classes: string[] = []
     if (column.order && column.type !== 'custom') {
       classes.push('orderable')

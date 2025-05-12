@@ -38,6 +38,7 @@ export default function(props, option) {
     ...baseOptions.value,
     ...relayOptions.value,
     ...option,
+    orderable: false,
   }))
 
   if (!props.sortBy) {

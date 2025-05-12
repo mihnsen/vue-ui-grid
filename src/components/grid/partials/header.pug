@@ -11,14 +11,14 @@
     slot(name="header-filter")
       block filter
         GridFilter(
-          v-if="filterable && hasColumnFilter",
+          v-if="gridOption.filterable && hasColumnFilter",
           v-model="gridState.where",
           :columns="columns"
         )
     slot(name="header-order")
       block order
         GridOrder.vgrid-ml-auto(
-          v-if="orderable && hasColumnOrder",
+          v-if="gridOption.orderable && hasColumnOrder",
           v-model="gridState.order",
           :has-sort-type="gridState.hasSortType",
           :columns="columns"
@@ -26,14 +26,14 @@
     slot(name="header-column-visibility")
       block visibility
         ColumnsVisibility.vgrid-ml-auto(
-          v-if="columnVisible"
+          v-if="gridOption.columnVisible"
           :columns="columns",
           v-model="columnVisibility",
         )
     slot(name="header-export")
       block export
         ExportButton.vgrid-ml-auto(
-          v-if="exportable"
+          v-if="gridOption.exportable"
           :columns="visibleCols",
           :data="dataState.records",
           :file-name="exportFileName ? exportFileName : ''"
