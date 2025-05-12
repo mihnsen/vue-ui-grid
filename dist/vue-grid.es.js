@@ -116,6 +116,9 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     return props.columns.some((c) => c.filter);
   });
   const hasColumnOrder = computed(() => {
+    if (!gridOption.orderable) {
+      return false;
+    }
     return props.columns.some((c) => c.order);
   });
   const cardColumnClasses = computed(() => {
@@ -157,7 +160,7 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     if (gridOption.value.pageKey) {
       params[gridOption.value.pageKey] = gridState.currentPage;
     }
-    if (props.orderable && gridState.order && gridState.order.by) {
+    if (gridOption.orderable && gridState.order && gridState.order.by) {
       params.order = gridState.order.by;
       params.order_type = gridState.order.type;
     }
@@ -245,6 +248,9 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     });
   };
   const setOrder = (field) => {
+    if (!gridOption.orderable) {
+      return;
+    }
     const column = props.columns.find((c) => c.field === field);
     if (column && column.order && column.type !== "custom") {
       if (gridState.order.by === field) {
@@ -265,6 +271,9 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     gridState.where = __spreadValues(__spreadValues({}, gridState.where), filterData);
   };
   const getOrderableColumnClasses = (column) => {
+    if (!gridOption.orderable) {
+      return "";
+    }
     const classes = [];
     if (column.order && column.type !== "custom") {
       classes.push("orderable");
@@ -4107,7 +4116,7 @@ const _sfc_main$b = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4115,7 +4124,7 @@ const _sfc_main$b = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4125,7 +4134,7 @@ const _sfc_main$b = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4134,7 +4143,7 @@ const _sfc_main$b = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4161,16 +4170,17 @@ const _sfc_main$b = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
-                          onClick: ($event) => unref(setOrder)(col.field),
+                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
                           createElementVNode("div", _hoisted_9$b, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
-                              createElementVNode("b", {
+                              unref(gridOption).orderable && col.order ? (openBlock(), createElementBlock("b", {
+                                key: 0,
                                 class: normalizeClass(col.orderClasses)
-                              }, null, 2)
+                              }, null, 2)) : createCommentVNode("", true)
                             ])
                           ])
                         ], 10, _hoisted_8$b);
@@ -4393,7 +4403,7 @@ const _sfc_main$a = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4401,7 +4411,7 @@ const _sfc_main$a = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4411,7 +4421,7 @@ const _sfc_main$a = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4420,7 +4430,7 @@ const _sfc_main$a = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4630,7 +4640,7 @@ const _sfc_main$9 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4638,7 +4648,7 @@ const _sfc_main$9 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4648,7 +4658,7 @@ const _sfc_main$9 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4657,7 +4667,7 @@ const _sfc_main$9 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4904,7 +4914,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -4912,7 +4922,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -4922,7 +4932,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -4931,7 +4941,7 @@ const _sfc_main$8 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -4958,16 +4968,17 @@ const _sfc_main$8 = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
-                          onClick: ($event) => unref(setOrder)(col.field),
+                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
                           createElementVNode("div", _hoisted_9$8, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
-                              createElementVNode("b", {
+                              unref(gridOption).orderable && col.order ? (openBlock(), createElementBlock("b", {
+                                key: 0,
                                 class: normalizeClass(col.orderClasses)
-                              }, null, 2)
+                              }, null, 2)) : createCommentVNode("", true)
                             ])
                           ])
                         ], 10, _hoisted_8$8);
@@ -5187,7 +5198,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5195,7 +5206,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5205,7 +5216,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5214,7 +5225,7 @@ const _sfc_main$7 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5417,7 +5428,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5425,7 +5436,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5435,7 +5446,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5444,7 +5455,7 @@ const _sfc_main$6 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5700,7 +5711,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5708,7 +5719,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -5718,7 +5729,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -5727,7 +5738,7 @@ const _sfc_main$5 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -5754,16 +5765,17 @@ const _sfc_main$5 = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
-                          onClick: ($event) => unref(setOrder)(col.field),
+                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
                           createElementVNode("div", _hoisted_9$5, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
-                              createElementVNode("b", {
+                              unref(gridOption).orderable && col.order ? (openBlock(), createElementBlock("b", {
+                                key: 0,
                                 class: normalizeClass(col.orderClasses)
-                              }, null, 2)
+                              }, null, 2)) : createCommentVNode("", true)
                             ])
                           ])
                         ], 10, _hoisted_8$5);
@@ -5985,7 +5997,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -5993,7 +6005,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -6003,7 +6015,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -6012,7 +6024,7 @@ const _sfc_main$4 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -6217,7 +6229,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -6225,7 +6237,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              __props.orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
+              unref(gridOption).orderable && unref(hasColumnOrder) ? (openBlock(), createBlock(_sfc_main$h, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 modelValue: unref(gridState).order,
@@ -6235,7 +6247,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["modelValue", "has-sort-type", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -6244,7 +6256,7 @@ const _sfc_main$3 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -6375,7 +6387,9 @@ function useRelayData(props, option) {
     relayFilter: vGridOptions.relayFilter,
     relayOrder: vGridOptions.relayOrder
   }));
-  const gridOption = computed(() => __spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), relayOptions.value), option));
+  const gridOption = computed(() => __spreadProps(__spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), relayOptions.value), option), {
+    orderable: false
+  }));
   if (!props.sortBy) {
     throw new Error("Relay grid require unique column to do pagination, should provide prop: sort-by");
   }
@@ -6502,7 +6516,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -6513,7 +6527,7 @@ const _sfc_main$2 = defineComponent({
               _hoisted_2$2
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -6522,7 +6536,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -6549,16 +6563,17 @@ const _sfc_main$2 = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
-                          onClick: ($event) => unref(setOrder)(col.field),
+                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
                           createElementVNode("div", _hoisted_10$2, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
-                              createElementVNode("b", {
+                              unref(gridOption).orderable && col.order ? (openBlock(), createElementBlock("b", {
+                                key: 0,
                                 class: normalizeClass(col.orderClasses)
-                              }, null, 2)
+                              }, null, 2)) : createCommentVNode("", true)
                             ])
                           ])
                         ], 10, _hoisted_9$2);
@@ -6781,7 +6796,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -6792,7 +6807,7 @@ const _sfc_main$1 = defineComponent({
               _hoisted_2$1
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -6801,7 +6816,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
@@ -7007,7 +7022,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["modelValue", "placeholder"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-filter", {}, () => [
-              __props.filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
+              unref(gridOption).filterable && unref(hasColumnFilter) ? (openBlock(), createBlock(_sfc_main$i, {
                 key: 0,
                 modelValue: unref(gridState).where,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => unref(gridState).where = $event),
@@ -7018,7 +7033,7 @@ const _sfc_main = defineComponent({
               _hoisted_2
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
-              __props.columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
+              unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: __props.columns,
@@ -7027,7 +7042,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["columns", "modelValue"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-export", {}, () => [
-              __props.exportable ? (openBlock(), createBlock(_sfc_main$c, {
+              unref(gridOption).exportable ? (openBlock(), createBlock(_sfc_main$c, {
                 key: 0,
                 class: "vgrid-ml-auto",
                 columns: unref(visibleCols),
