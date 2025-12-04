@@ -19,6 +19,7 @@ import apolloClient, { relayClient } from './apollo-provider'
 
 // Ajax
 axios.defaults.baseURL = 'https://reqres.in/api'
+axios.defaults.headers.common['x-api-key'] = import.meta.env.VITE_AJAX_SECRET;
 axios.interceptors.response.use((response) => {
   return response
 }, (error) => {
