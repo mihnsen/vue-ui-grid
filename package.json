@@ -29,7 +29,7 @@
   "types": "index.d.ts",
   "module": "./dist/vue-grid.es.js",
   "dependencies": {
-    "vue": "^3.2.25"
+    "vue": "^3.5.25"
   },
   "devDependencies": {
     "@apollo/client": "^3.6.6",
@@ -59,9 +59,7 @@
     "vue-router": "4",
     "vue-tsc": "^0.29.8"
   },
-  "peerDependencies": {
-    "vue": "^3.2.31"
-  },
+  "peerDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mihnsen/vue-ui-grid.git"
