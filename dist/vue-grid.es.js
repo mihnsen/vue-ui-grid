@@ -1,27 +1,10 @@
 var __defProp = Object.defineProperty;
-var __defProps = Object.defineProperties;
-var __getOwnPropDescs = Object.getOwnPropertyDescriptors;
-var __getOwnPropSymbols = Object.getOwnPropertySymbols;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __propIsEnum = Object.prototype.propertyIsEnumerable;
 var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
-var __spreadValues = (a, b) => {
-  for (var prop in b || (b = {}))
-    if (__hasOwnProp.call(b, prop))
-      __defNormalProp(a, prop, b[prop]);
-  if (__getOwnPropSymbols)
-    for (var prop of __getOwnPropSymbols(b)) {
-      if (__propIsEnum.call(b, prop))
-        __defNormalProp(a, prop, b[prop]);
-    }
-  return a;
-};
-var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
 var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-import { computed, inject, reactive, ref, watch, defineComponent, unref, openBlock, createElementBlock, createElementVNode, Fragment, renderList, normalizeClass, createCommentVNode, renderSlot, toDisplayString, createBlock, resolveDynamicComponent, withCtx, nextTick, createVNode, isRef, withDirectives, vModelSelect, onMounted, onBeforeUnmount, withModifiers, vShow, vModelCheckbox, vModelRadio } from "vue";
+import { computed, inject, reactive, ref, watch, defineComponent, openBlock, createElementBlock, createElementVNode, Fragment, renderList, normalizeClass, unref, createCommentVNode, renderSlot, toDisplayString, createBlock, resolveDynamicComponent, withCtx, nextTick, createVNode, isRef, withDirectives, vModelSelect, onMounted, onBeforeUnmount, withModifiers, vShow, vModelCheckbox, vModelRadio } from "vue";
 function useGridHeader(str) {
   if (str) {
     const s = str.charAt(0).toUpperCase() + str.slice(1);
@@ -76,7 +59,10 @@ function useRouteState(router, props) {
     if (currentRoute.value.name !== routeName) {
       return;
     }
-    const newQuery = __spreadValues(__spreadValues({}, route.value.query), params);
+    const newQuery = {
+      ...route.value.query,
+      ...params
+    };
     router.replace({ query: newQuery });
   };
   const routeGridParams = getStateFromRoute();
@@ -135,7 +121,7 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
   const dataState = reactive(DefaultDataState);
   const defaultDataQuery = "";
   const defaultPage = props.cursorPagination ? "" : 0;
-  const gridState = reactive(__spreadValues({
+  const gridState = reactive({
     isLoading: false,
     searchKeyword: "",
     currentPage: defaultPage,
@@ -148,8 +134,9 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     where: {},
     hasSortType: vGridOptions.hasSortType,
     gridstate: new Date().getTime(),
-    query: defaultDataQuery
-  }, routeGridParams));
+    query: defaultDataQuery,
+    ...routeGridParams
+  });
   const currentState = computed(() => {
     let params = {
       limit: gridState.limit
@@ -164,12 +151,15 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
       params.order = gridState.order.by;
       params.order_type = gridState.order.type;
     }
-    const whereParams = Object.keys(gridState.where).reduce((acc, curr) => __spreadProps(__spreadValues({}, acc), {
+    const whereParams = Object.keys(gridState.where).reduce((acc, curr) => ({
+      ...acc,
       [curr]: gridState.where[curr]
     }), {});
-    params = __spreadProps(__spreadValues(__spreadValues({}, params), whereParams), {
+    params = {
+      ...params,
+      ...whereParams,
       gridstate: gridState.gridstate
-    });
+    };
     return params;
   });
   const currentStateInString = computed(() => {
@@ -193,7 +183,10 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     return !dataState.records.length;
   });
   const visibleCols = computed(() => {
-    return props.columns.filter((c) => columnVisibility.value.includes(c.field)).sort((a, b) => columnVisibility.value.indexOf(a.field) - columnVisibility.value.indexOf(b.field)).map((c) => __spreadProps(__spreadValues({}, c), {
+    return props.columns.filter((c) => columnVisibility.value.includes(c.field)).sort(
+      (a, b) => columnVisibility.value.indexOf(a.field) - columnVisibility.value.indexOf(b.field)
+    ).map((c) => ({
+      ...c,
       headerClasses: getHeaderColumnClasses(c),
       orderClasses: getOrderableColumnClasses(c),
       columnClasses: getColumnClasses(c),
@@ -255,9 +248,10 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     if (column && column.order && column.type !== "custom") {
       if (gridState.order.by === field) {
         if (gridState.hasSortType) {
-          gridState.order = __spreadProps(__spreadValues({}, gridState.order), {
+          gridState.order = {
+            ...gridState.order,
             type: gridState.order.type === "desc" ? "asc" : "desc"
-          });
+          };
         }
       } else {
         gridState.order = {
@@ -268,7 +262,10 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     }
   };
   const setFilter = (filterData) => {
-    gridState.where = __spreadValues(__spreadValues({}, gridState.where), filterData);
+    gridState.where = {
+      ...gridState.where,
+      ...filterData
+    };
   };
   const getOrderableColumnClasses = (column) => {
     if (!gridOption.orderable) {
@@ -298,34 +295,51 @@ function useGrid(props, emits, dataProvider, gridOption, watchProps = []) {
     gridState.where = {};
   };
   const watchPropsValue = computed(() => {
-    return watchProps.reduce((acc, curr) => __spreadProps(__spreadValues({}, acc), {
+    return watchProps.reduce((acc, curr) => ({
+      ...acc,
       [curr]: props[curr]
     }), {});
   });
-  watch(() => watchPropsValue.value, () => {
-    dataProvider.setOptions(gridOption.value);
-    resetGrid();
-  });
-  watch(() => props.columns, () => {
-    columnVisibility.value = props.columns.filter((c) => c.type !== "hidden").filter((c) => !c.hidden).map((c) => c.field);
-  });
-  watch([
-    () => gridState.where,
-    () => gridState.searchKeyword,
-    () => gridState.limit,
-    () => gridState.order
-  ], () => {
-    resetPageIndex();
-  }, { deep: true });
-  watch(() => currentStateInString.value, (newVal) => {
-    getData2();
-    updateRouteIfNeeded(currentState.value);
-  });
-  watch(() => queryGridState.value, (newVal, oldVal) => {
-    if (oldVal && !newVal) {
+  watch(
+    () => watchPropsValue.value,
+    () => {
+      dataProvider.setOptions(gridOption.value);
       resetGrid();
     }
-  });
+  );
+  watch(
+    () => props.columns,
+    () => {
+      columnVisibility.value = props.columns.filter((c) => c.type !== "hidden").filter((c) => !c.hidden).map((c) => c.field);
+    }
+  );
+  watch(
+    [
+      () => gridState.where,
+      () => gridState.searchKeyword,
+      () => gridState.limit,
+      () => gridState.order
+    ],
+    () => {
+      resetPageIndex();
+    },
+    { deep: true }
+  );
+  watch(
+    () => currentStateInString.value,
+    (newVal) => {
+      getData2();
+      updateRouteIfNeeded(currentState.value);
+    }
+  );
+  watch(
+    () => queryGridState.value,
+    (newVal, oldVal) => {
+      if (oldVal && !newVal) {
+        resetGrid();
+      }
+    }
+  );
   return {
     hasColumnFilter,
     hasColumnOrder,
@@ -393,7 +407,10 @@ class JsonDataProvider extends ADataProvider {
       const total = data.length;
       let items = data;
       if (this.options.pagination && data.length > limit) {
-        items = data.slice(limit * page, limit * (page + 1));
+        items = data.slice(
+          limit * page,
+          limit * (page + 1)
+        );
       }
       const res = {
         items,
@@ -494,7 +511,7 @@ class AjaxDataProvider extends ADataProvider {
       params[this.options.searchField] = searchKeyword;
     }
     if (filter) {
-      const where = __spreadValues({}, filter);
+      const where = { ...filter };
       Object.keys(where).forEach((key) => {
         params[key] = where[key];
       });
@@ -548,6 +565,10 @@ var __assign = function() {
   };
   return __assign.apply(this, arguments);
 };
+typeof SuppressedError === "function" ? SuppressedError : function(error, suppressed, message) {
+  var e = new Error(message);
+  return e.name = "SuppressedError", e.error = error, e.suppressed = suppressed, e;
+};
 function devAssert(condition, message) {
   const booleanCondition = Boolean(condition);
   if (!booleanCondition) {
@@ -560,7 +581,9 @@ function isObjectLike(value) {
 function invariant(condition, message) {
   const booleanCondition = Boolean(condition);
   if (!booleanCondition) {
-    throw new Error(message != null ? message : "Unexpected invariant triggered.");
+    throw new Error(
+      message != null ? message : "Unexpected invariant triggered."
+    );
   }
 }
 const LineRegExp = /\r\n|[\n\r]/g;
@@ -581,7 +604,10 @@ function getLocation(source, position) {
   };
 }
 function printLocation(location) {
-  return printSourceLocation(location.source, getLocation(location.source, location.start));
+  return printSourceLocation(
+    location.source,
+    getLocation(location.source, location.start)
+  );
 }
 function printSourceLocation(source, sourceLocation) {
   const firstLineColumnOffset = source.locationOffset.column - 1;
@@ -643,12 +669,18 @@ class GraphQLError extends Error {
     this.name = "GraphQLError";
     this.path = path !== null && path !== void 0 ? path : void 0;
     this.originalError = originalError !== null && originalError !== void 0 ? originalError : void 0;
-    this.nodes = undefinedIfEmpty(Array.isArray(nodes) ? nodes : nodes ? [nodes] : void 0);
-    const nodeLocations = undefinedIfEmpty((_this$nodes = this.nodes) === null || _this$nodes === void 0 ? void 0 : _this$nodes.map((node) => node.loc).filter((loc) => loc != null));
+    this.nodes = undefinedIfEmpty(
+      Array.isArray(nodes) ? nodes : nodes ? [nodes] : void 0
+    );
+    const nodeLocations = undefinedIfEmpty(
+      (_this$nodes = this.nodes) === null || _this$nodes === void 0 ? void 0 : _this$nodes.map((node) => node.loc).filter((loc) => loc != null)
+    );
     this.source = source !== null && source !== void 0 ? source : nodeLocations === null || nodeLocations === void 0 ? void 0 : (_nodeLocations$ = nodeLocations[0]) === null || _nodeLocations$ === void 0 ? void 0 : _nodeLocations$.source;
     this.positions = positions !== null && positions !== void 0 ? positions : nodeLocations === null || nodeLocations === void 0 ? void 0 : nodeLocations.map((loc) => loc.start);
     this.locations = positions && source ? positions.map((pos) => getLocation(source, pos)) : nodeLocations === null || nodeLocations === void 0 ? void 0 : nodeLocations.map((loc) => getLocation(loc.source, loc.start));
-    const originalExtensions = isObjectLike(originalError === null || originalError === void 0 ? void 0 : originalError.extensions) ? originalError === null || originalError === void 0 ? void 0 : originalError.extensions : void 0;
+    const originalExtensions = isObjectLike(
+      originalError === null || originalError === void 0 ? void 0 : originalError.extensions
+    ) ? originalError === null || originalError === void 0 ? void 0 : originalError.extensions : void 0;
     this.extensions = (_ref = extensions !== null && extensions !== void 0 ? extensions : originalExtensions) !== null && _ref !== void 0 ? _ref : /* @__PURE__ */ Object.create(null);
     Object.defineProperties(this, {
       message: {
@@ -771,13 +803,13 @@ class Token {
     };
   }
 }
-let OperationTypeNode;
+var OperationTypeNode;
 (function(OperationTypeNode2) {
   OperationTypeNode2["QUERY"] = "query";
   OperationTypeNode2["MUTATION"] = "mutation";
   OperationTypeNode2["SUBSCRIPTION"] = "subscription";
 })(OperationTypeNode || (OperationTypeNode = {}));
-let DirectiveLocation;
+var DirectiveLocation;
 (function(DirectiveLocation2) {
   DirectiveLocation2["QUERY"] = "QUERY";
   DirectiveLocation2["MUTATION"] = "MUTATION";
@@ -799,7 +831,7 @@ let DirectiveLocation;
   DirectiveLocation2["INPUT_OBJECT"] = "INPUT_OBJECT";
   DirectiveLocation2["INPUT_FIELD_DEFINITION"] = "INPUT_FIELD_DEFINITION";
 })(DirectiveLocation || (DirectiveLocation = {}));
-let Kind;
+var Kind;
 (function(Kind2) {
   Kind2["NAME"] = "Name";
   Kind2["DOCUMENT"] = "Document";
@@ -844,6 +876,11 @@ let Kind;
   Kind2["UNION_TYPE_EXTENSION"] = "UnionTypeExtension";
   Kind2["ENUM_TYPE_EXTENSION"] = "EnumTypeExtension";
   Kind2["INPUT_OBJECT_TYPE_EXTENSION"] = "InputObjectTypeExtension";
+  Kind2["TYPE_COORDINATE"] = "TypeCoordinate";
+  Kind2["MEMBER_COORDINATE"] = "MemberCoordinate";
+  Kind2["ARGUMENT_COORDINATE"] = "ArgumentCoordinate";
+  Kind2["DIRECTIVE_COORDINATE"] = "DirectiveCoordinate";
+  Kind2["DIRECTIVE_ARGUMENT_COORDINATE"] = "DirectiveArgumentCoordinate";
 })(Kind || (Kind = {}));
 function isWhiteSpace(code) {
   return code === 9 || code === 32;
@@ -878,7 +915,10 @@ function dedentBlockStringLines(lines) {
       commonIndent = indent;
     }
   }
-  return lines.map((line, i) => i === 0 ? line : line.slice(commonIndent)).slice((_firstNonEmptyLine2 = firstNonEmptyLine) !== null && _firstNonEmptyLine2 !== void 0 ? _firstNonEmptyLine2 : 0, lastNonEmptyLine + 1);
+  return lines.map((line, i) => i === 0 ? line : line.slice(commonIndent)).slice(
+    (_firstNonEmptyLine2 = firstNonEmptyLine) !== null && _firstNonEmptyLine2 !== void 0 ? _firstNonEmptyLine2 : 0,
+    lastNonEmptyLine + 1
+  );
 }
 function leadingWhitespace(str) {
   let i = 0;
@@ -887,7 +927,7 @@ function leadingWhitespace(str) {
   }
   return i;
 }
-let TokenKind;
+var TokenKind;
 (function(TokenKind2) {
   TokenKind2["SOF"] = "<SOF>";
   TokenKind2["EOF"] = "<EOF>";
@@ -896,6 +936,7 @@ let TokenKind;
   TokenKind2["AMP"] = "&";
   TokenKind2["PAREN_L"] = "(";
   TokenKind2["PAREN_R"] = ")";
+  TokenKind2["DOT"] = ".";
   TokenKind2["SPREAD"] = "...";
   TokenKind2["COLON"] = ":";
   TokenKind2["EQUALS"] = "=";
@@ -947,7 +988,7 @@ class Lexer {
   }
 }
 function isPunctuatorTokenKind(kind) {
-  return kind === TokenKind.BANG || kind === TokenKind.DOLLAR || kind === TokenKind.AMP || kind === TokenKind.PAREN_L || kind === TokenKind.PAREN_R || kind === TokenKind.SPREAD || kind === TokenKind.COLON || kind === TokenKind.EQUALS || kind === TokenKind.AT || kind === TokenKind.BRACKET_L || kind === TokenKind.BRACKET_R || kind === TokenKind.BRACE_L || kind === TokenKind.PIPE || kind === TokenKind.BRACE_R;
+  return kind === TokenKind.BANG || kind === TokenKind.DOLLAR || kind === TokenKind.AMP || kind === TokenKind.PAREN_L || kind === TokenKind.PAREN_R || kind === TokenKind.DOT || kind === TokenKind.SPREAD || kind === TokenKind.COLON || kind === TokenKind.EQUALS || kind === TokenKind.AT || kind === TokenKind.BRACKET_L || kind === TokenKind.BRACKET_R || kind === TokenKind.BRACE_L || kind === TokenKind.PIPE || kind === TokenKind.BRACE_R;
 }
 function isUnicodeScalarValue(code) {
   return code >= 0 && code <= 55295 || code >= 57344 && code <= 1114111;
@@ -1048,7 +1089,11 @@ function readNextToken(lexer, start) {
     if (isNameStart(code)) {
       return readName(lexer, position);
     }
-    throw syntaxError(lexer.source, position, code === 39 ? `Unexpected single quote character ('), did you mean to use a double quote (")?` : isUnicodeScalarValue(code) || isSupplementaryCodePoint(body, position) ? `Unexpected character: ${printCodePointAt(lexer, position)}.` : `Invalid character: ${printCodePointAt(lexer, position)}.`);
+    throw syntaxError(
+      lexer.source,
+      position,
+      code === 39 ? `Unexpected single quote character ('), did you mean to use a double quote (")?` : isUnicodeScalarValue(code) || isSupplementaryCodePoint(body, position) ? `Unexpected character: ${printCodePointAt(lexer, position)}.` : `Invalid character: ${printCodePointAt(lexer, position)}.`
+    );
   }
   return createToken(lexer, TokenKind.EOF, bodyLength, bodyLength);
 }
@@ -1069,7 +1114,13 @@ function readComment(lexer, start) {
       break;
     }
   }
-  return createToken(lexer, TokenKind.COMMENT, start, position, body.slice(start + 1, position));
+  return createToken(
+    lexer,
+    TokenKind.COMMENT,
+    start,
+    position,
+    body.slice(start + 1, position)
+  );
 }
 function readNumber(lexer, start, firstCode) {
   const body = lexer.source.body;
@@ -1082,7 +1133,14 @@ function readNumber(lexer, start, firstCode) {
   if (code === 48) {
     code = body.charCodeAt(++position);
     if (isDigit(code)) {
-      throw syntaxError(lexer.source, position, `Invalid number, unexpected digit after 0: ${printCodePointAt(lexer, position)}.`);
+      throw syntaxError(
+        lexer.source,
+        position,
+        `Invalid number, unexpected digit after 0: ${printCodePointAt(
+          lexer,
+          position
+        )}.`
+      );
     }
   } else {
     position = readDigits(lexer, position, code);
@@ -1104,13 +1162,33 @@ function readNumber(lexer, start, firstCode) {
     code = body.charCodeAt(position);
   }
   if (code === 46 || isNameStart(code)) {
-    throw syntaxError(lexer.source, position, `Invalid number, expected digit but got: ${printCodePointAt(lexer, position)}.`);
+    throw syntaxError(
+      lexer.source,
+      position,
+      `Invalid number, expected digit but got: ${printCodePointAt(
+        lexer,
+        position
+      )}.`
+    );
   }
-  return createToken(lexer, isFloat ? TokenKind.FLOAT : TokenKind.INT, start, position, body.slice(start, position));
+  return createToken(
+    lexer,
+    isFloat ? TokenKind.FLOAT : TokenKind.INT,
+    start,
+    position,
+    body.slice(start, position)
+  );
 }
 function readDigits(lexer, start, firstCode) {
   if (!isDigit(firstCode)) {
-    throw syntaxError(lexer.source, start, `Invalid number, expected digit but got: ${printCodePointAt(lexer, start)}.`);
+    throw syntaxError(
+      lexer.source,
+      start,
+      `Invalid number, expected digit but got: ${printCodePointAt(
+        lexer,
+        start
+      )}.`
+    );
   }
   const body = lexer.source.body;
   let position = start + 1;
@@ -1147,7 +1225,14 @@ function readString(lexer, start) {
     } else if (isSupplementaryCodePoint(body, position)) {
       position += 2;
     } else {
-      throw syntaxError(lexer.source, position, `Invalid character within String: ${printCodePointAt(lexer, position)}.`);
+      throw syntaxError(
+        lexer.source,
+        position,
+        `Invalid character within String: ${printCodePointAt(
+          lexer,
+          position
+        )}.`
+      );
     }
   }
   throw syntaxError(lexer.source, position, "Unterminated string.");
@@ -1172,7 +1257,14 @@ function readEscapedUnicodeVariableWidth(lexer, position) {
       break;
     }
   }
-  throw syntaxError(lexer.source, position, `Invalid Unicode escape sequence: "${body.slice(position, position + size)}".`);
+  throw syntaxError(
+    lexer.source,
+    position,
+    `Invalid Unicode escape sequence: "${body.slice(
+      position,
+      position + size
+    )}".`
+  );
 }
 function readEscapedUnicodeFixedWidth(lexer, position) {
   const body = lexer.source.body;
@@ -1194,7 +1286,11 @@ function readEscapedUnicodeFixedWidth(lexer, position) {
       }
     }
   }
-  throw syntaxError(lexer.source, position, `Invalid Unicode escape sequence: "${body.slice(position, position + 6)}".`);
+  throw syntaxError(
+    lexer.source,
+    position,
+    `Invalid Unicode escape sequence: "${body.slice(position, position + 6)}".`
+  );
 }
 function read16BitHexCode(body, position) {
   return readHexDigit(body.charCodeAt(position)) << 12 | readHexDigit(body.charCodeAt(position + 1)) << 8 | readHexDigit(body.charCodeAt(position + 2)) << 4 | readHexDigit(body.charCodeAt(position + 3));
@@ -1247,7 +1343,14 @@ function readEscapedCharacter(lexer, position) {
         size: 2
       };
   }
-  throw syntaxError(lexer.source, position, `Invalid character escape sequence: "${body.slice(position, position + 2)}".`);
+  throw syntaxError(
+    lexer.source,
+    position,
+    `Invalid character escape sequence: "${body.slice(
+      position,
+      position + 2
+    )}".`
+  );
 }
 function readBlockString(lexer, start) {
   const body = lexer.source.body;
@@ -1262,7 +1365,13 @@ function readBlockString(lexer, start) {
     if (code === 34 && body.charCodeAt(position + 1) === 34 && body.charCodeAt(position + 2) === 34) {
       currentLine += body.slice(chunkStart, position);
       blockLines.push(currentLine);
-      const token = createToken(lexer, TokenKind.BLOCK_STRING, start, position + 3, dedentBlockStringLines(blockLines).join("\n"));
+      const token = createToken(
+        lexer,
+        TokenKind.BLOCK_STRING,
+        start,
+        position + 3,
+        dedentBlockStringLines(blockLines).join("\n")
+      );
       lexer.line += blockLines.length - 1;
       lexer.lineStart = lineStart;
       return token;
@@ -1291,7 +1400,14 @@ function readBlockString(lexer, start) {
     } else if (isSupplementaryCodePoint(body, position)) {
       position += 2;
     } else {
-      throw syntaxError(lexer.source, position, `Invalid character within String: ${printCodePointAt(lexer, position)}.`);
+      throw syntaxError(
+        lexer.source,
+        position,
+        `Invalid character within String: ${printCodePointAt(
+          lexer,
+          position
+        )}.`
+      );
     }
   }
   throw syntaxError(lexer.source, position, "Unterminated string.");
@@ -1308,7 +1424,13 @@ function readName(lexer, start) {
       break;
     }
   }
-  return createToken(lexer, TokenKind.NAME, start, position, body.slice(start, position));
+  return createToken(
+    lexer,
+    TokenKind.NAME,
+    start,
+    position,
+    body.slice(start, position)
+  );
 }
 const MAX_ARRAY_LENGTH = 10;
 const MAX_RECURSIVE_DEPTH = 2;
@@ -1356,7 +1478,9 @@ function formatObject(object, seenValues) {
   if (seenValues.length > MAX_RECURSIVE_DEPTH) {
     return "[" + getObjectTag(object) + "]";
   }
-  const properties = entries.map(([key, value]) => key + ": " + formatValue(value, seenValues));
+  const properties = entries.map(
+    ([key, value]) => key + ": " + formatValue(value, seenValues)
+  );
   return "{ " + properties.join(", ") + " }";
 }
 function formatArray(array, seenValues) {
@@ -1389,8 +1513,34 @@ function getObjectTag(object) {
   }
   return tag;
 }
-const instanceOf = function instanceOf2(value, constructor) {
+const isProduction = globalThis.process && true;
+const instanceOf = isProduction ? function instanceOf2(value, constructor) {
   return value instanceof constructor;
+} : function instanceOf3(value, constructor) {
+  if (value instanceof constructor) {
+    return true;
+  }
+  if (typeof value === "object" && value !== null) {
+    var _value$constructor;
+    const className = constructor.prototype[Symbol.toStringTag];
+    const valueClassName = Symbol.toStringTag in value ? value[Symbol.toStringTag] : (_value$constructor = value.constructor) === null || _value$constructor === void 0 ? void 0 : _value$constructor.name;
+    if (className === valueClassName) {
+      const stringifiedValue = inspect(value);
+      throw new Error(`Cannot use ${className} "${stringifiedValue}" from another module or realm.
+
+Ensure that there is only one instance of "graphql" in the node_modules
+directory. If different versions of "graphql" are the dependencies of other
+relied on modules, use "resolutions" to ensure only one version is installed.
+
+https://yarnpkg.com/en/docs/selective-version-resolutions
+
+Duplicate "graphql" modules cannot be used at the same time since different
+versions may have different capabilities and behavior. The data from one
+version used in the function from another could produce confusing and
+spurious results.`);
+    }
+  }
+  return false;
 };
 class Source {
   constructor(body, name = "GraphQL request", locationOffset = {
@@ -1401,8 +1551,14 @@ class Source {
     this.body = body;
     this.name = name;
     this.locationOffset = locationOffset;
-    this.locationOffset.line > 0 || devAssert(false, "line in locationOffset is 1-indexed and must be positive.");
-    this.locationOffset.column > 0 || devAssert(false, "column in locationOffset is 1-indexed and must be positive.");
+    this.locationOffset.line > 0 || devAssert(
+      false,
+      "line in locationOffset is 1-indexed and must be positive."
+    );
+    this.locationOffset.column > 0 || devAssert(
+      false,
+      "column in locationOffset is 1-indexed and must be positive."
+    );
   }
   get [Symbol.toStringTag]() {
     return "Source";
@@ -1413,13 +1569,27 @@ function isSource(source) {
 }
 function parse(source, options) {
   const parser = new Parser(source, options);
-  return parser.parseDocument();
+  const document2 = parser.parseDocument();
+  Object.defineProperty(document2, "tokenCount", {
+    enumerable: false,
+    value: parser.tokenCount
+  });
+  return document2;
 }
 class Parser {
-  constructor(source, options) {
-    const sourceObj = isSource(source) ? source : new Source(source);
-    this._lexer = new Lexer(sourceObj);
-    this._options = options;
+  constructor(source, options = {}) {
+    const { lexer, ..._options } = options;
+    if (lexer) {
+      this._lexer = lexer;
+    } else {
+      const sourceObj = isSource(source) ? source : new Source(source);
+      this._lexer = new Lexer(sourceObj);
+    }
+    this._options = _options;
+    this._tokenCounter = 0;
+  }
+  get tokenCount() {
+    return this._tokenCounter;
   }
   parseName() {
     const token = this.expectToken(TokenKind.NAME);
@@ -1431,7 +1601,11 @@ class Parser {
   parseDocument() {
     return this.node(this._lexer.token, {
       kind: Kind.DOCUMENT,
-      definitions: this.many(TokenKind.SOF, this.parseDefinition, TokenKind.EOF)
+      definitions: this.many(
+        TokenKind.SOF,
+        this.parseDefinition,
+        TokenKind.EOF
+      )
     });
   }
   parseDefinition() {
@@ -1440,6 +1614,13 @@ class Parser {
     }
     const hasDescription = this.peekDescription();
     const keywordToken = hasDescription ? this._lexer.lookahead() : this._lexer.token;
+    if (hasDescription && keywordToken.kind === TokenKind.BRACE_L) {
+      throw syntaxError(
+        this._lexer.source,
+        this._lexer.token.start,
+        "Unexpected description, descriptions are not supported on shorthand queries."
+      );
+    }
     if (keywordToken.kind === TokenKind.NAME) {
       switch (keywordToken.value) {
         case "schema":
@@ -1459,9 +1640,6 @@ class Parser {
         case "directive":
           return this.parseDirectiveDefinition();
       }
-      if (hasDescription) {
-        throw syntaxError(this._lexer.source, this._lexer.token.start, "Unexpected description, descriptions are supported only on type definitions.");
-      }
       switch (keywordToken.value) {
         case "query":
         case "mutation":
@@ -1469,6 +1647,15 @@ class Parser {
           return this.parseOperationDefinition();
         case "fragment":
           return this.parseFragmentDefinition();
+      }
+      if (hasDescription) {
+        throw syntaxError(
+          this._lexer.source,
+          this._lexer.token.start,
+          "Unexpected description, only GraphQL definitions support descriptions."
+        );
+      }
+      switch (keywordToken.value) {
         case "extend":
           return this.parseTypeSystemExtension();
       }
@@ -1481,12 +1668,14 @@ class Parser {
       return this.node(start, {
         kind: Kind.OPERATION_DEFINITION,
         operation: OperationTypeNode.QUERY,
+        description: void 0,
         name: void 0,
         variableDefinitions: [],
         directives: [],
         selectionSet: this.parseSelectionSet()
       });
     }
+    const description = this.parseDescription();
     const operation = this.parseOperationType();
     let name;
     if (this.peek(TokenKind.NAME)) {
@@ -1495,6 +1684,7 @@ class Parser {
     return this.node(start, {
       kind: Kind.OPERATION_DEFINITION,
       operation,
+      description,
       name,
       variableDefinitions: this.parseVariableDefinitions(),
       directives: this.parseDirectives(false),
@@ -1514,11 +1704,16 @@ class Parser {
     throw this.unexpected(operationToken);
   }
   parseVariableDefinitions() {
-    return this.optionalMany(TokenKind.PAREN_L, this.parseVariableDefinition, TokenKind.PAREN_R);
+    return this.optionalMany(
+      TokenKind.PAREN_L,
+      this.parseVariableDefinition,
+      TokenKind.PAREN_R
+    );
   }
   parseVariableDefinition() {
     return this.node(this._lexer.token, {
       kind: Kind.VARIABLE_DEFINITION,
+      description: this.parseDescription(),
       variable: this.parseVariable(),
       type: (this.expectToken(TokenKind.COLON), this.parseTypeReference()),
       defaultValue: this.expectOptionalToken(TokenKind.EQUALS) ? this.parseConstValueLiteral() : void 0,
@@ -1536,7 +1731,11 @@ class Parser {
   parseSelectionSet() {
     return this.node(this._lexer.token, {
       kind: Kind.SELECTION_SET,
-      selections: this.many(TokenKind.BRACE_L, this.parseSelection, TokenKind.BRACE_R)
+      selections: this.many(
+        TokenKind.BRACE_L,
+        this.parseSelection,
+        TokenKind.BRACE_R
+      )
     });
   }
   parseSelection() {
@@ -1598,12 +1797,13 @@ class Parser {
     });
   }
   parseFragmentDefinition() {
-    var _this$_options;
     const start = this._lexer.token;
+    const description = this.parseDescription();
     this.expectKeyword("fragment");
-    if (((_this$_options = this._options) === null || _this$_options === void 0 ? void 0 : _this$_options.allowLegacyFragmentVariables) === true) {
+    if (this._options.allowLegacyFragmentVariables === true) {
       return this.node(start, {
         kind: Kind.FRAGMENT_DEFINITION,
+        description,
         name: this.parseFragmentName(),
         variableDefinitions: this.parseVariableDefinitions(),
         typeCondition: (this.expectKeyword("on"), this.parseNamedType()),
@@ -1613,6 +1813,7 @@ class Parser {
     }
     return this.node(start, {
       kind: Kind.FRAGMENT_DEFINITION,
+      description,
       name: this.parseFragmentName(),
       typeCondition: (this.expectKeyword("on"), this.parseNamedType()),
       directives: this.parseDirectives(false),
@@ -1633,13 +1834,13 @@ class Parser {
       case TokenKind.BRACE_L:
         return this.parseObject(isConst);
       case TokenKind.INT:
-        this._lexer.advance();
+        this.advanceLexer();
         return this.node(token, {
           kind: Kind.INT,
           value: token.value
         });
       case TokenKind.FLOAT:
-        this._lexer.advance();
+        this.advanceLexer();
         return this.node(token, {
           kind: Kind.FLOAT,
           value: token.value
@@ -1648,7 +1849,7 @@ class Parser {
       case TokenKind.BLOCK_STRING:
         return this.parseStringLiteral();
       case TokenKind.NAME:
-        this._lexer.advance();
+        this.advanceLexer();
         switch (token.value) {
           case "true":
             return this.node(token, {
@@ -1675,7 +1876,11 @@ class Parser {
           this.expectToken(TokenKind.DOLLAR);
           if (this._lexer.token.kind === TokenKind.NAME) {
             const varName = this._lexer.token.value;
-            throw syntaxError(this._lexer.source, token.start, `Unexpected variable "$${varName}" in constant value.`);
+            throw syntaxError(
+              this._lexer.source,
+              token.start,
+              `Unexpected variable "$${varName}" in constant value.`
+            );
           } else {
             throw this.unexpected(token);
           }
@@ -1690,7 +1895,7 @@ class Parser {
   }
   parseStringLiteral() {
     const token = this._lexer.token;
-    this._lexer.advance();
+    this.advanceLexer();
     return this.node(token, {
       kind: Kind.STRING,
       value: token.value,
@@ -1780,7 +1985,11 @@ class Parser {
     const description = this.parseDescription();
     this.expectKeyword("schema");
     const directives = this.parseConstDirectives();
-    const operationTypes = this.many(TokenKind.BRACE_L, this.parseOperationTypeDefinition, TokenKind.BRACE_R);
+    const operationTypes = this.many(
+      TokenKind.BRACE_L,
+      this.parseOperationTypeDefinition,
+      TokenKind.BRACE_R
+    );
     return this.node(start, {
       kind: Kind.SCHEMA_DEFINITION,
       description,
@@ -1833,7 +2042,11 @@ class Parser {
     return this.expectOptionalKeyword("implements") ? this.delimitedMany(TokenKind.AMP, this.parseNamedType) : [];
   }
   parseFieldsDefinition() {
-    return this.optionalMany(TokenKind.BRACE_L, this.parseFieldDefinition, TokenKind.BRACE_R);
+    return this.optionalMany(
+      TokenKind.BRACE_L,
+      this.parseFieldDefinition,
+      TokenKind.BRACE_R
+    );
   }
   parseFieldDefinition() {
     const start = this._lexer.token;
@@ -1853,7 +2066,11 @@ class Parser {
     });
   }
   parseArgumentDefs() {
-    return this.optionalMany(TokenKind.PAREN_L, this.parseInputValueDef, TokenKind.PAREN_R);
+    return this.optionalMany(
+      TokenKind.PAREN_L,
+      this.parseInputValueDef,
+      TokenKind.PAREN_R
+    );
   }
   parseInputValueDef() {
     const start = this._lexer.token;
@@ -1926,7 +2143,11 @@ class Parser {
     });
   }
   parseEnumValuesDefinition() {
-    return this.optionalMany(TokenKind.BRACE_L, this.parseEnumValueDefinition, TokenKind.BRACE_R);
+    return this.optionalMany(
+      TokenKind.BRACE_L,
+      this.parseEnumValueDefinition,
+      TokenKind.BRACE_R
+    );
   }
   parseEnumValueDefinition() {
     const start = this._lexer.token;
@@ -1942,7 +2163,13 @@ class Parser {
   }
   parseEnumValueName() {
     if (this._lexer.token.value === "true" || this._lexer.token.value === "false" || this._lexer.token.value === "null") {
-      throw syntaxError(this._lexer.source, this._lexer.token.start, `${getTokenDesc(this._lexer.token)} is reserved and cannot be used for an enum value.`);
+      throw syntaxError(
+        this._lexer.source,
+        this._lexer.token.start,
+        `${getTokenDesc(
+          this._lexer.token
+        )} is reserved and cannot be used for an enum value.`
+      );
     }
     return this.parseName();
   }
@@ -1962,7 +2189,11 @@ class Parser {
     });
   }
   parseInputFieldsDefinition() {
-    return this.optionalMany(TokenKind.BRACE_L, this.parseInputValueDef, TokenKind.BRACE_R);
+    return this.optionalMany(
+      TokenKind.BRACE_L,
+      this.parseInputValueDef,
+      TokenKind.BRACE_R
+    );
   }
   parseTypeSystemExtension() {
     const keywordToken = this._lexer.lookahead();
@@ -1991,7 +2222,11 @@ class Parser {
     this.expectKeyword("extend");
     this.expectKeyword("schema");
     const directives = this.parseConstDirectives();
-    const operationTypes = this.optionalMany(TokenKind.BRACE_L, this.parseOperationTypeDefinition, TokenKind.BRACE_R);
+    const operationTypes = this.optionalMany(
+      TokenKind.BRACE_L,
+      this.parseOperationTypeDefinition,
+      TokenKind.BRACE_R
+    );
     if (directives.length === 0 && operationTypes.length === 0) {
       throw this.unexpected();
     }
@@ -2135,10 +2370,59 @@ class Parser {
     }
     throw this.unexpected(start);
   }
+  parseSchemaCoordinate() {
+    const start = this._lexer.token;
+    const ofDirective = this.expectOptionalToken(TokenKind.AT);
+    const name = this.parseName();
+    let memberName;
+    if (!ofDirective && this.expectOptionalToken(TokenKind.DOT)) {
+      memberName = this.parseName();
+    }
+    let argumentName;
+    if ((ofDirective || memberName) && this.expectOptionalToken(TokenKind.PAREN_L)) {
+      argumentName = this.parseName();
+      this.expectToken(TokenKind.COLON);
+      this.expectToken(TokenKind.PAREN_R);
+    }
+    if (ofDirective) {
+      if (argumentName) {
+        return this.node(start, {
+          kind: Kind.DIRECTIVE_ARGUMENT_COORDINATE,
+          name,
+          argumentName
+        });
+      }
+      return this.node(start, {
+        kind: Kind.DIRECTIVE_COORDINATE,
+        name
+      });
+    } else if (memberName) {
+      if (argumentName) {
+        return this.node(start, {
+          kind: Kind.ARGUMENT_COORDINATE,
+          name,
+          fieldName: memberName,
+          argumentName
+        });
+      }
+      return this.node(start, {
+        kind: Kind.MEMBER_COORDINATE,
+        name,
+        memberName
+      });
+    }
+    return this.node(start, {
+      kind: Kind.TYPE_COORDINATE,
+      name
+    });
+  }
   node(startToken, node) {
-    var _this$_options2;
-    if (((_this$_options2 = this._options) === null || _this$_options2 === void 0 ? void 0 : _this$_options2.noLocation) !== true) {
-      node.loc = new Location(startToken, this._lexer.lastToken, this._lexer.source);
+    if (this._options.noLocation !== true) {
+      node.loc = new Location(
+        startToken,
+        this._lexer.lastToken,
+        this._lexer.source
+      );
     }
     return node;
   }
@@ -2148,15 +2432,19 @@ class Parser {
   expectToken(kind) {
     const token = this._lexer.token;
     if (token.kind === kind) {
-      this._lexer.advance();
+      this.advanceLexer();
       return token;
     }
-    throw syntaxError(this._lexer.source, token.start, `Expected ${getTokenKindDesc(kind)}, found ${getTokenDesc(token)}.`);
+    throw syntaxError(
+      this._lexer.source,
+      token.start,
+      `Expected ${getTokenKindDesc(kind)}, found ${getTokenDesc(token)}.`
+    );
   }
   expectOptionalToken(kind) {
     const token = this._lexer.token;
     if (token.kind === kind) {
-      this._lexer.advance();
+      this.advanceLexer();
       return true;
     }
     return false;
@@ -2164,22 +2452,30 @@ class Parser {
   expectKeyword(value) {
     const token = this._lexer.token;
     if (token.kind === TokenKind.NAME && token.value === value) {
-      this._lexer.advance();
+      this.advanceLexer();
     } else {
-      throw syntaxError(this._lexer.source, token.start, `Expected "${value}", found ${getTokenDesc(token)}.`);
+      throw syntaxError(
+        this._lexer.source,
+        token.start,
+        `Expected "${value}", found ${getTokenDesc(token)}.`
+      );
     }
   }
   expectOptionalKeyword(value) {
     const token = this._lexer.token;
     if (token.kind === TokenKind.NAME && token.value === value) {
-      this._lexer.advance();
+      this.advanceLexer();
       return true;
     }
     return false;
   }
   unexpected(atToken) {
     const token = atToken !== null && atToken !== void 0 ? atToken : this._lexer.token;
-    return syntaxError(this._lexer.source, token.start, `Unexpected ${getTokenDesc(token)}.`);
+    return syntaxError(
+      this._lexer.source,
+      token.start,
+      `Unexpected ${getTokenDesc(token)}.`
+    );
   }
   any(openKind, parseFn, closeKind) {
     this.expectToken(openKind);
@@ -2214,6 +2510,20 @@ class Parser {
       nodes.push(parseFn.call(this));
     } while (this.expectOptionalToken(delimiterKind));
     return nodes;
+  }
+  advanceLexer() {
+    const { maxTokens } = this._options;
+    const token = this._lexer.advance();
+    if (token.kind !== TokenKind.EOF) {
+      ++this._tokenCounter;
+      if (maxTokens !== void 0 && this._tokenCounter > maxTokens) {
+        throw syntaxError(
+          this._lexer.source,
+          token.start,
+          `Document contains more that ${maxTokens} tokens. Parsing aborted.`
+        );
+      }
+    }
   }
 }
 function getTokenDesc(token) {
@@ -2385,7 +2695,9 @@ class GraphDataProvider extends ADataProvider {
     });
   }
   getGraphColumn() {
-    const cols = this.options.columns.filter((col) => !["custom", "query"].includes(col.type));
+    const cols = this.options.columns.filter(
+      (col) => !["custom", "query"].includes(col.type)
+    );
     const normalCols = cols.filter((col) => !col.field.match(/\./));
     const refColumn = cols.filter((col) => col.field.match(/\./));
     const normalQuery = normalCols.filter((col) => !col.field.match(/\./)).map((col) => col.field).join("\n");
@@ -2434,8 +2746,7 @@ class GraphDataProvider extends ADataProvider {
     const orderQuery = this.getOrderQuery(order);
     const searchQuery = this.getSearchQuery(filter);
     const graphColumn = this.getGraphColumn();
-    const query = `
-      query getData($offset: Int!, $limit: Int!) {
+    const aggregateQuery = this.options.graphqlAggregate ? `
         ${this.resource}_aggregate (
           ${this.options.filterKey}: {
             ${this.options.refFilter}
@@ -2445,6 +2756,10 @@ class GraphDataProvider extends ADataProvider {
         ) {
           ${this.options.aggregateQuery}
         }
+      ` : "";
+    const query = `
+      query getData($offset: Int!, $limit: Int!) {
+        ${aggregateQuery}
         ${this.resource} (
           ${this.options.offsetKey}: $offset,
           ${this.options.limitKey}: $limit,
@@ -2606,13 +2921,15 @@ class RelayDataProvider extends ADataProvider {
       if (typeof node[curr] === "object" && node[curr] && !(node[curr] instanceof Array)) {
         currValue = this.decodeObject(node[curr]);
       }
-      return __spreadProps(__spreadValues({}, acc), {
+      return {
+        ...acc,
         [curr]: currValue
-      });
+      };
     }, {});
-    return __spreadProps(__spreadValues({}, decoded), {
+    return {
+      ...decoded,
       id: this.decodeId(node.id)
-    });
+    };
   }
   decodeId(nodeId) {
     try {
@@ -2624,7 +2941,9 @@ class RelayDataProvider extends ADataProvider {
     }
   }
   getRelayColumn() {
-    const cols = this.options.columns.filter((col) => !["custom", "query"].includes(col.type));
+    const cols = this.options.columns.filter(
+      (col) => !["custom", "query"].includes(col.type)
+    );
     const normalCols = cols.filter((col) => !col.field.match(/\./));
     const refColumn = cols.filter((col) => col.field.match(/\./));
     const normalQuery = normalCols.filter((col) => !col.field.match(/\./)).map((col) => col.field).join("\n");
@@ -2816,15 +3135,21 @@ function useOption(props) {
 }
 function useJsonData(props, option, dataCallback) {
   const baseOptions = useOption(props);
-  const gridOption = computed(() => __spreadValues(__spreadValues({}, baseOptions.value), option));
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
+    ...option
+  }));
   const dataProvider = new JsonDataProvider(props.data, gridOption.value);
   const setDataCollections = () => {
     dataProvider.updateData(props.data);
     dataCallback();
   };
-  watch(() => props.data, () => {
-    setDataCollections();
-  });
+  watch(
+    () => props.data,
+    () => {
+      setDataCollections();
+    }
+  );
   return {
     dataProvider,
     gridOption,
@@ -2841,21 +3166,22 @@ function useLocalValue(props, emit) {
     }
   });
 }
-const _hoisted_1$s = {
+const _hoisted_1$r = {
   key: 0,
   class: "vgrid-pagination"
 };
-const _hoisted_2$n = ["onClick", "innerHTML"];
-const _sfc_main$x = /* @__PURE__ */ defineComponent({
-  name: "Pagination",
+const _hoisted_2$l = ["onClick", "innerHTML"];
+const _sfc_main$x = defineComponent({
+  __name: "Pagination",
   props: {
-    modelValue: null,
+    modelValue: {},
     limit: { default: 10 },
     total: { default: 0 }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const totalPage = computed(() => {
       if (!(props.total % props.limit)) {
@@ -2917,9 +3243,9 @@ const _sfc_main$x = /* @__PURE__ */ defineComponent({
       localValue.value = page;
     };
     return (_ctx, _cache) => {
-      return unref(totalPage) > 1 ? (openBlock(), createElementBlock("nav", _hoisted_1$s, [
+      return totalPage.value > 1 ? (openBlock(), createElementBlock("nav", _hoisted_1$r, [
         createElementVNode("ul", null, [
-          (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pages), (item, index) => {
+          (openBlock(true), createElementBlock(Fragment, null, renderList(pages.value, (item, index) => {
             return openBlock(), createElementBlock("li", {
               class: normalizeClass({ active: item.page === unref(localValue), disabled: item.disable }),
               key: index
@@ -2928,7 +3254,7 @@ const _sfc_main$x = /* @__PURE__ */ defineComponent({
                 href: "javascript:;",
                 onClick: ($event) => onPageChange(item.page),
                 innerHTML: item.label
-              }, null, 8, _hoisted_2$n)
+              }, null, 8, _hoisted_2$l)
             ], 2);
           }), 128))
         ])
@@ -2936,20 +3262,21 @@ const _sfc_main$x = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$r = {
+const _hoisted_1$q = {
   key: 0,
   class: "vgrid-pagination vgrid-pagination--cursor"
 };
-const _hoisted_2$m = ["onClick", "innerHTML", "title"];
-const _sfc_main$w = /* @__PURE__ */ defineComponent({
-  name: "CursorPagination",
+const _hoisted_2$k = ["onClick", "innerHTML", "title"];
+const _sfc_main$w = defineComponent({
+  __name: "CursorPagination",
   props: {
-    modelValue: null,
+    modelValue: {},
     meta: { default: {} }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const pages = computed(() => {
       var _a, _b, _c, _d;
@@ -2972,9 +3299,9 @@ const _sfc_main$w = /* @__PURE__ */ defineComponent({
       localValue.value = page;
     };
     return (_ctx, _cache) => {
-      return __props.meta ? (openBlock(), createElementBlock("nav", _hoisted_1$r, [
+      return __props.meta ? (openBlock(), createElementBlock("nav", _hoisted_1$q, [
         createElementVNode("ul", null, [
-          (openBlock(true), createElementBlock(Fragment, null, renderList(unref(pages), (item, index) => {
+          (openBlock(true), createElementBlock(Fragment, null, renderList(pages.value, (item, index) => {
             return openBlock(), createElementBlock("li", {
               class: normalizeClass({ disabled: item.disable }),
               key: index
@@ -2984,7 +3311,7 @@ const _sfc_main$w = /* @__PURE__ */ defineComponent({
                 onClick: ($event) => onPageChange(item.page),
                 innerHTML: item.label,
                 title: item.title
-              }, null, 8, _hoisted_2$m)
+              }, null, 8, _hoisted_2$k)
             ], 2);
           }), 128))
         ])
@@ -3035,78 +3362,12 @@ function useColumnType(props) {
     classes
   };
 }
-const _hoisted_1$q = ["innerHTML"];
-const _sfc_main$v = /* @__PURE__ */ defineComponent({
-  name: "Basic",
-  props: {
-    column: null,
-    data: null,
-    resize: { type: Boolean, default: false }
-  },
-  setup(__props) {
-    const props = __props;
-    const { text, classes } = useColumnType(props);
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        class: normalizeClass(["vgrid-field", unref(classes)])
-      }, [
-        renderSlot(_ctx.$slots, "default", {}, () => [
-          createElementVNode("span", { innerHTML: unref(text) }, null, 8, _hoisted_1$q)
-        ])
-      ], 2);
-    };
-  }
-});
-const _sfc_main$u = /* @__PURE__ */ defineComponent({
-  name: "DateTime",
-  props: {
-    column: null,
-    data: null,
-    resize: { type: Boolean, default: false }
-  },
-  setup(__props) {
-    const props = __props;
-    const { text, classes } = useColumnType(props);
-    const date = computed(() => text.value);
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        class: normalizeClass(["vgrid-field", unref(classes)])
-      }, [
-        renderSlot(_ctx.$slots, "default", {}, () => [
-          createElementVNode("span", null, toDisplayString(unref(date)), 1)
-        ])
-      ], 2);
-    };
-  }
-});
-const _sfc_main$t = /* @__PURE__ */ defineComponent({
-  name: "Timestamp",
-  props: {
-    column: null,
-    data: null,
-    resize: { type: Boolean, default: false }
-  },
-  setup(__props) {
-    const props = __props;
-    const { text, classes } = useColumnType(props);
-    const timestamp = computed(() => text.value);
-    return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", {
-        class: normalizeClass(["vgrid-field", unref(classes)])
-      }, [
-        renderSlot(_ctx.$slots, "default", {}, () => [
-          createElementVNode("span", null, toDisplayString(unref(timestamp)), 1)
-        ])
-      ], 2);
-    };
-  }
-});
 const _hoisted_1$p = ["innerHTML"];
-const _sfc_main$s = /* @__PURE__ */ defineComponent({
-  name: "Custom",
+const _sfc_main$v = defineComponent({
+  __name: "Basic",
   props: {
-    column: null,
-    data: null,
+    column: {},
+    data: {},
     resize: { type: Boolean, default: false }
   },
   setup(__props) {
@@ -3123,11 +3384,77 @@ const _sfc_main$s = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$r = /* @__PURE__ */ defineComponent({
-  name: "ColumnType",
+const _sfc_main$u = defineComponent({
+  __name: "DateTime",
   props: {
-    column: null,
-    data: null,
+    column: {},
+    data: {},
+    resize: { type: Boolean, default: false }
+  },
+  setup(__props) {
+    const props = __props;
+    const { text, classes } = useColumnType(props);
+    const date = computed(() => text.value);
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["vgrid-field", unref(classes)])
+      }, [
+        renderSlot(_ctx.$slots, "default", {}, () => [
+          createElementVNode("span", null, toDisplayString(date.value), 1)
+        ])
+      ], 2);
+    };
+  }
+});
+const _sfc_main$t = defineComponent({
+  __name: "Timestamp",
+  props: {
+    column: {},
+    data: {},
+    resize: { type: Boolean, default: false }
+  },
+  setup(__props) {
+    const props = __props;
+    const { text, classes } = useColumnType(props);
+    const timestamp = computed(() => text.value);
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["vgrid-field", unref(classes)])
+      }, [
+        renderSlot(_ctx.$slots, "default", {}, () => [
+          createElementVNode("span", null, toDisplayString(timestamp.value), 1)
+        ])
+      ], 2);
+    };
+  }
+});
+const _hoisted_1$o = ["innerHTML"];
+const _sfc_main$s = defineComponent({
+  __name: "Custom",
+  props: {
+    column: {},
+    data: {},
+    resize: { type: Boolean, default: false }
+  },
+  setup(__props) {
+    const props = __props;
+    const { text, classes } = useColumnType(props);
+    return (_ctx, _cache) => {
+      return openBlock(), createElementBlock("div", {
+        class: normalizeClass(["vgrid-field", unref(classes)])
+      }, [
+        renderSlot(_ctx.$slots, "default", {}, () => [
+          createElementVNode("span", { innerHTML: unref(text) }, null, 8, _hoisted_1$o)
+        ])
+      ], 2);
+    };
+  }
+});
+const _sfc_main$r = defineComponent({
+  __name: "ColumnType",
+  props: {
+    column: {},
+    data: {},
     resize: { type: Boolean }
   },
   setup(__props) {
@@ -3170,18 +3497,19 @@ function useColumnFilter(props) {
     classes
   };
 }
-const _hoisted_1$o = { class: "vgrid-text-input" };
-const _hoisted_2$l = ["value", "placeholder"];
-const _sfc_main$q = /* @__PURE__ */ defineComponent({
-  name: "TextInput",
+const _hoisted_1$n = { class: "vgrid-text-input" };
+const _hoisted_2$j = ["value", "placeholder"];
+const _sfc_main$q = defineComponent({
+  __name: "TextInput",
   props: {
     modelValue: { default: "" },
     placeholder: { default: "" },
     clearable: { type: Boolean, default: true }
   },
   emits: ["update:modelValue"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const input = ref(null);
     const typing = ref(false);
@@ -3209,11 +3537,11 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
         }
       });
     };
-    expose({
+    __expose({
       focus
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$o, [
+      return openBlock(), createElementBlock("div", _hoisted_1$n, [
         createElementVNode("input", {
           class: normalizeClass(["vgrid-input", { "vgrid-input--active": unref(localValue) }]),
           ref_key: "input",
@@ -3222,8 +3550,8 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
           value: unref(localValue),
           placeholder: __props.placeholder,
           onInput: onChange
-        }, null, 42, _hoisted_2$l),
-        unref(hasClearable) ? (openBlock(), createElementBlock("a", {
+        }, null, 42, _hoisted_2$j),
+        hasClearable.value ? (openBlock(), createElementBlock("a", {
           key: 0,
           class: "vgrid-input-clear",
           href: "javascript:;",
@@ -3233,15 +3561,16 @@ const _sfc_main$q = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$p = /* @__PURE__ */ defineComponent({
-  name: "Basic",
+const _sfc_main$p = defineComponent({
+  __name: "Basic",
   props: {
-    modelValue: null,
-    column: null
+    modelValue: {},
+    column: {}
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const { classes } = useColumnFilter(props);
     return (_ctx, _cache) => {
@@ -3256,17 +3585,17 @@ const _sfc_main$p = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$n = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Clear selected", -1);
-const _hoisted_2$k = ["value"];
-const _sfc_main$o = /* @__PURE__ */ defineComponent({
-  name: "Dropdown",
+const _hoisted_1$m = ["value"];
+const _sfc_main$o = defineComponent({
+  __name: "Dropdown",
   props: {
-    modelValue: null,
-    column: null
+    modelValue: {},
+    column: {}
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const { classes } = useColumnFilter(props);
     return (_ctx, _cache) => {
@@ -3278,11 +3607,11 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
           ref: "input",
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, [
-          _hoisted_1$n,
+          _cache[1] || (_cache[1] = createElementVNode("option", { value: "" }, "Clear selected", -1)),
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
             return openBlock(), createElementBlock("option", {
               value: value.id + ""
-            }, toDisplayString(value.label), 9, _hoisted_2$k);
+            }, toDisplayString(value.label), 9, _hoisted_1$m);
           }), 256))
         ], 512), [
           [vModelSelect, unref(localValue)]
@@ -3291,10 +3620,10 @@ const _sfc_main$o = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _sfc_main$n = /* @__PURE__ */ defineComponent({
-  name: "ColumnFilter",
+const _sfc_main$n = defineComponent({
+  __name: "ColumnFilter",
   props: {
-    column: null
+    column: {}
   },
   setup(__props) {
     const generateFieldByType = (ftype) => {
@@ -3358,19 +3687,20 @@ function useFilter(props, localValue, el = {}) {
     onEnter
   };
 }
-const _hoisted_1$m = { class: "vgrid-filter-value" };
-const _hoisted_2$j = { class: "vgrid-label--prefix" };
-const _hoisted_3$i = { class: "vgrid-filter-editor" };
-const _hoisted_4$i = { class: "vgrid-filter-label" };
-const _sfc_main$m = /* @__PURE__ */ defineComponent({
-  name: "Basic",
+const _hoisted_1$l = { class: "vgrid-filter-value" };
+const _hoisted_2$i = { class: "vgrid-label--prefix" };
+const _hoisted_3$h = { class: "vgrid-filter-editor" };
+const _hoisted_4$g = { class: "vgrid-filter-label" };
+const _sfc_main$m = defineComponent({
+  __name: "Basic",
   props: {
-    modelValue: null,
-    column: null
+    modelValue: {},
+    column: {}
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const input = ref();
     const {
@@ -3385,19 +3715,22 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid-filter-item", unref(classes)]),
-        onClick: _cache[2] || (_cache[2] = withModifiers((...args) => unref(stopClick) && unref(stopClick)(...args), ["stop"]))
+        onClick: _cache[2] || (_cache[2] = withModifiers(
+          (...args) => unref(stopClick) && unref(stopClick)(...args),
+          ["stop"]
+        ))
       }, [
         createElementVNode("div", {
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$m, [
-            createElementVNode("span", _hoisted_2$j, toDisplayString(__props.column.label) + ":\xA0", 1),
-            createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
+          createElementVNode("span", _hoisted_1$l, [
+            createElementVNode("span", _hoisted_2$i, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("strong", null, toDisplayString(valueInString.value), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$i, [
-          createElementVNode("span", _hoisted_4$i, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$h, [
+          createElementVNode("span", _hoisted_4$g, toDisplayString(__props.column.label) + ":", 1),
           createVNode(_sfc_main$q, {
             class: "vgrid-input-sm",
             ref_key: "input",
@@ -3414,21 +3747,21 @@ const _sfc_main$m = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$l = { class: "vgrid-filter-value" };
-const _hoisted_2$i = { class: "vgrid-label--prefix" };
-const _hoisted_3$h = { class: "vgrid-filter-editor" };
-const _hoisted_4$h = { class: "vgrid-filter-label" };
-const _hoisted_5$g = /* @__PURE__ */ createElementVNode("option", { value: "" }, "Select a value", -1);
-const _hoisted_6$f = ["value"];
-const _sfc_main$l = /* @__PURE__ */ defineComponent({
-  name: "Dropdown",
+const _hoisted_1$k = { class: "vgrid-filter-value" };
+const _hoisted_2$h = { class: "vgrid-label--prefix" };
+const _hoisted_3$g = { class: "vgrid-filter-editor" };
+const _hoisted_4$f = { class: "vgrid-filter-label" };
+const _hoisted_5$f = ["value"];
+const _sfc_main$l = defineComponent({
+  __name: "Dropdown",
   props: {
-    modelValue: null,
-    column: null
+    modelValue: {},
+    column: {}
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const input = ref(null);
     const {
@@ -3449,28 +3782,31 @@ const _sfc_main$l = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid-filter-item", unref(classes)]),
-        onClick: _cache[2] || (_cache[2] = withModifiers((...args) => unref(stopClick) && unref(stopClick)(...args), ["stop"]))
+        onClick: _cache[2] || (_cache[2] = withModifiers(
+          (...args) => unref(stopClick) && unref(stopClick)(...args),
+          ["stop"]
+        ))
       }, [
         createElementVNode("div", {
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$l, [
-            createElementVNode("span", _hoisted_2$i, toDisplayString(__props.column.label) + ":\xA0", 1),
-            createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
+          createElementVNode("span", _hoisted_1$k, [
+            createElementVNode("span", _hoisted_2$h, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("strong", null, toDisplayString(valueInString.value), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$h, [
-          createElementVNode("span", _hoisted_4$h, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$g, [
+          createElementVNode("span", _hoisted_4$f, toDisplayString(__props.column.label) + ":", 1),
           withDirectives(createElementVNode("select", {
             class: "vgrid-input",
             "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => isRef(localValue) ? localValue.value = $event : null)
           }, [
-            _hoisted_5$g,
+            _cache[3] || (_cache[3] = createElementVNode("option", { value: "" }, "Select a value", -1)),
             (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
               return openBlock(), createElementBlock("option", {
                 value: value.id + ""
-              }, toDisplayString(value.label), 9, _hoisted_6$f);
+              }, toDisplayString(value.label), 9, _hoisted_5$f);
             }), 256))
           ], 512), [
             [vModelSelect, unref(localValue)]
@@ -3487,22 +3823,23 @@ function uniqueId(prefix) {
   const rand = Math.floor(1e5 + Math.random() * 9e5);
   return `${p}-${rand}`;
 }
-const _hoisted_1$k = { class: "vgrid-filter-value" };
-const _hoisted_2$h = { class: "vgrid-label--prefix" };
-const _hoisted_3$g = { class: "vgrid-filter-editor" };
-const _hoisted_4$g = { class: "vgrid-filter-label" };
-const _hoisted_5$f = { class: "form-check" };
-const _hoisted_6$e = ["value", "id"];
-const _hoisted_7$e = ["for"];
-const _sfc_main$k = /* @__PURE__ */ defineComponent({
-  name: "Checkbox",
+const _hoisted_1$j = { class: "vgrid-filter-value" };
+const _hoisted_2$g = { class: "vgrid-label--prefix" };
+const _hoisted_3$f = { class: "vgrid-filter-editor" };
+const _hoisted_4$e = { class: "vgrid-filter-label" };
+const _hoisted_5$e = { class: "form-check" };
+const _hoisted_6$d = ["value", "id"];
+const _hoisted_7$d = ["for"];
+const _sfc_main$k = defineComponent({
+  __name: "Checkbox",
   props: {
-    modelValue: null,
-    column: null
+    modelValue: {},
+    column: {}
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     computed(() => uniqueId("vgrid-checkbox-"));
     const {
@@ -3523,34 +3860,37 @@ const _sfc_main$k = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid-filter-item", unref(classes)]),
-        onClick: _cache[2] || (_cache[2] = withModifiers((...args) => unref(stopClick) && unref(stopClick)(...args), ["stop"]))
+        onClick: _cache[2] || (_cache[2] = withModifiers(
+          (...args) => unref(stopClick) && unref(stopClick)(...args),
+          ["stop"]
+        ))
       }, [
         createElementVNode("div", {
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$k, [
-            createElementVNode("span", _hoisted_2$h, toDisplayString(__props.column.label) + ":\xA0", 1),
-            createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
+          createElementVNode("span", _hoisted_1$j, [
+            createElementVNode("span", _hoisted_2$g, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("strong", null, toDisplayString(valueInString.value), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$g, [
-          createElementVNode("span", _hoisted_4$g, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$f, [
+          createElementVNode("span", _hoisted_4$e, toDisplayString(__props.column.label) + ":", 1),
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
-            return openBlock(), createElementBlock("div", _hoisted_5$f, [
+            return openBlock(), createElementBlock("div", _hoisted_5$e, [
               withDirectives(createElementVNode("input", {
                 class: "form-check-input",
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => isRef(localValue) ? localValue.value = $event : null),
                 value: value.id + "",
                 id: __props.column.field + "-" + value.id,
                 type: "checkbox"
-              }, null, 8, _hoisted_6$e), [
+              }, null, 8, _hoisted_6$d), [
                 [vModelCheckbox, unref(localValue)]
               ]),
               createElementVNode("label", {
                 class: "form-check-label",
                 for: __props.column.field + "-" + value.id
-              }, toDisplayString(value.label), 9, _hoisted_7$e)
+              }, toDisplayString(value.label), 9, _hoisted_7$d)
             ]);
           }), 256))
         ], 512), [
@@ -3560,22 +3900,23 @@ const _sfc_main$k = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$j = { class: "vgrid-filter-value" };
-const _hoisted_2$g = { class: "vgrid-label--prefix" };
-const _hoisted_3$f = { class: "vgrid-filter-editor" };
-const _hoisted_4$f = { class: "vgrid-filter-label" };
-const _hoisted_5$e = { class: "form-check" };
-const _hoisted_6$d = ["name", "value", "id"];
-const _hoisted_7$d = ["for"];
-const _sfc_main$j = /* @__PURE__ */ defineComponent({
-  name: "Radio",
+const _hoisted_1$i = { class: "vgrid-filter-value" };
+const _hoisted_2$f = { class: "vgrid-label--prefix" };
+const _hoisted_3$e = { class: "vgrid-filter-editor" };
+const _hoisted_4$d = { class: "vgrid-filter-label" };
+const _hoisted_5$d = { class: "form-check" };
+const _hoisted_6$c = ["name", "value", "id"];
+const _hoisted_7$c = ["for"];
+const _sfc_main$j = defineComponent({
+  __name: "Radio",
   props: {
-    modelValue: null,
-    column: null
+    modelValue: {},
+    column: {}
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const input = ref(null);
     const elName = computed(() => uniqueId("vgrid-radio-"));
@@ -3600,35 +3941,38 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
     return (_ctx, _cache) => {
       return openBlock(), createElementBlock("div", {
         class: normalizeClass(["vgrid-filter-item", unref(classes)]),
-        onClick: _cache[2] || (_cache[2] = withModifiers((...args) => unref(stopClick) && unref(stopClick)(...args), ["stop"]))
+        onClick: _cache[2] || (_cache[2] = withModifiers(
+          (...args) => unref(stopClick) && unref(stopClick)(...args),
+          ["stop"]
+        ))
       }, [
         createElementVNode("div", {
           class: normalizeClass(["vgrid-filter-handle", { active: unref(isEditor), "vgrid-input--active": unref(localValue) }]),
           onClick: _cache[0] || (_cache[0] = (...args) => unref(showEditor) && unref(showEditor)(...args))
         }, [
-          createElementVNode("span", _hoisted_1$j, [
-            createElementVNode("span", _hoisted_2$g, toDisplayString(__props.column.label) + ":\xA0", 1),
-            createElementVNode("strong", null, toDisplayString(unref(valueInString)), 1)
+          createElementVNode("span", _hoisted_1$i, [
+            createElementVNode("span", _hoisted_2$f, toDisplayString(__props.column.label) + ":\xA0", 1),
+            createElementVNode("strong", null, toDisplayString(valueInString.value), 1)
           ])
         ], 2),
-        withDirectives(createElementVNode("div", _hoisted_3$f, [
-          createElementVNode("span", _hoisted_4$f, toDisplayString(__props.column.label) + ":", 1),
+        withDirectives(createElementVNode("div", _hoisted_3$e, [
+          createElementVNode("span", _hoisted_4$d, toDisplayString(__props.column.label) + ":", 1),
           (openBlock(true), createElementBlock(Fragment, null, renderList(__props.column.filter_value, (value) => {
-            return openBlock(), createElementBlock("div", _hoisted_5$e, [
+            return openBlock(), createElementBlock("div", _hoisted_5$d, [
               withDirectives(createElementVNode("input", {
                 class: "form-check-input",
-                name: unref(elName),
+                name: elName.value,
                 "onUpdate:modelValue": _cache[1] || (_cache[1] = ($event) => isRef(localValue) ? localValue.value = $event : null),
                 value: value.id + "",
                 id: __props.column.field + "-" + value.id,
                 type: "radio"
-              }, null, 8, _hoisted_6$d), [
+              }, null, 8, _hoisted_6$c), [
                 [vModelRadio, unref(localValue)]
               ]),
               createElementVNode("label", {
                 class: "form-check-label",
                 for: __props.column.field + "-" + value.id
-              }, toDisplayString(value.label), 9, _hoisted_7$d)
+              }, toDisplayString(value.label), 9, _hoisted_7$c)
             ]);
           }), 256)),
           createElementVNode("div", { class: "text-center mt-2" }, [
@@ -3645,16 +3989,17 @@ const _sfc_main$j = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$i = { class: "vgrid-filter" };
-const _sfc_main$i = /* @__PURE__ */ defineComponent({
-  name: "Filter",
+const _hoisted_1$h = { class: "vgrid-filter" };
+const _sfc_main$i = defineComponent({
+  __name: "Filter",
   props: {
     modelValue: { default: {} },
     columns: { default: () => [] }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const generateFieldByType = (ftype) => {
       let filterItem = _sfc_main$m;
@@ -3672,7 +4017,7 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
       return filterItem;
     };
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$i, [
+      return openBlock(), createElementBlock("div", _hoisted_1$h, [
         (openBlock(true), createElementBlock(Fragment, null, renderList(__props.columns, (col) => {
           return openBlock(), createElementBlock(Fragment, {
             key: col.id
@@ -3689,13 +4034,11 @@ const _sfc_main$i = /* @__PURE__ */ defineComponent({
     };
   }
 });
-const _hoisted_1$h = { class: "vgrid-order" };
-const _hoisted_2$f = { class: "vgrid-select" };
-const _hoisted_3$e = ["value"];
-const _hoisted_4$e = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-label--prefix" }, "Sort:", -1);
-const _hoisted_5$d = ["onClick"];
-const _sfc_main$h = /* @__PURE__ */ defineComponent({
-  name: "Order",
+const _hoisted_1$g = { class: "vgrid-order" };
+const _hoisted_2$e = { class: "vgrid-select" };
+const _hoisted_3$d = ["value"];
+const _sfc_main$h = defineComponent({
+  __name: "Order",
   props: {
     modelValue: { default: () => ({
       by: "",
@@ -3705,8 +4048,9 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
     hasSortType: { type: Boolean, default: true }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const order = computed({
       get: () => ({
         by: props.modelValue ? props.modelValue.by : "",
@@ -3721,9 +4065,10 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
         return order.value.by;
       },
       set: (newVal) => {
-        order.value = __spreadProps(__spreadValues({}, order.value), {
+        order.value = {
+          ...order.value,
           by: newVal
-        });
+        };
       }
     });
     const orderedColumn = computed(() => {
@@ -3734,56 +4079,56 @@ const _sfc_main$h = /* @__PURE__ */ defineComponent({
     });
     const orderableColumn = computed(() => props.columns.filter((c) => c.order));
     const toggleType = () => {
-      order.value = __spreadProps(__spreadValues({}, order.value), {
+      order.value = {
+        ...order.value,
         type: order.value.type === "desc" ? "asc" : "desc"
-      });
+      };
     };
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$h, [
-        createElementVNode("div", _hoisted_2$f, [
+      return openBlock(), createElementBlock("div", _hoisted_1$g, [
+        createElementVNode("div", _hoisted_2$e, [
           withDirectives(createElementVNode("select", {
             class: "vgrid-input",
-            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(orderBy) ? orderBy.value = $event : null)
+            "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => orderBy.value = $event)
           }, [
-            (openBlock(true), createElementBlock(Fragment, null, renderList(unref(orderableColumn), (col) => {
+            (openBlock(true), createElementBlock(Fragment, null, renderList(orderableColumn.value, (col) => {
               return openBlock(), createElementBlock("option", {
                 value: col.field
-              }, toDisplayString(col.label), 9, _hoisted_3$e);
+              }, toDisplayString(col.label), 9, _hoisted_3$d);
             }), 256))
           ], 512), [
-            [vModelSelect, unref(orderBy)]
+            [vModelSelect, orderBy.value]
           ]),
           createElementVNode("label", null, [
-            _hoisted_4$e,
-            createElementVNode("strong", null, toDisplayString(unref(orderedColumn).label), 1)
+            _cache[1] || (_cache[1] = createElementVNode("span", { class: "vgrid-label--prefix" }, "Sort:", -1)),
+            createElementVNode("strong", null, toDisplayString(orderedColumn.value.label), 1)
           ])
         ]),
         __props.hasSortType ? (openBlock(), createElementBlock("button", {
           key: 0,
           class: "vgrid-order-type",
           onClick: withModifiers(toggleType, ["stop"])
-        }, toDisplayString(unref(order).type), 9, _hoisted_5$d)) : createCommentVNode("", true)
+        }, toDisplayString(order.value.type), 1)) : createCommentVNode("", true)
       ]);
     };
   }
 });
-const _hoisted_1$g = { class: "vgrid-size" };
-const _hoisted_2$e = /* @__PURE__ */ createElementVNode("span", null, "Show", -1);
-const _hoisted_3$d = ["value"];
-const _hoisted_4$d = /* @__PURE__ */ createElementVNode("span", null, "entries", -1);
-const _sfc_main$g = /* @__PURE__ */ defineComponent({
-  name: "PageSize",
+const _hoisted_1$f = { class: "vgrid-size" };
+const _hoisted_2$d = ["value"];
+const _sfc_main$g = defineComponent({
+  __name: "PageSize",
   props: {
-    modelValue: null,
+    modelValue: {},
     sizes: { default: () => [5, 10, 20, 50, 100] }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$g, [
-        _hoisted_2$e,
+      return openBlock(), createElementBlock("div", _hoisted_1$f, [
+        _cache[1] || (_cache[1] = createElementVNode("span", null, "Show", -1)),
         withDirectives(createElementVNode("select", {
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, [
@@ -3791,42 +4136,41 @@ const _sfc_main$g = /* @__PURE__ */ defineComponent({
             return openBlock(), createElementBlock("option", {
               value: s,
               key: index
-            }, toDisplayString(s), 9, _hoisted_3$d);
+            }, toDisplayString(s), 9, _hoisted_2$d);
           }), 128))
         ], 512), [
           [vModelSelect, unref(localValue)]
         ]),
-        _hoisted_4$d
+        _cache[2] || (_cache[2] = createElementVNode("span", null, "entries", -1))
       ]);
     };
   }
 });
-const _hoisted_1$f = ["onClick"];
-const _hoisted_2$d = /* @__PURE__ */ createElementVNode("span", null, "Columns visibility", -1);
-const _hoisted_3$c = [
-  _hoisted_2$d
-];
-const _hoisted_4$c = { class: "vgrid-visibility-body" };
-const _hoisted_5$c = ["id", "value"];
-const _hoisted_6$c = ["for"];
-const _hoisted_7$c = ["onClick"];
-const _hoisted_8$c = ["onClick"];
-const _sfc_main$f = /* @__PURE__ */ defineComponent({
-  name: "ColumnsVisibility",
+const _hoisted_1$e = { class: "vgrid-visibility-body" };
+const _hoisted_2$c = ["id", "value"];
+const _hoisted_3$c = ["for"];
+const _hoisted_4$c = ["onClick"];
+const _hoisted_5$c = ["onClick"];
+const _sfc_main$f = defineComponent({
+  __name: "ColumnsVisibility",
   props: {
     modelValue: { default: () => ({}) },
     columns: { default: () => [] }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const showVisibility = ref(false);
     const tempValue = ref([]);
     const columnData = ref([]);
-    watch(() => tempValue.value, () => {
-      updateValue();
-    });
+    watch(
+      () => tempValue.value,
+      () => {
+        updateValue();
+      }
+    );
     const toggleVisibility = () => {
       showVisibility.value = !showVisibility.value;
     };
@@ -3876,8 +4220,10 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
           class: "vgrid-visibility-button",
           type: "button",
           onClick: toggleVisibility
-        }, _hoisted_3$c),
-        withDirectives(createElementVNode("div", _hoisted_4$c, [
+        }, [..._cache[1] || (_cache[1] = [
+          createElementVNode("span", null, "Columns visibility", -1)
+        ])]),
+        withDirectives(createElementVNode("div", _hoisted_1$e, [
           (openBlock(true), createElementBlock(Fragment, null, renderList(columnData.value, (column, index) => {
             return withDirectives((openBlock(), createElementBlock("div", {
               class: "vgrid-visibility-column",
@@ -3888,20 +4234,20 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
                 id: "grid-column-" + column.field,
                 "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => tempValue.value = $event),
                 value: column.field
-              }, null, 8, _hoisted_5$c), [
+              }, null, 8, _hoisted_2$c), [
                 [vModelCheckbox, tempValue.value]
               ]),
               createElementVNode("label", {
                 for: "grid-column-" + column.field
-              }, toDisplayString(unref(useGridHeader)(column.label || column.field)), 9, _hoisted_6$c),
+              }, toDisplayString(unref(useGridHeader)(column.label || column.field)), 9, _hoisted_3$c),
               createElementVNode("button", {
                 class: "vgrid-visibility-down",
                 onClick: ($event) => moveDown(index)
-              }, "\xA0", 8, _hoisted_7$c),
+              }, "\xA0", 8, _hoisted_4$c),
               createElementVNode("button", {
                 class: "vgrid-visibility-up",
                 onClick: ($event) => moveUp(index)
-              }, "\xA0", 8, _hoisted_8$c)
+              }, "\xA0", 8, _hoisted_5$c)
             ])), [
               [vShow, column.type !== "hidden"]
             ]);
@@ -3909,20 +4255,20 @@ const _sfc_main$f = /* @__PURE__ */ defineComponent({
         ], 512), [
           [vShow, showVisibility.value]
         ])
-      ], 8, _hoisted_1$f);
+      ]);
     };
   }
 });
-const _hoisted_1$e = ["onSubmit"];
-const _sfc_main$e = /* @__PURE__ */ defineComponent({
-  name: "Search",
+const _sfc_main$e = defineComponent({
+  __name: "Search",
   props: {
     modelValue: { default: "" },
     placeholder: { default: "Search" }
   },
   emits: ["update:modelValue"],
-  setup(__props, { emit: emits }) {
+  setup(__props, { emit: __emit }) {
     const props = __props;
+    const emits = __emit;
     const localValue = useLocalValue(props, emits);
     const stop = () => ({});
     return (_ctx, _cache) => {
@@ -3935,13 +4281,13 @@ const _sfc_main$e = /* @__PURE__ */ defineComponent({
           modelValue: unref(localValue),
           "onUpdate:modelValue": _cache[0] || (_cache[0] = ($event) => isRef(localValue) ? localValue.value = $event : null)
         }, null, 8, ["placeholder", "modelValue"])
-      ], 40, _hoisted_1$e);
+      ], 32);
     };
   }
 });
 const _hoisted_1$d = { class: "vgrid-status" };
-const _sfc_main$d = /* @__PURE__ */ defineComponent({
-  name: "Status",
+const _sfc_main$d = defineComponent({
+  __name: "Status",
   props: {
     limit: { default: 10 },
     currentPage: { default: 0 },
@@ -3956,14 +4302,13 @@ const _sfc_main$d = /* @__PURE__ */ defineComponent({
       return `Showing ${from + 1} to ${to} of ${props.total} entries`;
     });
     return (_ctx, _cache) => {
-      return openBlock(), createElementBlock("div", _hoisted_1$d, toDisplayString(unref(paginationInfo)), 1);
+      return openBlock(), createElementBlock("div", _hoisted_1$d, toDisplayString(paginationInfo.value), 1);
     };
   }
 });
 const _hoisted_1$c = { class: "vgrid-export-button" };
-const _hoisted_2$c = ["onClick"];
-const _sfc_main$c = /* @__PURE__ */ defineComponent({
-  name: "ExportButton",
+const _sfc_main$c = defineComponent({
+  __name: "ExportButton",
   props: {
     data: { default: () => [] },
     columns: { default: () => [] },
@@ -3994,7 +4339,7 @@ ${body}`;
         createElementVNode("button", {
           type: "button",
           onClick: withModifiers(exportData, ["stop"])
-        }, "Export", 8, _hoisted_2$c)
+        }, "Export")
       ]);
     };
   }
@@ -4017,38 +4362,34 @@ const _hoisted_10$b = {
 };
 const _hoisted_11$b = { key: 1 };
 const _hoisted_12$b = ["colspan"];
-const _hoisted_13$b = { key: 0 };
-const _hoisted_14$b = { key: 1 };
-const _hoisted_15$8 = {
+const _hoisted_13$7 = { key: 0 };
+const _hoisted_14$3 = { key: 1 };
+const _hoisted_15$3 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_16$4 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_17$3 = [
-  _hoisted_16$4
-];
-const _hoisted_18$3 = { class: "vgrid-footer" };
-const _hoisted_19$3 = {
+const _hoisted_16$3 = { class: "vgrid-footer" };
+const _hoisted_17$3 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_20$3 = { class: "vgrid-col-9" };
-const _hoisted_21$3 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_22$3 = { key: 0 };
+const _hoisted_18$3 = { class: "vgrid-col-9" };
+const _hoisted_19$3 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_20$3 = { key: 0 };
 const _sfc_main$b = defineComponent({
-  name: "BasicGrid",
+  __name: "BasicGrid",
   props: {
     data: { default: () => [] },
     searchField: { default: "s" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -4056,7 +4397,7 @@ const _sfc_main$b = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -4064,7 +4405,8 @@ const _sfc_main$b = defineComponent({
     cursorPagination: { type: Boolean, default: false }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -4093,7 +4435,7 @@ const _sfc_main$b = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -4170,7 +4512,7 @@ const _sfc_main$b = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
                           onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
@@ -4210,7 +4552,7 @@ const _sfc_main$b = defineComponent({
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$b, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$b, toDisplayString(__props.strEmptyFilteredData), 1))
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$7, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$3, toDisplayString(__props.strEmptyFilteredData), 1))
                       ], 8, _hoisted_12$b)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
@@ -4246,9 +4588,11 @@ const _sfc_main$b = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$8, _hoisted_17$3)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$3, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_18$3, [
+        createElementVNode("div", _hoisted_16$3, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -4284,12 +4628,12 @@ const _sfc_main$b = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$3, [
-            createElementVNode("div", _hoisted_20$3, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_17$3, [
+            createElementVNode("div", _hoisted_18$3, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_21$3, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$3, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_19$3, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_20$3, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4311,31 +4655,27 @@ const _hoisted_8$a = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9$a = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10$a = [
-  _hoisted_9$a
-];
-const _hoisted_11$a = { class: "vgrid-footer" };
-const _hoisted_12$a = {
+const _hoisted_9$a = { class: "vgrid-footer" };
+const _hoisted_10$a = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13$a = { class: "vgrid-col-9" };
-const _hoisted_14$a = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15$7 = { key: 0 };
+const _hoisted_11$a = { class: "vgrid-col-9" };
+const _hoisted_12$a = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_13$6 = { key: 0 };
 const _sfc_main$a = defineComponent({
-  name: "BasicCards",
+  __name: "BasicCards",
   props: {
     data: { default: () => [] },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -4343,7 +4683,7 @@ const _sfc_main$a = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -4351,7 +4691,8 @@ const _sfc_main$a = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -4380,7 +4721,7 @@ const _sfc_main$a = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -4484,9 +4825,11 @@ const _sfc_main$a = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$a, _hoisted_10$a)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$a, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11$a, [
+        createElementVNode("div", _hoisted_9$a, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -4522,12 +4865,12 @@ const _sfc_main$a = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$a, [
-            createElementVNode("div", _hoisted_13$a, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_10$a, [
+            createElementVNode("div", _hoisted_11$a, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_14$a, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$7, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_12$a, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_13$6, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4548,31 +4891,27 @@ const _hoisted_7$9 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_8$9 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_9$9 = [
-  _hoisted_8$9
-];
-const _hoisted_10$9 = { class: "vgrid-footer" };
-const _hoisted_11$9 = {
+const _hoisted_8$9 = { class: "vgrid-footer" };
+const _hoisted_9$9 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_12$9 = { class: "vgrid-col-9" };
-const _hoisted_13$9 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_14$9 = { key: 0 };
+const _hoisted_10$9 = { class: "vgrid-col-9" };
+const _hoisted_11$9 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_12$9 = { key: 0 };
 const _sfc_main$9 = defineComponent({
-  name: "BasicList",
+  __name: "BasicList",
   props: {
     data: { default: () => [] },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -4580,7 +4919,7 @@ const _sfc_main$9 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -4588,7 +4927,8 @@ const _sfc_main$9 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -4617,7 +4957,7 @@ const _sfc_main$9 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -4715,9 +5055,11 @@ const _sfc_main$9 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$9, _hoisted_9$9)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$9, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_10$9, [
+        createElementVNode("div", _hoisted_8$9, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -4753,12 +5095,12 @@ const _sfc_main$9 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$9, [
-            createElementVNode("div", _hoisted_12$9, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_9$9, [
+            createElementVNode("div", _hoisted_10$9, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_13$9, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$9, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_11$9, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_12$9, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -4793,7 +5135,11 @@ function useAjaxData(props, option) {
     fetchData: vGridOptions.fetchData,
     cancelToken: vGridOptions.cancelToken
   }));
-  const gridOption = computed(() => __spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), ajaxOptions.value), option));
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
+    ...ajaxOptions.value,
+    ...option
+  }));
   const dataProvider = new AjaxDataProvider(props.resource, gridOption.value);
   return {
     dataProvider,
@@ -4818,38 +5164,34 @@ const _hoisted_10$8 = {
 };
 const _hoisted_11$8 = { key: 1 };
 const _hoisted_12$8 = ["colspan"];
-const _hoisted_13$8 = { key: 0 };
-const _hoisted_14$8 = { key: 1 };
-const _hoisted_15$6 = {
+const _hoisted_13$5 = { key: 0 };
+const _hoisted_14$2 = { key: 1 };
+const _hoisted_15$2 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_16$3 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_17$2 = [
-  _hoisted_16$3
-];
-const _hoisted_18$2 = { class: "vgrid-footer" };
-const _hoisted_19$2 = {
+const _hoisted_16$2 = { class: "vgrid-footer" };
+const _hoisted_17$2 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_20$2 = { class: "vgrid-col-9" };
-const _hoisted_21$2 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_22$2 = { key: 0 };
+const _hoisted_18$2 = { class: "vgrid-col-9" };
+const _hoisted_19$2 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_20$2 = { key: 0 };
 const _sfc_main$8 = defineComponent({
-  name: "AjaxGrid",
+  __name: "AjaxGrid",
   props: {
     resource: { default: "" },
     searchField: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -4857,7 +5199,7 @@ const _sfc_main$8 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -4865,7 +5207,8 @@ const _sfc_main$8 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -4891,7 +5234,7 @@ const _sfc_main$8 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -4968,7 +5311,7 @@ const _sfc_main$8 = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
                           onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
@@ -5008,7 +5351,7 @@ const _sfc_main$8 = defineComponent({
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$8, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$8, toDisplayString(__props.strEmptyFilteredData), 1))
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$2, toDisplayString(__props.strEmptyFilteredData), 1))
                       ], 8, _hoisted_12$8)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
@@ -5044,9 +5387,11 @@ const _sfc_main$8 = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$6, _hoisted_17$2)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$2, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_18$2, [
+        createElementVNode("div", _hoisted_16$2, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -5082,12 +5427,12 @@ const _sfc_main$8 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$2, [
-            createElementVNode("div", _hoisted_20$2, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_17$2, [
+            createElementVNode("div", _hoisted_18$2, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_21$2, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$2, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_19$2, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_20$2, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5108,32 +5453,28 @@ const _hoisted_7$7 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_8$7 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_9$7 = [
-  _hoisted_8$7
-];
-const _hoisted_10$7 = { class: "vgrid-footer" };
-const _hoisted_11$7 = {
+const _hoisted_8$7 = { class: "vgrid-footer" };
+const _hoisted_9$7 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_12$7 = { class: "vgrid-col-9" };
-const _hoisted_13$7 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_14$7 = { key: 0 };
+const _hoisted_10$7 = { class: "vgrid-col-9" };
+const _hoisted_11$7 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_12$7 = { key: 0 };
 const _sfc_main$7 = defineComponent({
-  name: "AjaxList",
+  __name: "AjaxList",
   props: {
     resource: { default: "" },
     searchField: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -5141,7 +5482,7 @@ const _sfc_main$7 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -5149,7 +5490,8 @@ const _sfc_main$7 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -5175,7 +5517,7 @@ const _sfc_main$7 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -5273,9 +5615,11 @@ const _sfc_main$7 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$7, _hoisted_9$7)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$7, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_10$7, [
+        createElementVNode("div", _hoisted_8$7, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -5311,12 +5655,12 @@ const _sfc_main$7 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$7, [
-            createElementVNode("div", _hoisted_12$7, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_9$7, [
+            createElementVNode("div", _hoisted_10$7, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_13$7, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$7, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_11$7, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_12$7, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5338,32 +5682,28 @@ const _hoisted_8$6 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9$6 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10$6 = [
-  _hoisted_9$6
-];
-const _hoisted_11$6 = { class: "vgrid-footer" };
-const _hoisted_12$6 = {
+const _hoisted_9$6 = { class: "vgrid-footer" };
+const _hoisted_10$6 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13$6 = { class: "vgrid-col-9" };
-const _hoisted_14$6 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15$5 = { key: 0 };
+const _hoisted_11$6 = { class: "vgrid-col-9" };
+const _hoisted_12$6 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_13$4 = { key: 0 };
 const _sfc_main$6 = defineComponent({
-  name: "AjaxCards",
+  __name: "AjaxCards",
   props: {
     resource: { default: "" },
     searchField: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -5371,7 +5711,7 @@ const _sfc_main$6 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -5379,7 +5719,8 @@ const _sfc_main$6 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -5405,7 +5746,7 @@ const _sfc_main$6 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -5509,9 +5850,11 @@ const _sfc_main$6 = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$6, _hoisted_10$6)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$6, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11$6, [
+        createElementVNode("div", _hoisted_9$6, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -5547,12 +5890,12 @@ const _sfc_main$6 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$6, [
-            createElementVNode("div", _hoisted_13$6, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_10$6, [
+            createElementVNode("div", _hoisted_11$6, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_14$6, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$5, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_12$6, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_13$4, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5566,6 +5909,7 @@ function useGraphData(props, option) {
     limitKey: "limit",
     offsetKey: "offset",
     aggregateQuery: "aggregate { count }",
+    graphqlAggregate: true,
     graphqlFilter: null,
     graphqlOrder: null,
     graphqlDataCounter: null
@@ -5584,11 +5928,16 @@ function useGraphData(props, option) {
     limitKey: vGridOptions.limitKey,
     filterKey: vGridOptions.filterKey,
     aggregateQuery: vGridOptions.aggregateQuery,
+    graphqlAggregate: vGridOptions.graphqlAggregate,
     graphqlFilter: vGridOptions.graphqlFilter,
     graphqlOrder: vGridOptions.graphqlOrder,
     graphqlDataCounter: vGridOptions.graphqlDataCounter
   }));
-  const gridOption = computed(() => __spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), graphOptions.value), option));
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
+    ...graphOptions.value,
+    ...option
+  }));
   const dataProvider = new GraphDataProvider(apolloClient, props.resource, gridOption.value);
   return {
     dataProvider,
@@ -5613,40 +5962,36 @@ const _hoisted_10$5 = {
 };
 const _hoisted_11$5 = { key: 1 };
 const _hoisted_12$5 = ["colspan"];
-const _hoisted_13$5 = { key: 0 };
-const _hoisted_14$5 = { key: 1 };
-const _hoisted_15$4 = {
+const _hoisted_13$3 = { key: 0 };
+const _hoisted_14$1 = { key: 1 };
+const _hoisted_15$1 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_16$2 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_17$1 = [
-  _hoisted_16$2
-];
-const _hoisted_18$1 = { class: "vgrid-footer" };
-const _hoisted_19$1 = {
+const _hoisted_16$1 = { class: "vgrid-footer" };
+const _hoisted_17$1 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_20$1 = { class: "vgrid-col-9" };
-const _hoisted_21$1 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_22$1 = { key: 0 };
+const _hoisted_18$1 = { class: "vgrid-col-9" };
+const _hoisted_19$1 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_20$1 = { key: 0 };
 const _sfc_main$5 = defineComponent({
-  name: "GraphGrid",
+  __name: "GraphGrid",
   props: {
-    resource: null,
-    resourceMeta: null,
-    searchField: null,
+    resource: {},
+    resourceMeta: {},
+    searchField: {},
     refFilter: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -5654,7 +5999,7 @@ const _sfc_main$5 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -5662,7 +6007,8 @@ const _sfc_main$5 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -5688,7 +6034,7 @@ const _sfc_main$5 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -5765,7 +6111,7 @@ const _sfc_main$5 = defineComponent({
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
                           onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
@@ -5805,7 +6151,7 @@ const _sfc_main$5 = defineComponent({
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$5, toDisplayString(__props.strEmptyFilteredData), 1))
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$3, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14$1, toDisplayString(__props.strEmptyFilteredData), 1))
                       ], 8, _hoisted_12$5)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
@@ -5841,9 +6187,11 @@ const _sfc_main$5 = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$4, _hoisted_17$1)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15$1, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_18$1, [
+        createElementVNode("div", _hoisted_16$1, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -5879,12 +6227,12 @@ const _sfc_main$5 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_19$1, [
-            createElementVNode("div", _hoisted_20$1, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_17$1, [
+            createElementVNode("div", _hoisted_18$1, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_21$1, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_22$1, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_19$1, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_20$1, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -5905,34 +6253,30 @@ const _hoisted_7$4 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_8$4 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_9$4 = [
-  _hoisted_8$4
-];
-const _hoisted_10$4 = { class: "vgrid-footer" };
-const _hoisted_11$4 = {
+const _hoisted_8$4 = { class: "vgrid-footer" };
+const _hoisted_9$4 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_12$4 = { class: "vgrid-col-9" };
-const _hoisted_13$4 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_14$4 = { key: 0 };
+const _hoisted_10$4 = { class: "vgrid-col-9" };
+const _hoisted_11$4 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_12$4 = { key: 0 };
 const _sfc_main$4 = defineComponent({
-  name: "GraphList",
+  __name: "GraphList",
   props: {
-    resource: null,
-    resourceMeta: null,
-    searchField: null,
+    resource: {},
+    resourceMeta: {},
+    searchField: {},
     refFilter: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -5940,7 +6284,7 @@ const _sfc_main$4 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -5948,7 +6292,8 @@ const _sfc_main$4 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -5974,7 +6319,7 @@ const _sfc_main$4 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -6072,9 +6417,11 @@ const _sfc_main$4 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$4, _hoisted_9$4)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$4, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_10$4, [
+        createElementVNode("div", _hoisted_8$4, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -6110,12 +6457,12 @@ const _sfc_main$4 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_11$4, [
-            createElementVNode("div", _hoisted_12$4, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_9$4, [
+            createElementVNode("div", _hoisted_10$4, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_13$4, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_14$4, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_11$4, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_12$4, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -6137,34 +6484,30 @@ const _hoisted_8$3 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9$3 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10$3 = [
-  _hoisted_9$3
-];
-const _hoisted_11$3 = { class: "vgrid-footer" };
-const _hoisted_12$3 = {
+const _hoisted_9$3 = { class: "vgrid-footer" };
+const _hoisted_10$3 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13$3 = { class: "vgrid-col-9" };
-const _hoisted_14$3 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15$3 = { key: 0 };
+const _hoisted_11$3 = { class: "vgrid-col-9" };
+const _hoisted_12$3 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_13$2 = { key: 0 };
 const _sfc_main$3 = defineComponent({
-  name: "GraphCards",
+  __name: "GraphCards",
   props: {
-    resource: null,
-    resourceMeta: null,
-    searchField: null,
+    resource: {},
+    resourceMeta: {},
+    searchField: {},
     refFilter: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -6172,7 +6515,7 @@ const _sfc_main$3 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -6180,7 +6523,8 @@ const _sfc_main$3 = defineComponent({
     cursorPagination: { type: Boolean }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -6206,7 +6550,7 @@ const _sfc_main$3 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -6310,9 +6654,11 @@ const _sfc_main$3 = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$3, _hoisted_10$3)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$3, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11$3, [
+        createElementVNode("div", _hoisted_9$3, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -6348,12 +6694,12 @@ const _sfc_main$3 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$3, [
-            createElementVNode("div", _hoisted_13$3, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_10$3, [
+            createElementVNode("div", _hoisted_11$3, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_14$3, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$3, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_12$3, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_13$2, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -6387,7 +6733,10 @@ function useRelayData(props, option) {
     relayFilter: vGridOptions.relayFilter,
     relayOrder: vGridOptions.relayOrder
   }));
-  const gridOption = computed(() => __spreadProps(__spreadValues(__spreadValues(__spreadValues({}, baseOptions.value), relayOptions.value), option), {
+  const gridOption = computed(() => ({
+    ...baseOptions.value,
+    ...relayOptions.value,
+    ...option,
     orderable: false
   }));
   if (!props.sortBy) {
@@ -6400,58 +6749,53 @@ function useRelayData(props, option) {
   };
 }
 const _hoisted_1$2 = { class: "vgrid-header" };
-const _hoisted_2$2 = /* @__PURE__ */ createElementVNode("span", null, "\xA0", -1);
-const _hoisted_3$2 = { class: "vgrid-body" };
-const _hoisted_4$2 = {
+const _hoisted_2$2 = { class: "vgrid-body" };
+const _hoisted_3$2 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_5$2 = { key: 0 };
-const _hoisted_6$2 = { key: 1 };
-const _hoisted_7$2 = { class: "vgrid-responsive" };
-const _hoisted_8$2 = { class: "vgrid-table" };
-const _hoisted_9$2 = ["onClick"];
-const _hoisted_10$2 = { class: "vgrid-field-header-content" };
-const _hoisted_11$2 = {
+const _hoisted_4$2 = { key: 0 };
+const _hoisted_5$2 = { key: 1 };
+const _hoisted_6$2 = { class: "vgrid-responsive" };
+const _hoisted_7$2 = { class: "vgrid-table" };
+const _hoisted_8$2 = ["onClick"];
+const _hoisted_9$2 = { class: "vgrid-field-header-content" };
+const _hoisted_10$2 = {
   key: 0,
   class: "vgrid-table-filter"
 };
-const _hoisted_12$2 = { key: 1 };
-const _hoisted_13$2 = ["colspan"];
-const _hoisted_14$2 = { key: 0 };
-const _hoisted_15$2 = { key: 1 };
-const _hoisted_16$1 = {
+const _hoisted_11$2 = { key: 1 };
+const _hoisted_12$2 = ["colspan"];
+const _hoisted_13$1 = { key: 0 };
+const _hoisted_14 = { key: 1 };
+const _hoisted_15 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_17 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_18 = [
-  _hoisted_17
-];
-const _hoisted_19 = { class: "vgrid-footer" };
-const _hoisted_20 = {
+const _hoisted_16 = { class: "vgrid-footer" };
+const _hoisted_17 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_21 = { class: "vgrid-col-9" };
-const _hoisted_22 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_23 = { key: 0 };
+const _hoisted_18 = { class: "vgrid-col-9" };
+const _hoisted_19 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_20 = { key: 0 };
 const _sfc_main$2 = defineComponent({
-  name: "RelayGrid",
+  __name: "RelayGrid",
   props: {
-    resource: null,
-    resourceMeta: null,
-    searchField: null,
+    resource: {},
+    resourceMeta: {},
+    searchField: {},
     refFilter: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -6459,7 +6803,7 @@ const _sfc_main$2 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -6467,7 +6811,8 @@ const _sfc_main$2 = defineComponent({
     cursorPagination: { type: Boolean, default: true }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -6493,7 +6838,7 @@ const _sfc_main$2 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -6524,7 +6869,7 @@ const _sfc_main$2 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              _hoisted_2$2
+              _cache[6] || (_cache[6] = createElementVNode("span", null, "\xA0", -1))
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
               unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
@@ -6547,27 +6892,27 @@ const _sfc_main$2 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_3$2, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_4$2, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_5$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_6$2, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$2, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$2, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$2, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_7$2, [
-              createElementVNode("table", _hoisted_8$2, [
+            createElementVNode("div", _hoisted_6$2, [
+              createElementVNode("table", _hoisted_7$2, [
                 renderSlot(_ctx.$slots, "table-head", { cols: unref(visibleCols) }, () => [
                   createElementVNode("thead", null, [
                     createElementVNode("tr", null, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("th", {
-                          class: normalizeClass(["vgrid-field-header abcd", col.headerClasses]),
+                          class: normalizeClass(["vgrid-field-header", col.headerClasses]),
                           onClick: withModifiers(($event) => unref(setOrder)(col.field), ["stop"]),
                           key: col.id
                         }, [
-                          createElementVNode("div", _hoisted_10$2, [
+                          createElementVNode("div", _hoisted_9$2, [
                             renderSlot(_ctx.$slots, "column-header-" + col.field, { col }, () => [
                               createElementVNode("span", null, toDisplayString(col.showedLabel), 1),
                               unref(gridOption).orderable && col.order ? (openBlock(), createElementBlock("b", {
@@ -6576,7 +6921,7 @@ const _sfc_main$2 = defineComponent({
                               }, null, 2)) : createCommentVNode("", true)
                             ])
                           ])
-                        ], 10, _hoisted_9$2);
+                        ], 10, _hoisted_8$2);
                       }), 128))
                     ])
                   ])
@@ -6585,7 +6930,7 @@ const _sfc_main$2 = defineComponent({
                   entries: unref(dataState).records
                 }, () => [
                   createElementVNode("tbody", null, [
-                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_11$2, [
+                    __props.columnFilterable && unref(hasColumnFilter) ? (openBlock(), createElementBlock("tr", _hoisted_10$2, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createElementBlock("td", {
                           key: col.field
@@ -6599,12 +6944,12 @@ const _sfc_main$2 = defineComponent({
                         ]);
                       }), 128))
                     ])) : createCommentVNode("", true),
-                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_12$2, [
+                    !unref(hasRecord) ? (openBlock(), createElementBlock("tr", _hoisted_11$2, [
                       createElementVNode("td", {
                         colspan: unref(visibleCols).length
                       }, [
-                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_14$2, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_15$2, toDisplayString(__props.strEmptyFilteredData), 1))
-                      ], 8, _hoisted_13$2)
+                        !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_13$1, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_14, toDisplayString(__props.strEmptyFilteredData), 1))
+                      ], 8, _hoisted_12$2)
                     ])) : (openBlock(true), createElementBlock(Fragment, { key: 2 }, renderList(unref(dataState).records, (entry, entryIndex) => {
                       return openBlock(), createElementBlock("tr", null, [
                         renderSlot(_ctx.$slots, "default", {
@@ -6639,9 +6984,11 @@ const _sfc_main$2 = defineComponent({
               ])
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_16$1, _hoisted_18)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_15, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_19, [
+        createElementVNode("div", _hoisted_16, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -6677,12 +7024,12 @@ const _sfc_main$2 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_20, [
-            createElementVNode("div", _hoisted_21, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_17, [
+            createElementVNode("div", _hoisted_18, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_22, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_23, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_19, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_20, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -6691,47 +7038,42 @@ const _sfc_main$2 = defineComponent({
   }
 });
 const _hoisted_1$1 = { class: "vgrid-header" };
-const _hoisted_2$1 = /* @__PURE__ */ createElementVNode("span", null, "\xA0", -1);
-const _hoisted_3$1 = { class: "vgrid-body" };
-const _hoisted_4$1 = {
+const _hoisted_2$1 = { class: "vgrid-body" };
+const _hoisted_3$1 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_5$1 = { key: 0 };
-const _hoisted_6$1 = { key: 1 };
-const _hoisted_7$1 = { class: "vgrid-entry-wrapper" };
-const _hoisted_8$1 = {
+const _hoisted_4$1 = { key: 0 };
+const _hoisted_5$1 = { key: 1 };
+const _hoisted_6$1 = { class: "vgrid-entry-wrapper" };
+const _hoisted_7$1 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_9$1 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_10$1 = [
-  _hoisted_9$1
-];
-const _hoisted_11$1 = { class: "vgrid-footer" };
-const _hoisted_12$1 = {
+const _hoisted_8$1 = { class: "vgrid-footer" };
+const _hoisted_9$1 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_13$1 = { class: "vgrid-col-9" };
-const _hoisted_14$1 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_15$1 = { key: 0 };
+const _hoisted_10$1 = { class: "vgrid-col-9" };
+const _hoisted_11$1 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_12$1 = { key: 0 };
 const _sfc_main$1 = defineComponent({
-  name: "RelayList",
+  __name: "RelayList",
   props: {
-    resource: null,
-    resourceMeta: null,
-    searchField: null,
+    resource: {},
+    resourceMeta: {},
+    searchField: {},
     refFilter: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -6739,7 +7081,7 @@ const _sfc_main$1 = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -6747,7 +7089,8 @@ const _sfc_main$1 = defineComponent({
     cursorPagination: { type: Boolean, default: true }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -6773,7 +7116,7 @@ const _sfc_main$1 = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -6804,7 +7147,7 @@ const _sfc_main$1 = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              _hoisted_2$1
+              _cache[6] || (_cache[6] = createElementVNode("span", null, "\xA0", -1))
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
               unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
@@ -6827,9 +7170,9 @@ const _sfc_main$1 = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_3$1, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_4$1, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_5$1, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_6$1, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2$1, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3$1, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4$1, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5$1, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
@@ -6837,7 +7180,7 @@ const _sfc_main$1 = defineComponent({
             visibleCols: unref(visibleCols)
           }, () => [
             (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
-              return openBlock(), createElementBlock("div", _hoisted_7$1, [
+              return openBlock(), createElementBlock("div", _hoisted_6$1, [
                 renderSlot(_ctx.$slots, "default", {
                   entry,
                   index: entryIndex,
@@ -6864,9 +7207,11 @@ const _sfc_main$1 = defineComponent({
               ]);
             }), 256))
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8$1, _hoisted_10$1)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_7$1, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_11$1, [
+        createElementVNode("div", _hoisted_8$1, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -6902,12 +7247,12 @@ const _sfc_main$1 = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_12$1, [
-            createElementVNode("div", _hoisted_13$1, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_9$1, [
+            createElementVNode("div", _hoisted_10$1, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_14$1, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_15$1, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_11$1, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_12$1, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -6916,48 +7261,43 @@ const _sfc_main$1 = defineComponent({
   }
 });
 const _hoisted_1 = { class: "vgrid-header" };
-const _hoisted_2 = /* @__PURE__ */ createElementVNode("span", null, "\xA0", -1);
-const _hoisted_3 = { class: "vgrid-body" };
-const _hoisted_4 = {
+const _hoisted_2 = { class: "vgrid-body" };
+const _hoisted_3 = {
   key: 0,
   class: "vgrid-nodata"
 };
-const _hoisted_5 = { key: 0 };
-const _hoisted_6 = { key: 1 };
-const _hoisted_7 = { class: "vgrid-row" };
-const _hoisted_8 = { class: "vgrid-entry-wrapper" };
-const _hoisted_9 = {
+const _hoisted_4 = { key: 0 };
+const _hoisted_5 = { key: 1 };
+const _hoisted_6 = { class: "vgrid-row" };
+const _hoisted_7 = { class: "vgrid-entry-wrapper" };
+const _hoisted_8 = {
   key: 2,
   class: "vgrid-loader"
 };
-const _hoisted_10 = /* @__PURE__ */ createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1);
-const _hoisted_11 = [
-  _hoisted_10
-];
-const _hoisted_12 = { class: "vgrid-footer" };
-const _hoisted_13 = {
+const _hoisted_9 = { class: "vgrid-footer" };
+const _hoisted_10 = {
   key: 0,
   class: "vgrid-devbar"
 };
-const _hoisted_14 = { class: "vgrid-col-9" };
-const _hoisted_15 = { class: "vgrid-col-3 vgrid-align-right" };
-const _hoisted_16 = { key: 0 };
+const _hoisted_11 = { class: "vgrid-col-9" };
+const _hoisted_12 = { class: "vgrid-col-3 vgrid-align-right" };
+const _hoisted_13 = { key: 0 };
 const _sfc_main = defineComponent({
-  name: "RelayCards",
+  __name: "RelayCards",
   props: {
-    resource: null,
-    resourceMeta: null,
-    searchField: null,
+    resource: {},
+    resourceMeta: {},
+    searchField: {},
     refFilter: { default: "" },
     columns: { default: () => [] },
-    perPage: null,
+    perPage: {},
     filterable: { type: Boolean, default: true },
     columnFilterable: { type: Boolean, default: false },
     columnVisible: { type: Boolean, default: false },
     searchable: { type: Boolean, default: true },
-    searchPlaceholder: null,
+    searchPlaceholder: {},
     orderable: { type: Boolean, default: false },
-    sortBy: null,
+    sortBy: {},
     sortType: { default: "desc" },
     statusable: { type: Boolean, default: true },
     pagable: { type: Boolean, default: true },
@@ -6965,7 +7305,7 @@ const _sfc_main = defineComponent({
     strEmptyFilteredData: { default: "No data matched" },
     strEmptyData: { default: "Empty data" },
     exportable: { type: Boolean, default: false },
-    exportFileName: null,
+    exportFileName: {},
     colMd: { default: 6 },
     colLg: { default: 4 },
     colXl: { default: 3 },
@@ -6973,7 +7313,8 @@ const _sfc_main = defineComponent({
     cursorPagination: { type: Boolean, default: true }
   },
   emits: ["data-changed"],
-  setup(__props, { expose, emit: emits }) {
+  setup(__props, { expose: __expose, emit: __emit }) {
+    const emits = __emit;
     const props = __props;
     const {
       gridOption,
@@ -6999,7 +7340,7 @@ const _sfc_main = defineComponent({
     } = useGrid(props, emits, dataProvider, gridOption, ["refFilter"]);
     setColumnVisibility();
     getData2();
-    expose({
+    __expose({
       dataState,
       gridState,
       getData: getData2,
@@ -7030,7 +7371,7 @@ const _sfc_main = defineComponent({
               }, null, 8, ["modelValue", "columns"])) : createCommentVNode("", true)
             ]),
             renderSlot(_ctx.$slots, "header-order", {}, () => [
-              _hoisted_2
+              _cache[6] || (_cache[6] = createElementVNode("span", null, "\xA0", -1))
             ]),
             renderSlot(_ctx.$slots, "header-column-visibility", {}, () => [
               unref(gridOption).columnVisible ? (openBlock(), createBlock(_sfc_main$f, {
@@ -7053,16 +7394,16 @@ const _sfc_main = defineComponent({
             renderSlot(_ctx.$slots, "header-end")
           ])
         ]),
-        createElementVNode("div", _hoisted_3, [
-          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_4, [
-            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_6, toDisplayString(__props.strEmptyFilteredData), 1))
+        createElementVNode("div", _hoisted_2, [
+          !unref(hasRecord) ? (openBlock(), createElementBlock("div", _hoisted_3, [
+            !unref(isFiltered) ? (openBlock(), createElementBlock("span", _hoisted_4, toDisplayString(__props.strEmptyData), 1)) : (openBlock(), createElementBlock("span", _hoisted_5, toDisplayString(__props.strEmptyFilteredData), 1))
           ])) : createCommentVNode("", true),
           !unref(isEmptyData) ? renderSlot(_ctx.$slots, "body", {
             key: 1,
             entries: unref(dataState).records,
             visibleCols: unref(visibleCols)
           }, () => [
-            createElementVNode("div", _hoisted_7, [
+            createElementVNode("div", _hoisted_6, [
               (openBlock(true), createElementBlock(Fragment, null, renderList(unref(dataState).records, (entry, entryIndex) => {
                 return openBlock(), createElementBlock("div", {
                   class: normalizeClass(["vgrid-col", unref(cardColumnClasses)])
@@ -7072,7 +7413,7 @@ const _sfc_main = defineComponent({
                     index: entryIndex,
                     visibleCols: unref(visibleCols)
                   }, () => [
-                    createElementVNode("div", _hoisted_8, [
+                    createElementVNode("div", _hoisted_7, [
                       (openBlock(true), createElementBlock(Fragment, null, renderList(unref(visibleCols), (col) => {
                         return openBlock(), createBlock(_sfc_main$r, {
                           column: col,
@@ -7096,9 +7437,11 @@ const _sfc_main = defineComponent({
               }), 256))
             ])
           ]) : createCommentVNode("", true),
-          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_9, _hoisted_11)) : createCommentVNode("", true)
+          unref(gridState).isLoading ? (openBlock(), createElementBlock("div", _hoisted_8, [..._cache[7] || (_cache[7] = [
+            createElementVNode("span", { class: "vgrid-sr-only" }, "Loading..", -1)
+          ])])) : createCommentVNode("", true)
         ]),
-        createElementVNode("div", _hoisted_12, [
+        createElementVNode("div", _hoisted_9, [
           renderSlot(_ctx.$slots, "footer", {}, () => [
             renderSlot(_ctx.$slots, "footer-start"),
             renderSlot(_ctx.$slots, "pagesize", {}, () => [
@@ -7134,12 +7477,12 @@ const _sfc_main = defineComponent({
             ]) : createCommentVNode("", true),
             renderSlot(_ctx.$slots, "footer-end")
           ]),
-          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_13, [
-            createElementVNode("div", _hoisted_14, [
+          unref(gridOption).debug ? (openBlock(), createElementBlock("div", _hoisted_10, [
+            createElementVNode("div", _hoisted_11, [
               createElementVNode("pre", null, toDisplayString(unref(gridState).query), 1)
             ]),
-            createElementVNode("div", _hoisted_15, [
-              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_16, "Loading..")) : createCommentVNode("", true)
+            createElementVNode("div", _hoisted_12, [
+              unref(gridState).isLoading ? (openBlock(), createElementBlock("span", _hoisted_13, "Loading..")) : createCommentVNode("", true)
             ])
           ])) : createCommentVNode("", true)
         ])
@@ -7171,6 +7514,7 @@ const VueGridPlugin = {
         limitKey: options.limitKey || "limit",
         offsetKey: options.offsetKey || "offset",
         aggregateQuery: options.aggregateQuery || "aggregate { count }",
+        graphqlAggregate: options.graphqlAggregate,
         graphqlFilter: options.graphqlFilter,
         graphqlOrder: options.graphqlOrder,
         graphqlDataCounter: options.graphqlDataCounter
@@ -7206,7 +7550,12 @@ const VueGridPlugin = {
         getPageIndex: options.getPageIndex
       };
     }
-    const vueGridOptions = __spreadValues(__spreadValues(__spreadValues(__spreadValues({}, gridOption), ajaxOption), graphqlOption), relayOption);
+    const vueGridOptions = {
+      ...gridOption,
+      ...ajaxOption,
+      ...graphqlOption,
+      ...relayOption
+    };
     Vue.provide("$vgrid", vueGridOptions);
   }
 };
