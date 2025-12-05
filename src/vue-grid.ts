@@ -46,6 +46,7 @@ const VueGridPlugin = {
         limitKey: options.limitKey || 'limit',
         offsetKey: options.offsetKey || 'offset',
         aggregateQuery: options.aggregateQuery || 'aggregate { count }',
+        graphqlAggregate: options.graphqlAggregate,
         graphqlFilter: options.graphqlFilter,
         graphqlOrder: options.graphqlOrder,
         graphqlDataCounter: options.graphqlDataCounter

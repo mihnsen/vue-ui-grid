@@ -139,10 +139,11 @@ app.use(VueGrid, {
 
     return result
   },
+  graphqlAggregate: true,
   graphqlOrder(by: string, type: string) {
     return `order_by: { ${by}: ${type} }`
   },
-  graphqlDataCounter: (data: any) => data.aggregate.count,
+  graphqlDataCounter: (data: any) => data?.aggregate.count,
 
   // Relay
   relay: true,

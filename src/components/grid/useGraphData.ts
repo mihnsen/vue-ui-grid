@@ -8,6 +8,7 @@ export default function(props, option) {
     limitKey: 'limit',
     offsetKey: 'offset',
     aggregateQuery: 'aggregate { count }',
+    graphqlAggregate: true,
     graphqlFilter: null,
     graphqlOrder: null,
     graphqlDataCounter: null
@@ -30,6 +31,7 @@ export default function(props, option) {
     limitKey: vGridOptions.limitKey,
     filterKey: vGridOptions.filterKey,
     aggregateQuery: vGridOptions.aggregateQuery,
+    graphqlAggregate: vGridOptions.graphqlAggregate,
     graphqlFilter: vGridOptions.graphqlFilter,
     graphqlOrder: vGridOptions.graphqlOrder,
     graphqlDataCounter: vGridOptions.graphqlDataCounter,

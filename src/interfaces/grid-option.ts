@@ -36,6 +36,7 @@ export default interface GridOption {
   limitKey?: string;
   resourceMeta?: string;
   refFilter?: string;
+  graphqlAggregate?: boolean;
   graphqlFilter?: (field: string, fieldType: string | any, value: any, filterType: string | any) => string;
   graphqlOrder?: (by: string, type: string) => string;
   aggregateQuery?: string;

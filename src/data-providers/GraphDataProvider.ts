@@ -137,8 +137,8 @@ export default class GraphDataProvider extends ADataProvider {
     const searchQuery = this.getSearchQuery(filter)
     const graphColumn = this.getGraphColumn()
 
-    const query = `
-      query getData($offset: Int!, $limit: Int!) {
+    const aggregateQuery = this.options.graphqlAggregate ?
+      `
         ${this.resource}_aggregate (
           ${this.options.filterKey}: {
             ${this.options.refFilter}
@@ -148,6 +148,12 @@ export default class GraphDataProvider extends ADataProvider {
         ) {
           ${this.options.aggregateQuery}
         }
+      `
+      : '';
+
+    const query = `
+      query getData($offset: Int!, $limit: Int!) {
+        ${aggregateQuery}
         ${this.resource} (
           ${this.options.offsetKey}: $offset,
           ${this.options.limitKey}: $limit,
