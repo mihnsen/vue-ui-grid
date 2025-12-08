@@ -16,7 +16,7 @@ nav.vgrid-pagination.vgrid-pagination--cursor(v-if="meta")
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLocalValue } from '@/utilities/hooks';
+import { useLocalValue } from '../utilities/hooks';
 import type Page from '../interfaces/page'
 
 interface Props {

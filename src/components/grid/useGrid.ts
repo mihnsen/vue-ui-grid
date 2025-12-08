@@ -1,5 +1,5 @@
 import { computed, reactive, ref, watch, inject } from 'vue'
-import { useGridHeader } from '@/utilities/filters';
+import { useGridHeader } from '../../utilities/filters';
 import type Order from '../../interfaces/order'
 import type GridOption from '../../interfaces/grid-option'
 import type GridState from '../../interfaces/grid-state'

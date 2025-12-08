@@ -15,8 +15,8 @@ block input
 </template>
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLocalValue } from '@/utilities/hooks'
-import { uniqueId } from '@/use/UniqueId'
+import { useLocalValue } from '../../utilities/hooks'
+import { uniqueId } from '../../use/UniqueId'
 import useFilter from './useFilter'
 
 interface Props {

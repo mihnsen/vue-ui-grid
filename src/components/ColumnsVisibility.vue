@@ -30,8 +30,8 @@
 </template>
 <script setup lang="ts">
 import { computed, watch, ref, onMounted, onBeforeUnmount } from 'vue'
-import { useLocalValue } from '@/utilities/hooks'
-import { useGridHeader } from '@/utilities/filters';
+import { useLocalValue } from '../utilities/hooks'
+import { useGridHeader } from '../utilities/filters';
 import type ColumnOption from '../interfaces/column-option'
 
 interface Props {

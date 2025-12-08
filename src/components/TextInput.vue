@@ -16,7 +16,7 @@
 </template>
 <script setup lang="ts">
 import { computed, ref, nextTick } from 'vue'
-import { useLocalValue } from '@/utilities/hooks';
+import { useLocalValue } from '../utilities/hooks';
 
 interface Props {
   modelValue?: string;

@@ -12,7 +12,7 @@
     )
 </template>
 <script setup lang="ts">
-import { useLocalValue } from '@/utilities/hooks'
+import { useLocalValue } from '../utilities/hooks'
 import Basic from './filters/Basic.vue'
 import Dropdown from './filters/Dropdown.vue'
 import Checkbox from './filters/Checkbox.vue'

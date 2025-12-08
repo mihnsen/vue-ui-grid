@@ -3,7 +3,7 @@ extends Basic.pug
 </template>
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useLocalValue } from '@/utilities/hooks'
+import { useLocalValue } from '../../utilities/hooks'
 import useColumnFilter from './useColumnFilter'
 import TextInput from '../TextInput.vue'
 
