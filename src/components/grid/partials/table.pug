@@ -17,7 +17,7 @@ slot(
       )
         thead
           tr
-            th.vgrid-field-header.abcd(
+            th.vgrid-field-header(
               v-for="col in visibleCols",
               @click.stop="setOrder(col.field)",
               :class="col.headerClasses"
